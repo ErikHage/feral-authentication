@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  feral-authentication:
+    restart: always
+    image: ehage/feral-authentication:${VERSION_TAG}
+    container_name: feral-authentication
+    ports:
+      - '33458:80'
