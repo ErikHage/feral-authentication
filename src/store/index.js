@@ -6,6 +6,7 @@ export const useUser = defineStore('user', {
     actions: {
         async authenticate(username, password) {
             try {
+                // todo need to persist this token somewhere for when the page gets reloaded
                 this.token = await loginApi.login(username, password);
                 this.showAppBar = true;
                 this.alert = {
