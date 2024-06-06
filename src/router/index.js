@@ -21,4 +21,11 @@ const router = createRouter({
     routes
 });
 
+router.beforeEach(async (to, from) => {
+    const token = localStorage.getItem('x-feral-auth-token');
+    if (!token && to.name !== 'Login') { // ❗️ Avoid an infinite redirect
+        return { name: 'Login' }
+    }
+})
+
 export default router;
