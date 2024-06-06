@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import loginApi from './js/login-api';
+import loginApi from './api/login-api';
 
 export default {
   name: 'App',
