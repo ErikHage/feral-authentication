@@ -1,23 +1,20 @@
 <template>
   <v-app>
+    <v-app-bar app>
+      <v-toolbar-title>Feral Authentication</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn text to="/">Login</v-btn>
+      <v-btn text to="/apps">Apps</v-btn>
+    </v-app-bar>
     <v-main>
-      <FeralAuthenticationApp/>
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import FeralAuthenticationApp from "@/components/FeralAuthenticationApp.vue";
 
 export default {
   name: 'App',
-
-  components: {
-    FeralAuthenticationApp,
-  },
-
-  data: () => ({
-    //
-  }),
 }
 </script>

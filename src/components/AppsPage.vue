@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <h1>Apps Page</h1>
     <v-row class="text-center">
 
     </v-row>
@@ -21,6 +22,6 @@ export default {
   methods: {
 
   },
-  name: 'VigilantHarvestApp',
+  name: 'AppsPage',
 }
 </script>
