@@ -33,6 +33,8 @@
               ></v-text-field>
 
               <v-btn type="submit" color="primary" class="mt-3">Submit</v-btn>
+
+              <v-alert v-if="error" type="error" class="mt-3">{{ error }}</v-alert>
             </v-form>
           </v-card-text>
         </v-card>
@@ -42,6 +44,7 @@
 </template>
 
 <script>
+import loginApi from '../js/login-api';
 
 export default {
   name: 'LoginPage',
@@ -49,10 +52,16 @@ export default {
   data: () => ({
     username: '',
     password: '',
+    error: '',
   }),
   methods: {
-    login() {
-      // call the backend api to log in and get a session id cookie
+    async login() {
+      try {
+        await loginApi.login(this.username, this.password);
+        this.$router.push('/apps');
+      } catch (err) {
+        this.error = err.message;
+      }
     },
   },
 }
