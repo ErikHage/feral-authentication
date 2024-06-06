@@ -32,9 +32,12 @@
                   required
               ></v-text-field>
 
-              <v-btn type="submit" color="primary" class="mt-3">Submit</v-btn>
+              <div class="text-center">
+                <v-btn v-if="!loading" type="submit" color="primary" class="mt-3">Submit</v-btn>
+                <v-progress-circular v-else color="primary" indeterminate></v-progress-circular>
+              </div>
 
-              <v-alert v-if="error" type="error" class="mt-3">{{ error }}</v-alert>
+              <v-alert v-if="alert" :type="alert.type" class="mt-3">{{ alert.message }}</v-alert>
             </v-form>
           </v-card-text>
         </v-card>
@@ -52,15 +55,34 @@ export default {
   data: () => ({
     username: '',
     password: '',
-    error: '',
+    loading: false,
+    alert: null,
   }),
   methods: {
+    setAlert(type, message) {
+      this.alert = {
+        type,
+        message,
+      };
+    },
+
+    delayedRedirectToAppsPage() {
+      setTimeout(() => {
+        this.$router.push('/apps');
+      }, 500);
+    },
+
     async login() {
+      this.loading = true;
+
       try {
         await loginApi.login(this.username, this.password);
-        this.$router.push('/apps');
+
+        this.setAlert('success', 'Login Successful!');
+        this.delayedRedirectToAppsPage();
       } catch (err) {
-        this.error = err.message;
+        this.loading = false;
+        this.setAlert('error', err.message);
       }
     },
   },
