@@ -8,8 +8,6 @@ async function login(username, password) {
         });
 
         // todo handle cookie or token
-
-        console.log('success!');
     } catch (err) {
         console.log('Error:', err);
         throw new Error('Error logging in');
