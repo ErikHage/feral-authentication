@@ -4,6 +4,7 @@
     <v-spacer></v-spacer>
     <div v-if="showAppBar() === true">
       <v-btn to="/apps">Apps</v-btn>
+      <v-btn to="/admin">Admin</v-btn>
       <v-btn @click="logoutUser">Logout</v-btn>
     </div>
   </v-app-bar>
