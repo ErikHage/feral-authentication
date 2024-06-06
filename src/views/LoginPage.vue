@@ -1,5 +1,6 @@
 <template>
   <v-container>
+
     <v-row class="justify-center">
       <v-col cols="12" sm="8" md="4">
         <div class="text-center mb-4">
@@ -37,7 +38,7 @@
                 <v-progress-circular v-else color="primary" indeterminate></v-progress-circular>
               </div>
 
-              <v-alert v-if="alert" :type="alert.type" class="mt-3">{{ alert.message }}</v-alert>
+              <v-alert v-if="alert.type" :type="alert.type" class="mt-3">{{ alert.message }}</v-alert>
             </v-form>
           </v-card-text>
         </v-card>
@@ -47,7 +48,8 @@
 </template>
 
 <script>
-import loginApi from '../js/login-api';
+import { useUser } from '@/store';
+import { mapActions, mapState } from "pinia";
 
 export default {
   name: 'LoginPage',
@@ -56,15 +58,15 @@ export default {
     username: '',
     password: '',
     loading: false,
-    alert: null,
   }),
   methods: {
-    setAlert(type, message) {
-      this.alert = {
-        type,
-        message,
-      };
-    },
+    ...mapActions(useUser, {
+        authenticate: 'authenticate',
+    }),
+
+    ...mapState(useUser, {
+        alert: (state => state.alert),
+    }),
 
     delayedRedirectToAppsPage() {
       setTimeout(() => {
@@ -76,13 +78,10 @@ export default {
       this.loading = true;
 
       try {
-        await loginApi.login(this.username, this.password);
-
-        this.setAlert('success', 'Login Successful!');
+        await this.authenticate(this.username, this.password);
         this.delayedRedirectToAppsPage();
       } catch (err) {
         this.loading = false;
-        this.setAlert('error', err.message);
       }
     },
   },

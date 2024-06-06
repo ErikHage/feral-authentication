@@ -7,23 +7,19 @@ async function login(username, password) {
             password,
         });
 
-        localStorage.setItem('feral-auth-token', response.data.token);
+        return response.data.token;
     } catch (err) {
         console.log('Error:', err);
         throw new Error('Error logging in');
     }
 }
 
-async function logout() {
-    const token = localStorage.getItem('feral-auth-token');
-
+async function logout(token) {
     await axios.post('http://localhost:8003/v0/auth/logout', {}, {
         headers: {
             'x-feral-auth-token': token,
         },
     });
-
-    localStorage.removeItem("feral-auth-token");
 }
 
 export default {
