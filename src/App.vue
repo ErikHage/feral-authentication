@@ -23,7 +23,9 @@ export default {
     async logout() {
       try {
         await loginApi.logout();
-        this.$router.push('/login');
+        // this.$router.push('/login');
+        // something to do with the button being outside the router, check this about children:
+        // https://stackoverflow.com/questions/64754889/vuetify-appbar-and-navigation-drawer-and-nested-routes
       } catch (err) {
         console.log(err.message);
         // what to do?

@@ -22,6 +22,8 @@ async function logout() {
             'x-feral-auth-token': token,
         },
     });
+
+    localStorage.removeItem("feral-auth-token");
 }
 
 export default {
