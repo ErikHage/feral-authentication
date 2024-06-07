@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h1>Admin Page</h1>
+    <h2>Admin Page</h2>
     <v-row class="text-center">
 
     </v-row>

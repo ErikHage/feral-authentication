@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia';
+import { jwtDecode } from 'jwt-decode';
 
 import loginApi from '../api/login-api';
+
+function parseActorToken(token) {
+    // gotta be a better way to do this...
+    return JSON.parse(JSON.stringify(jwtDecode(token)));
+}
 
 export const useUser = defineStore('user', {
     actions: {
@@ -21,7 +27,7 @@ export const useUser = defineStore('user', {
                 return false;
             }
         },
-        async logout(){
+        async logout() {
             await loginApi.logout(this.token);
             this.token = null;
             localStorage.removeItem('token');
@@ -31,11 +37,20 @@ export const useUser = defineStore('user', {
     },
     state: () => {
         return {
+            isAdmin: false,
             loading: false,
             token: localStorage.getItem('token' || null),
             error: null,
             errorMessage: '',
             showAppBar: localStorage.getItem('token') !== null,
         };
-    }
+    },
+    getters: {
+        actor(state) {
+            if (state.token !== null) {
+                return parseActorToken(state.token);
+            }
+            return null;
+        },
+    },
 });

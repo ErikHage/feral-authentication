@@ -3,7 +3,7 @@
     <v-toolbar-title>Feral Authentication</v-toolbar-title>
     <v-spacer></v-spacer>
     <div v-if="showAppBar() === true">
-      <v-btn to="/apps">Apps</v-btn>
+      <v-btn to="/dashboard">Dashboard</v-btn>
       <v-btn to="/admin">Admin</v-btn>
       <v-btn @click="logoutUser">Logout</v-btn>
     </div>

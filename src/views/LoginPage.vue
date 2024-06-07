@@ -79,9 +79,9 @@ export default {
         loading: (state) => state.loading,
     }),
 
-    delayedRedirectToAppsPage() {
+    delayedRedirectToDashboard() {
       setTimeout(() => {
-        this.$router.push('/apps');
+        this.$router.push('/dashboard');
       }, 750);
     },
 
@@ -89,7 +89,7 @@ export default {
       const authenticated = await this.authenticate(this.username, this.password);
 
       if (authenticated) {
-        this.delayedRedirectToAppsPage();
+        this.delayedRedirectToDashboard();
       }
     },
   },

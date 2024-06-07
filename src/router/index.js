@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import LoginPage from "@/views/LoginPage.vue";
-import AppsPage from "@/views/AppsPage.vue";
+import Dashboard from "@/views/Dashboard.vue";
 import AdminPage from "@/views/AdminPage.vue";
 
 import { useUser } from '@/store';
@@ -13,9 +13,9 @@ const routes = [
         component: LoginPage
     },
     {
-        path: '/apps',
-        name: 'Apps',
-        component: AppsPage,
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: Dashboard,
     },
     {
         path: '/admin',
@@ -40,8 +40,8 @@ router.beforeEach(async (to, from) => {
 router.beforeEach(async (to, from) => {
     let user = useUser();
     if (user.token && to.name === 'Login') {
-        console.log('already logged in, sending you to Apps');
-        return { name: 'Apps' };
+        console.log('already logged in, sending you to Dashboard');
+        return { name: 'Dashboard' };
     }
 });
 
