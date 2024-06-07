@@ -1,4 +1,4 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia';
 
 import loginApi from '../api/login-api';
 
@@ -6,31 +6,36 @@ export const useUser = defineStore('user', {
     actions: {
         async authenticate(username, password) {
             try {
-                // todo need to persist this token somewhere for when the page gets reloaded
+                this.loading = true;
                 this.token = await loginApi.login(username, password);
+                localStorage.setItem('token', this.token);
                 this.showAppBar = true;
-                this.alert = {
-                    type: 'success',
-                    message: 'Login Successful!',
-                };
+                this.error = null;
+                this.errorMessage = '';
+                this.loading = false;
+                return true;
             } catch (err) {
-                this.alert = {
-                    type: 'error',
-                    message: err.message,
-                };
+                this.error = err;
+                this.errorMessage = err.message;
+                this.loading = false;
+                return false;
             }
         },
         async logout(){
             await loginApi.logout(this.token);
             this.token = null;
+            localStorage.removeItem('token');
             this.showAppBar = false;
+            this.loading = false;
         },
     },
     state: () => {
         return {
-            token: null,
-            alert: null,
-            showAppBar: false,
+            loading: false,
+            token: localStorage.getItem('token' || null),
+            error: null,
+            errorMessage: '',
+            showAppBar: localStorage.getItem('token') !== null,
         };
     }
 });

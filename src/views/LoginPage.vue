@@ -34,11 +34,12 @@
               ></v-text-field>
 
               <div class="text-center">
-                <v-btn v-if="!loading" type="submit" color="primary" class="mt-3">Submit</v-btn>
+                <v-btn v-if="showLoginButton" type="submit" color="primary" class="mt-3">Submit</v-btn>
                 <v-progress-circular v-else color="primary" indeterminate></v-progress-circular>
               </div>
 
-              <v-alert v-if="alert.type" :type="alert.type" class="mt-3">{{ alert.message }}</v-alert>
+              <v-alert v-if="error()" type="error" class="mt-3">{{ errorMessage() }}</v-alert>
+              <v-alert v-if="showSuccessMessage" type="success" class="mt-3">Login Success!</v-alert>
             </v-form>
           </v-card-text>
         </v-card>
@@ -57,31 +58,38 @@ export default {
   data: () => ({
     username: '',
     password: '',
-    loading: false,
   }),
+  computed: {
+    showSuccessMessage() {
+      return this.token() !== null;
+    },
+    showLoginButton() {
+      return !this.loading() && !this.showSuccessMessage
+    }
+  },
   methods: {
     ...mapActions(useUser, {
         authenticate: 'authenticate',
     }),
 
     ...mapState(useUser, {
-        alert: (state => state.alert),
+        error: (state) => state.error,
+        errorMessage: (state) => state.errorMessage,
+        token: (state) => state.token,
+        loading: (state) => state.loading,
     }),
 
     delayedRedirectToAppsPage() {
       setTimeout(() => {
         this.$router.push('/apps');
-      }, 500);
+      }, 750);
     },
 
     async login() {
-      this.loading = true;
+      const authenticated = await this.authenticate(this.username, this.password);
 
-      try {
-        await this.authenticate(this.username, this.password);
+      if (authenticated) {
         this.delayedRedirectToAppsPage();
-      } catch (err) {
-        this.loading = false;
       }
     },
   },
