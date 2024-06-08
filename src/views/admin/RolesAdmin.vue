@@ -10,7 +10,12 @@
             <v-btn color="primary" @click="openDialog()">Add Role</v-btn>
           </v-card-title>
           <v-card-text>
-            <v-data-table :headers="headers" :items="roles" item-key="id">
+            <v-data-table
+                :headers="headers"
+                :items="roles"
+                item-key="id"
+                class="elevation-1"
+            >
               <template #item.actions="{ item }">
                 <v-icon small @click="openDialog(item)">mdi-pencil</v-icon>
                 <v-icon small @click="deleteRole(item.id)">mdi-delete</v-icon>
@@ -61,10 +66,10 @@ export default {
         description: '',
       },
       headers: [
-        { text: 'Scope', value: 'scope' },
-        { text: 'Title', value: 'title' },
-        { text: 'Description', value: 'description' },
-        { text: 'Actions', value: 'actions', sortable: false },
+        { title: 'Scope', key: 'scope' },
+        { title: 'Title', key: 'title' },
+        { title: 'Description', key: 'description' },
+        { title: 'Actions', key: 'actions', sortable: false },
       ],
     };
   },
