@@ -3,19 +3,38 @@ import axios from "axios";
 import { feralAuthenticationServiceUrl } from "@/api/constants";
 
 async function fetchRoles(token) {
-    try {
-        const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/roles`, {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/roles`, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+    return response.data;
+}
+
+async function addRole(token, role) {
+    const response = await axios.post(`${feralAuthenticationServiceUrl.v0.api}/roles`,
+        {
+            ...role,
+        },
+        {
             headers: {
                 'x-feral-auth-token': token,
             },
-        });
-        return response.data;
-    } catch (err) {
-        console.log('Error:', err);
-        throw new Error('Error fetching roles');
-    }
+        },
+    );
+    return response.data;
+}
+
+async function deleteRole(token, roleId) {
+    await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/roles/${roleId}`, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
 }
 
 export default {
     fetchRoles,
+    addRole,
+    deleteRole,
 };

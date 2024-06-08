@@ -13,11 +13,7 @@ function parseActorToken(token) {
 }
 
 function tryToLoadTokenFromStorage() {
-    const token = localStorage.getItem('token') || null;
-
-    console.log('loading token from storage: ', token);
-
-    return token;
+    return localStorage.getItem('token') || null;
 }
 
 function clearTokenFromStorage() {
@@ -77,9 +73,30 @@ export const useUser = defineStore('user', {
 export const useRoles = defineStore('role', {
     actions: {
         async fetchRoles() {
-            this.roles = await rolesApi.fetchRoles(tryToLoadTokenFromStorage());
-            console.log('fetchRoles in store ', this.roles);
+            try {
+                this.roles = await rolesApi.fetchRoles(tryToLoadTokenFromStorage());
+                console.log(this.roles);
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
         },
+        async addRole(role) {
+            try {
+                await rolesApi.addRole(tryToLoadTokenFromStorage(), role);
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
+        },
+        async deleteRole(roleId) {
+            try {
+                await rolesApi.deleteRole(tryToLoadTokenFromStorage(), roleId);
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
+        }
     },
     state: () => {
         return {

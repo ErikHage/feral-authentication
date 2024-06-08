@@ -13,12 +13,11 @@
             <v-data-table
                 :headers="headers"
                 :items="roles"
-                item-key="id"
+                item-key="roleId"
                 class="elevation-1"
             >
               <template #item.actions="{ item }">
-                <v-icon small @click="openDialog(item)">mdi-pencil</v-icon>
-                <v-icon small @click="deleteRole(item.id)">mdi-delete</v-icon>
+                <v-icon small @click="deleteRoleById(item.roleId)">mdi-delete</v-icon>
               </template>
             </v-data-table>
           </v-card-text>
@@ -29,7 +28,7 @@
     <v-dialog v-model="dialog" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="headline">{{ isEditMode ? 'Edit Role' : 'Add Role' }}</span>
+          <span class="headline">Add Role</span>
         </v-card-title>
         <v-card-text>
           <v-form ref="roleForm">
@@ -58,9 +57,7 @@ export default {
   data() {
     return {
       dialog: false,
-      isEditMode: false,
       form: {
-        id: null,
         scope: '',
         title: '',
         description: '',
@@ -79,15 +76,13 @@ export default {
   },
 
   methods: {
-    ...mapActions(useRoles, ['fetchRoles', 'addRole', 'updateRole', 'deleteRole']),
+    ...mapActions(useRoles, ['fetchRoles', 'addRole', 'deleteRole']),
 
     openDialog(role = null) {
       if (role) {
         this.form = { ...role };
-        this.isEditMode = true;
       } else {
         this.resetForm();
-        this.isEditMode = false;
       }
       this.dialog = true;
     },
@@ -96,28 +91,21 @@ export default {
     },
     resetForm() {
       this.form = {
-        id: null,
         scope: '',
         title: '',
         description: '',
       };
     },
-    saveRole() {
+    async saveRole() {
       if (this.$refs.roleForm.validate()) {
-        if (this.isEditMode) {
-          const index = this.roles.findIndex((role) => role.id === this.form.id);
-          if (index !== -1) {
-            this.roles.splice(index, 1, { ...this.form });
-          }
-        } else {
-          this.form.id = Date.now(); // Generate a simple unique id
-          this.roles.push({ ...this.form });
-        }
+        await this.addRole(this.form);
+        await this.fetchRoles();
         this.closeDialog();
       }
     },
-    deleteRole(id) {
-      this.roles = this.roles.filter((role) => role.id !== id);
+    async deleteRoleById(roleId) {
+      await this.deleteRole(roleId);
+      await this.fetchRoles();
     },
   },
 
