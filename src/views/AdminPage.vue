@@ -1,8 +1,10 @@
 <template>
   <v-container>
-    <h2>Admin Page</h2>
+    <v-app-bar app>
+      <v-btn to="/admin/roles">Roles</v-btn>
+    </v-app-bar>
     <v-row class="text-center">
-
+      <router-view/>
     </v-row>
   </v-container>
 </template>

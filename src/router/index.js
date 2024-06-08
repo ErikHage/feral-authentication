@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from "@/views/LoginPage.vue";
 import Dashboard from "@/views/Dashboard.vue";
 import AdminPage from "@/views/AdminPage.vue";
+import RolesAdmin from "@/views/admin/RolesAdmin.vue";
 
 import { useUser } from '@/store';
 
@@ -10,18 +11,37 @@ const routes = [
     {
         path: '/',
         name: 'Login',
-        component: LoginPage
+        component: LoginPage,
+        meta: {
+            requiresAuthenticated: false,
+        },
     },
     {
         path: '/dashboard',
         name: 'Dashboard',
         component: Dashboard,
+        meta: {
+            requiresAuthenticated: true,
+        },
     },
     {
         path: '/admin',
         name: 'Admin',
         component: AdminPage,
-    }
+        meta: {
+            requiresAuthenticated: true,
+        },
+        children: [
+            {
+                path: 'roles',
+                name: 'RolesAdmin',
+                component: RolesAdmin,
+                meta: {
+                    requiresAuthenticated: true,
+                },
+            },
+        ],
+    },
 ];
 
 const router = createRouter({
@@ -29,29 +49,15 @@ const router = createRouter({
     routes
 });
 
-router.beforeEach(async (to, from) => {
-    let user = useUser();
-    if (!user.token && to.name !== 'Login') { // ❗️ Avoid an infinite redirect
+router.beforeEach((to, from) => {
+    const user = useUser();
+    const requiresAuthenticated = to.matched.some(record => record.meta.requiresAuthenticated);
+    // todo required roles in meta too
+
+    if (requiresAuthenticated && !user.isAuthenticated && to.name !== 'Login') { // ❗️ Avoid an infinite redirect
         console.log('sending you back to Login');
         return { name: 'Login' };
     }
 });
-
-router.beforeEach(async (to, from) => {
-    let user = useUser();
-    if (user.token && to.name === 'Login') {
-        console.log('already logged in, sending you to Dashboard');
-        return { name: 'Dashboard' };
-    }
-});
-
-// router.beforeEach(async (to, from) => {
-//     let user = useUser();
-//     if (user.token && to.name === 'Admin' && user.isAdmin) {
-//         return { name: 'Admin' };
-//     } else {
-//         return { name: 'Apps' };
-//     }
-// });
 
 export default router;

@@ -61,7 +61,7 @@ export default {
   }),
   computed: {
     showSuccessMessage() {
-      return this.token() !== null;
+      return this.isAuthenticated();
     },
     showLoginButton() {
       return !this.loading() && !this.showSuccessMessage
@@ -75,7 +75,7 @@ export default {
     ...mapState(useUser, {
         error: (state) => state.error,
         errorMessage: (state) => state.errorMessage,
-        token: (state) => state.token,
+        isAuthenticated: (state) => state.isAuthenticated,
         loading: (state) => state.loading,
     }),
 
@@ -86,13 +86,19 @@ export default {
     },
 
     async login() {
-      const authenticated = await this.authenticate(this.username, this.password);
+      await this.authenticate(this.username, this.password);
 
-      if (authenticated) {
+      if (this.isAuthenticated()) {
         this.delayedRedirectToDashboard();
       }
     },
   },
+
+  mounted() {
+    if (this.isAuthenticated()) {
+      this.delayedRedirectToDashboard();
+    }
+  }
 }
 </script>
 
