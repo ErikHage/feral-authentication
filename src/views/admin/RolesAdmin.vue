@@ -17,7 +17,7 @@
                 class="elevation-1"
             >
               <template #item.actions="{ item }">
-                <v-icon small @click="deleteRoleById(item.roleId)">mdi-delete</v-icon>
+                <v-icon small @click="openDeleteDialog(item)">mdi-delete</v-icon>
               </template>
             </v-data-table>
           </v-card-text>
@@ -44,6 +44,35 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="deleteDialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span class="headline">Delete Role</span>
+        </v-card-title>
+        <v-card-text class="text-center">
+          <v-table>
+            <tbody>
+            <tr>
+              <th>Scope</th>
+              <td>{{this.roleToDelete?.scope}}</td>
+            </tr>
+            <tr>
+              <th>Title</th>
+              <td>{{this.roleToDelete?.title}}</td>
+            </tr>
+            </tbody>
+          </v-table>
+          <br/>
+          <span class="red-text">Are you sure? This cannot be undone!</span>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="closeDeleteDialog">Cancel</v-btn>
+          <v-btn color="blue darken-1" text @click="deleteRoleById(this.roleToDelete?.roleId)">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -57,6 +86,8 @@ export default {
   data() {
     return {
       dialog: false,
+      deleteDialog: false,
+      roleToDelete: null,
       form: {
         scope: '',
         title: '',
@@ -78,16 +109,20 @@ export default {
   methods: {
     ...mapActions(useRoles, ['fetchRoles', 'addRole', 'deleteRole']),
 
-    openDialog(role = null) {
-      if (role) {
-        this.form = { ...role };
-      } else {
-        this.resetForm();
-      }
+    openDialog() {
+      this.resetForm();
       this.dialog = true;
     },
     closeDialog() {
       this.dialog = false;
+    },
+    openDeleteDialog(role) {
+      this.deleteDialog = true;
+      this.roleToDelete = role;
+    },
+    closeDeleteDialog() {
+      this.deleteDialog = false;
+      this.roleToDelete = null;
     },
     resetForm() {
       this.form = {
@@ -105,6 +140,8 @@ export default {
     },
     async deleteRoleById(roleId) {
       await this.deleteRole(roleId);
+      this.deleteDialog = false;
+      this.roleToDelete = null;
       await this.fetchRoles();
     },
   },
@@ -116,5 +153,8 @@ export default {
 </script>
 
 <style scoped>
-
+  .red-text {
+    color: darkred;
+    font-weight: bold;
+  }
 </style>
