@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import { useUser } from '@/store';
+import { useAuthenticationStore } from '@/store';
 import { mapActions, mapState } from "pinia";
 
 export default {
@@ -68,11 +68,11 @@ export default {
     }
   },
   methods: {
-    ...mapActions(useUser, {
+    ...mapActions(useAuthenticationStore, {
         authenticate: 'authenticate',
     }),
 
-    ...mapState(useUser, {
+    ...mapState(useAuthenticationStore, {
         error: (state) => state.error,
         errorMessage: (state) => state.errorMessage,
         isAuthenticated: (state) => state.isAuthenticated,

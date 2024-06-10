@@ -20,7 +20,7 @@ function clearTokenFromStorage() {
     localStorage.removeItem('token');
 }
 
-export const useUser = defineStore('user', {
+export const useAuthenticationStore = defineStore('authentication', {
     actions: {
         async authenticate(username, password) {
             try {
@@ -70,7 +70,7 @@ export const useUser = defineStore('user', {
     },
 });
 
-export const useRoles = defineStore('role', {
+export const useRolesStore = defineStore('role', {
     actions: {
         async fetchRoles() {
             try {

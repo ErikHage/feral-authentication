@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import { useRoles } from "@/store";
+import { useRolesStore } from "@/store";
 import { mapActions, mapState } from "pinia";
 
 export default {
@@ -103,11 +103,11 @@ export default {
   },
 
   computed: {
-    ...mapState(useRoles, ['roles']),
+    ...mapState(useRolesStore, ['roles']),
   },
 
   methods: {
-    ...mapActions(useRoles, ['fetchRoles', 'addRole', 'deleteRole']),
+    ...mapActions(useRolesStore, ['fetchRoles', 'addRole', 'deleteRole']),
 
     openDialog() {
       this.resetForm();

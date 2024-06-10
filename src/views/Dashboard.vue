@@ -21,13 +21,13 @@
 <script>
 
 import { mapState } from "pinia";
-import { useUser } from "@/store";
+import { useAuthenticationStore } from "@/store";
 
 export default {
   name: 'Dashboard',
 
   methods: {
-    ...mapState(useUser, {
+    ...mapState(useAuthenticationStore, {
       actor: 'actor',
     }),
   },

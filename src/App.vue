@@ -10,7 +10,7 @@
 <script>
 import { mapActions, mapState } from "pinia";
 import AppBar from "@/components/AppBar.vue";
-import { useUser } from "@/store";
+import { useAuthenticationStore } from "@/store";
 
 export default {
   name: 'App',
@@ -18,9 +18,9 @@ export default {
   components: { AppBar },
 
   methods: {
-    ...mapActions(useUser, ['verifyToken']),
+    ...mapActions(useAuthenticationStore, ['verifyToken']),
 
-    ...mapState(useUser, {
+    ...mapState(useAuthenticationStore, {
       isAuthenticated: (state) => state.isAuthenticated,
     }),
   },

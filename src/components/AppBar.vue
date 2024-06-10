@@ -12,17 +12,17 @@
 
 <script>
 import { mapActions, mapState } from "pinia";
-import { useUser } from "@/store";
+import { useAuthenticationStore } from "@/store";
 
 export default {
   name: "AppBar",
 
   methods: {
-    ...mapActions(useUser, {
+    ...mapActions(useAuthenticationStore, {
       logout: 'logout',
     }),
 
-    ...mapState(useUser, {
+    ...mapState(useAuthenticationStore, {
       showAppBar: (state) => state.showAppBar,
     }),
 

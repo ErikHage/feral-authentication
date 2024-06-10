@@ -5,7 +5,7 @@ import Dashboard from "@/views/Dashboard.vue";
 import AdminPage from "@/views/AdminPage.vue";
 import RolesAdmin from "@/views/admin/RolesAdmin.vue";
 
-import { useUser } from '@/store';
+import { useAuthenticationStore } from '@/store';
 import UsersAdmin from "@/views/admin/UsersAdmin.vue";
 
 const routes = [
@@ -59,7 +59,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from) => {
-    const user = useUser();
+    const user = useAuthenticationStore();
     const requiresAuthenticated = to.matched.some(record => record.meta.requiresAuthenticated);
     // todo required roles in meta too
 
