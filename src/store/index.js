@@ -91,3 +91,22 @@ export const useRolesStore = defineStore('role', {
         };
     },
 });
+
+export const useUsersStore = defineStore('users', {
+    actions: {
+        async fetchRoles() {
+            try {
+                this.users = await rolesApi.fetchRoles(storageUtils.tryToLoadTokenFromStorage());
+                console.log(this.users);
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
+        },
+    },
+    state: () => {
+        return {
+            users: [],
+        };
+    }
+});
