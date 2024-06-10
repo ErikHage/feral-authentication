@@ -12,6 +12,10 @@ function parseActorToken(token) {
     return null;
 }
 
+function setTokenInLocalStorage(token) {
+    localStorage.setItem('token', token);
+}
+
 function tryToLoadTokenFromStorage() {
     return localStorage.getItem('token') || null;
 }
@@ -26,7 +30,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             try {
                 this.loading = true;
                 const token = await authenticationApi.login(username, password);
-                localStorage.setItem('token', token);
+                setTokenInLocalStorage(token);
                 this.isAuthenticated = true;
                 this.showAppBar = true;
                 this.error = null;
@@ -44,6 +48,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             clearTokenFromStorage();
             this.showAppBar = false;
             this.loading = false;
+            this.isAuthenticated = false;
         },
         async verifyToken() {
             this.isAuthenticated = await authenticationApi.verifyToken(tryToLoadTokenFromStorage());
@@ -55,7 +60,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             loading: false,
             error: null,
             errorMessage: '',
-            showAppBar: localStorage.getItem('token') !== null,
+            showAppBar: tryToLoadTokenFromStorage() !== null,
         };
     },
     getters: {
