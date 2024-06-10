@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { feralAuthenticationServiceUrl } from "@/api/constants";
+import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
 async function fetchRoles(token) {
     const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/roles`, {

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { feralAuthenticationServiceUrl } from "@/api/constants";
+import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
 async function login(username, password) {
     try {
