@@ -6,6 +6,7 @@ import AdminPage from "@/views/AdminPage.vue";
 import RolesAdmin from "@/views/admin/RolesAdmin.vue";
 
 import { useUser } from '@/store';
+import UsersAdmin from "@/views/admin/UsersAdmin.vue";
 
 const routes = [
     {
@@ -36,6 +37,14 @@ const routes = [
                 path: 'roles',
                 name: 'RolesAdmin',
                 component: RolesAdmin,
+                meta: {
+                    requiresAuthenticated: true,
+                },
+            },
+            {
+                path: 'users',
+                name: 'UsersAdmin',
+                component: UsersAdmin,
                 meta: {
                     requiresAuthenticated: true,
                 },
