@@ -1,28 +1,10 @@
 import { defineStore } from 'pinia';
-import { jwtDecode } from 'jwt-decode';
 
 import authenticationApi from '@/api/authentication-api';
 import rolesApi from "@/api/roles-api";
 
-function parseActorToken(token) {
-    if (token !== null) {
-        // gotta be a better way to do this...
-        return JSON.parse(JSON.stringify(jwtDecode(token)));
-    }
-    return null;
-}
-
-function setTokenInLocalStorage(token) {
-    localStorage.setItem('token', token);
-}
-
-function tryToLoadTokenFromStorage() {
-    return localStorage.getItem('token') || null;
-}
-
-function clearTokenFromStorage() {
-    localStorage.removeItem('token');
-}
+import storageUtils from "@/utils/storage-utils";
+import jwtUtils from "@/utils/jwt-utils";
 
 export const useAuthenticationStore = defineStore('authentication', {
     actions: {
@@ -30,7 +12,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             try {
                 this.loading = true;
                 const token = await authenticationApi.login(username, password);
-                setTokenInLocalStorage(token);
+                storageUtils.setTokenInLocalStorage(token);
                 this.isAuthenticated = true;
                 this.showAppBar = true;
                 this.error = null;
@@ -44,14 +26,14 @@ export const useAuthenticationStore = defineStore('authentication', {
             }
         },
         async logout() {
-            await authenticationApi.logout(tryToLoadTokenFromStorage());
-            clearTokenFromStorage();
+            await authenticationApi.logout(storageUtils.tryToLoadTokenFromStorage());
+            storageUtils.clearTokenFromStorage();
             this.showAppBar = false;
             this.loading = false;
             this.isAuthenticated = false;
         },
         async verifyToken() {
-            this.isAuthenticated = await authenticationApi.verifyToken(tryToLoadTokenFromStorage());
+            this.isAuthenticated = await authenticationApi.verifyToken(storageUtils.tryToLoadTokenFromStorage());
         },
     },
     state: () => {
@@ -60,15 +42,15 @@ export const useAuthenticationStore = defineStore('authentication', {
             loading: false,
             error: null,
             errorMessage: '',
-            showAppBar: tryToLoadTokenFromStorage() !== null,
+            showAppBar: storageUtils.tryToLoadTokenFromStorage() !== null,
         };
     },
     getters: {
         actor() {
-            const token = tryToLoadTokenFromStorage();
+            const token = storageUtils.tryToLoadTokenFromStorage();
 
             if (token !== null) {
-                return parseActorToken(token);
+                return jwtUtils.parseActorToken(token);
             }
             return null;
         },
@@ -79,7 +61,7 @@ export const useRolesStore = defineStore('role', {
     actions: {
         async fetchRoles() {
             try {
-                this.roles = await rolesApi.fetchRoles(tryToLoadTokenFromStorage());
+                this.roles = await rolesApi.fetchRoles(storageUtils.tryToLoadTokenFromStorage());
                 console.log(this.roles);
             } catch (err) {
                 console.log(err);
@@ -88,7 +70,7 @@ export const useRolesStore = defineStore('role', {
         },
         async addRole(role) {
             try {
-                await rolesApi.addRole(tryToLoadTokenFromStorage(), role);
+                await rolesApi.addRole(storageUtils.tryToLoadTokenFromStorage(), role);
             } catch (err) {
                 console.log(err);
                 // some kind of error popup
@@ -96,7 +78,7 @@ export const useRolesStore = defineStore('role', {
         },
         async deleteRole(roleId) {
             try {
-                await rolesApi.deleteRole(tryToLoadTokenFromStorage(), roleId);
+                await rolesApi.deleteRole(storageUtils.tryToLoadTokenFromStorage(), roleId);
             } catch (err) {
                 console.log(err);
                 // some kind of error popup
