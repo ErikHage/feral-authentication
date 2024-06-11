@@ -5,6 +5,7 @@ import rolesApi from "@/api/roles-api";
 
 import storageUtils from "@/utils/storage-utils";
 import jwtUtils from "@/utils/jwt-utils";
+import usersApi from "@/api/users-api";
 
 export const useAuthenticationStore = defineStore('authentication', {
     actions: {
@@ -94,10 +95,25 @@ export const useRolesStore = defineStore('role', {
 
 export const useUsersStore = defineStore('users', {
     actions: {
-        async fetchRoles() {
+        async fetchUsers() {
             try {
-                this.users = await rolesApi.fetchRoles(storageUtils.tryToLoadTokenFromStorage());
-                console.log(this.users);
+                this.users = await usersApi.fetchUsers(storageUtils.tryToLoadTokenFromStorage());
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
+        },
+        async upsertUser(user) {
+            try {
+                this.users = await usersApi.upsertUser(storageUtils.tryToLoadTokenFromStorage(), user);
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
+        },
+        async deleteUser(userId) {
+            try {
+                this.users = await usersApi.deleteUser(storageUtils.tryToLoadTokenFromStorage(), userId);
             } catch (err) {
                 console.log(err);
                 // some kind of error popup
