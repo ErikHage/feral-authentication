@@ -62,11 +62,13 @@ export const useRolesStore = defineStore('role', {
     actions: {
         async fetchRoles() {
             try {
+                this.loading = true;
                 this.roles = await rolesApi.fetchRoles(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
                 // some kind of error popup
             }
+            this.loading = false;
         },
         async addRole(role) {
             try {
@@ -88,6 +90,7 @@ export const useRolesStore = defineStore('role', {
     state: () => {
         return {
             roles: [],
+            loading: false,
         };
     },
 });
@@ -98,7 +101,6 @@ export const useUsersStore = defineStore('users', {
             try {
                 this.loading = true;
                 this.users = await usersApi.fetchUsers(storageUtils.tryToLoadTokenFromStorage());
-                console.log('fetched users: ', this.users);
             } catch (err) {
                 console.log(err);
                 // some kind of error popup

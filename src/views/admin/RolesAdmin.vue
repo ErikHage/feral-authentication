@@ -7,7 +7,8 @@
           <v-card-title>
             <span class="headline">Manage Roles</span>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="openDialog()">Add Role</v-btn>
+            <v-btn class="mr-2" color="primary" @click="openDialog()">Add</v-btn>
+            <v-btn color="primary" @click="fetchRoles()">Refresh</v-btn>
           </v-card-title>
           <v-card-text>
             <v-data-table

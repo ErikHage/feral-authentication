@@ -7,7 +7,7 @@
           <v-card-title>
             <span class="headline">Manage Users</span>
             <v-spacer></v-spacer>
-            <v-btn class="mr-2" color="primary" @click="openDialog()">Add User</v-btn>
+            <v-btn class="mr-2" color="primary" @click="openDialog()">Add</v-btn>
             <v-btn color="primary" @click="fetchUsers()">Refresh</v-btn>
           </v-card-title>
           <v-card-text>
