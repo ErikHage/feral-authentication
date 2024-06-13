@@ -7,7 +7,8 @@
           <v-card-title>
             <span class="headline">Manage Users</span>
             <v-spacer></v-spacer>
-            <v-btn color="primary" @click="openDialog()">Add User</v-btn>
+            <v-btn class="mr-2" color="primary" @click="openDialog()">Add User</v-btn>
+            <v-btn color="primary" @click="fetchUsers()">Refresh</v-btn>
           </v-card-title>
           <v-card-text>
             <v-data-table
@@ -15,6 +16,7 @@
                 :items="users"
                 item-key="userId"
                 class="elevation-1"
+                :loading="loading"
             >
               <template #item.actions="{ item }">
                 <v-icon small @click="openDialog(item)">mdi-pencil</v-icon>
@@ -33,6 +35,9 @@
         </v-card-title>
         <v-card-text>
           <v-form ref="userForm">
+            <v-text-field v-model="form.firstName" label="First Name" required></v-text-field>
+            <v-text-field v-model="form.lastName" label="Last Name" required></v-text-field>
+            <v-text-field v-model="form.email" label="Email" required></v-text-field>
             <v-text-field v-model="form.username" label="Username" required></v-text-field>
             <v-text-field
                 v-model="form.password"
@@ -95,19 +100,26 @@ export default {
       isEditMode: false,
       form: {
         userId: '',
+        firstName: '',
+        lastName: '',
         username: '',
         password: '',
+        email: '',
       },
       headers: [
+        { title: 'First Name', key: 'firstName' },
+        { title: 'Last Name', key: 'lastName' },
         { title: 'Username', key: 'username' },
+        { title: 'Email', key: 'email' },
         { title: 'Last Login', key: 'lastLogin' },
+        { title: 'Suspended', key: 'isSuspended' },
         { title: 'Actions', key: 'actions', sortable: false },
       ],
     };
   },
 
   computed: {
-    ...mapState(useUsersStore, ['users']),
+    ...mapState(useUsersStore, ['users', 'loading']),
   },
 
   methods: {
@@ -115,8 +127,14 @@ export default {
 
     openDialog(user) {
       if (user) {
-        this.form.userId = user.userId;
-        this.form.username = user.username;
+        this.form = {
+          userId: user.userId,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
+          password: '',
+          email: user.email,
+        };
         this.isEditMode = true;
       } else {
         this.resetForm();
@@ -138,21 +156,23 @@ export default {
     resetForm() {
       this.form = {
         userId: '',
+        firstName: '',
+        lastName: '',
         username: '',
         password: '',
+        email: '',
       };
     },
     async saveUser() {
       if (this.$refs.userForm.validate()) {
         await this.upsertUser(this.form);
-        await this.fetchUsers();
         this.closeDialog();
+        await this.fetchUsers();
       }
     },
     async deleteUserById(userId) {
-      await this.deleteRole(userId);
-      this.deleteDialog = false;
-      this.userToDelete = null;
+      await this.deleteUser(userId);
+      this.closeDeleteDialog();
       await this.fetchUsers();
     },
   },

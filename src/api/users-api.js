@@ -9,12 +9,24 @@ async function fetchUsers(token) {
         },
     });
     console.log('fetchedUsers: ', response.data);
-    return response.data;
+
+    return response.data.map(user => ({
+        userId: user.userId,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        username: user.username,
+        lastLogin: user.lastLogin || '-', // TODO display in local time
+        isSuspended: user.isSuspended ? "Y" : "N",
+    }));
 }
 
 async function upsertUser(token, user) {
     const requestData = {
         userId: user.userId !== '' ? user.userId : undefined,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
         username: user.username,
         password: user.password,
     };

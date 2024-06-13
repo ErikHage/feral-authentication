@@ -63,7 +63,6 @@ export const useRolesStore = defineStore('role', {
         async fetchRoles() {
             try {
                 this.roles = await rolesApi.fetchRoles(storageUtils.tryToLoadTokenFromStorage());
-                console.log(this.roles);
             } catch (err) {
                 console.log(err);
                 // some kind of error popup
@@ -97,15 +96,18 @@ export const useUsersStore = defineStore('users', {
     actions: {
         async fetchUsers() {
             try {
+                this.loading = true;
                 this.users = await usersApi.fetchUsers(storageUtils.tryToLoadTokenFromStorage());
+                console.log('fetched users: ', this.users);
             } catch (err) {
                 console.log(err);
                 // some kind of error popup
             }
+            this.loading = false;
         },
         async upsertUser(user) {
             try {
-                this.users = await usersApi.upsertUser(storageUtils.tryToLoadTokenFromStorage(), user);
+                await usersApi.upsertUser(storageUtils.tryToLoadTokenFromStorage(), user);
             } catch (err) {
                 console.log(err);
                 // some kind of error popup
@@ -113,7 +115,7 @@ export const useUsersStore = defineStore('users', {
         },
         async deleteUser(userId) {
             try {
-                this.users = await usersApi.deleteUser(storageUtils.tryToLoadTokenFromStorage(), userId);
+                await usersApi.deleteUser(storageUtils.tryToLoadTokenFromStorage(), userId);
             } catch (err) {
                 console.log(err);
                 // some kind of error popup
@@ -123,6 +125,7 @@ export const useUsersStore = defineStore('users', {
     state: () => {
         return {
             users: [],
+            loading: false,
         };
     }
 });
