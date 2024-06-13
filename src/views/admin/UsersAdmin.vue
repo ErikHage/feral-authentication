@@ -8,7 +8,7 @@
             <span class="headline">Manage Users</span>
             <v-spacer></v-spacer>
             <v-btn class="mr-2" color="primary" @click="openDialog()">Add</v-btn>
-            <v-btn color="primary" @click="fetchUsers()">Refresh</v-btn>
+            <v-btn color="primary" @click="refresh()">Refresh</v-btn>
           </v-card-title>
           <v-card-text>
             <v-data-table
@@ -67,7 +67,7 @@
             <tbody>
             <tr>
               <th>Username</th>
-              <td>{{this.userToDelete?.username}}</td>
+              <td>{{ this.userToDelete?.username }}</td>
             </tr>
             </tbody>
           </v-table>
@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { useUsersStore } from "@/store";
+import { useRolesStore, useUsersStore } from "@/store";
 import { mapActions, mapState } from "pinia";
 
 export default {
@@ -120,11 +120,24 @@ export default {
 
   computed: {
     ...mapState(useUsersStore, ['users', 'loading']),
+    ...mapState(useRolesStore, ['roles']),
   },
 
   methods: {
-    ...mapActions(useUsersStore, ['fetchUsers', 'upsertUser', 'deleteUser']),
+    ...mapActions(useUsersStore, [
+      'fetchUsers',
+      'upsertUser',
+      'deleteUser'
+    ]),
 
+    ...mapActions(useRolesStore, [
+      'fetchRoles',
+    ]),
+
+    refresh() {
+      this.fetchUsers();
+      this.fetchRoles();
+    },
     openDialog(user) {
       if (user) {
         this.form = {
@@ -178,7 +191,7 @@ export default {
   },
 
   mounted() {
-    this.fetchUsers();
+    this.refresh();
   },
 }
 </script>
