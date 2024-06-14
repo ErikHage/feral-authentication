@@ -123,6 +123,30 @@ export const useUsersStore = defineStore('users', {
                 // some kind of error popup
             }
         },
+        async fetchUserRoles(userId) {
+            try {
+                await usersApi.fetchUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId);
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
+        },
+        async setUserRoles(userId, roleIds) {
+            try {
+                await usersApi.setUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId, roleIds);
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
+        },
+        async clearUserRoles(userId) {
+            try {
+                await usersApi.clearUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId);
+            } catch (err) {
+                console.log(err);
+                // some kind of error popup
+            }
+        },
     },
     state: () => {
         return {

@@ -57,8 +57,7 @@ export default {
   data() {
     return {
       dialog: false,
-      form: {
-      },
+      form: {},
       headers: [
         { title: 'Username', key: 'username' },
         { title: 'Actions', key: 'actions', sortable: false },
@@ -74,6 +73,9 @@ export default {
   methods: {
     ...mapActions(useUsersStore, [
       'fetchUsers',
+      'fetchUserRoles',
+      'setUserRoles',
+      'clearUserRoles',
     ]),
     ...mapActions(useRolesStore, [
       'fetchRoles',
@@ -85,8 +87,7 @@ export default {
     },
     openDialog(user) {
       if (user) {
-        this.form = {
-        };
+        this.form = {};
       } else {
         this.resetForm();
       }
@@ -96,8 +97,7 @@ export default {
       this.dialog = false;
     },
     resetForm() {
-      this.form = {
-      };
+      this.form = {};
     },
     async addRoleToUser() {
       if (this.$refs.userRolesForm.validate()) {
