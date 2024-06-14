@@ -85,7 +85,7 @@
 </template>
 
 <script>
-import { useRolesStore, useUsersStore } from "@/store";
+import { useUsersStore } from "@/store";
 import { mapActions, mapState } from "pinia";
 
 export default {
@@ -120,7 +120,6 @@ export default {
 
   computed: {
     ...mapState(useUsersStore, ['users', 'loading']),
-    ...mapState(useRolesStore, ['roles']),
   },
 
   methods: {
@@ -130,13 +129,8 @@ export default {
       'deleteUser'
     ]),
 
-    ...mapActions(useRolesStore, [
-      'fetchRoles',
-    ]),
-
-    refresh() {
+    refreshData() {
       this.fetchUsers();
-      this.fetchRoles();
     },
     openDialog(user) {
       if (user) {
