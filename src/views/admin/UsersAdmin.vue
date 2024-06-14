@@ -8,7 +8,7 @@
             <span class="headline">Manage Users</span>
             <v-spacer></v-spacer>
             <v-btn class="mr-2" color="primary" @click="openDialog()">Add</v-btn>
-            <v-btn color="primary" @click="refresh()">Refresh</v-btn>
+            <v-btn color="primary" @click="refreshData()">Refresh</v-btn>
           </v-card-title>
           <v-card-text>
             <v-data-table
@@ -185,7 +185,7 @@ export default {
   },
 
   mounted() {
-    this.refresh();
+    this.refreshData();
   },
 }
 </script>
