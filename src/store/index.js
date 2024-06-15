@@ -27,7 +27,15 @@ export const useAuthenticationStore = defineStore('authentication', {
             }
         },
         async logout() {
-            await authenticationApi.logout(storageUtils.tryToLoadTokenFromStorage());
+            try {
+                await authenticationApi.logout(storageUtils.tryToLoadTokenFromStorage());
+            } catch (err) {
+                if (err.status === 401) {
+                    // token must already be expired, don't worry about it
+                } else {
+                    // show some error
+                }
+            }
             storageUtils.clearTokenFromStorage();
             this.showAppBar = false;
             this.loading = false;
