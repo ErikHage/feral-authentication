@@ -1,19 +1,10 @@
 <template>
   <v-container>
-    <h2>Dashboard</h2>
-    <br/>
-    <v-row>
-      <v-card v-if="actor()">
-        <v-card-text>
-          Welcome {{ actor().username }}
-          <br/><br/>
-          <strong>Your roles:</strong>
-          <v-chip-group>
-            <v-chip v-for="role in actor().roles">{{ role }}</v-chip>
-          </v-chip-group>
-        </v-card-text>
-      </v-card>
-
+    <v-app-bar app>
+      <v-btn to="/dashboard/profile">Profile</v-btn>
+    </v-app-bar>
+    <v-row class="text-center">
+      <router-view/>
     </v-row>
   </v-container>
 </template>

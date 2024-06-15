@@ -136,11 +136,18 @@ export const useUsersStore = defineStore('users', {
             const token = storageUtils.tryToLoadTokenFromStorage();
             const userDetails = this.users.find(user => user.userId === userId);
             const userRoles = await usersApi.fetchUserRoles(token, userId);
-            console.log('setting selected User', userDetails, userRoles.roles);
+            const rolesByScope = userRoles.roles.reduce((acc, role) => {
+                if (!acc[role.scope]) {
+                    acc[role.scope] = [];
+                }
+                acc[role.scope].push(role);
+                return acc;
+            }, {});
 
             this.selectedUser = {
                 details: userDetails,
                 roles: userRoles.roles,
+                rolesByScope,
             };
         },
         clearSelectedUser() {
