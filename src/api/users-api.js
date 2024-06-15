@@ -49,14 +49,14 @@ async function deleteUser(token, userId) {
 }
 
 async function fetchUserRoles(token, userId) {
-    const userRoles = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/roles`,
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/roles`,
         {
             headers: {
                 'x-feral-auth-token': token,
             },
         });
-    console.log('user roles', userRoles);
-    return userRoles;
+    console.log('user roles', response.data);
+    return response.data;
 }
 
 async function setUserRoles(token, userId, roleIds) {

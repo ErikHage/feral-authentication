@@ -7,6 +7,7 @@ import RolesAdmin from "@/views/admin/RolesAdmin.vue";
 
 import { useAuthenticationStore } from '@/store';
 import UsersAdmin from "@/views/admin/UsersAdmin.vue";
+import AuthorizationAdmin from "@/views/admin/AuthorizationAdmin.vue";
 
 const routes = [
     {
@@ -45,6 +46,14 @@ const routes = [
                 path: 'users',
                 name: 'UsersAdmin',
                 component: UsersAdmin,
+                meta: {
+                    requiresAuthenticated: true,
+                },
+            },
+            {
+                path: 'authorization',
+                name: 'AuthorizationAdmin',
+                component: AuthorizationAdmin,
                 meta: {
                     requiresAuthenticated: true,
                 },

@@ -131,6 +131,21 @@ export const useUsersStore = defineStore('users', {
                 // some kind of error popup
             }
         },
+        async selectUser(userId) {
+            console.log('select User', userId);
+            const token = storageUtils.tryToLoadTokenFromStorage();
+            const userDetails = this.users.find(user => user.userId === userId);
+            const userRoles = await usersApi.fetchUserRoles(token, userId);
+            console.log('setting selected User', userDetails, userRoles.roles);
+
+            this.selectedUser = {
+                details: userDetails,
+                roles: userRoles.roles,
+            };
+        },
+        clearSelectedUser() {
+            this.selectedUser = null;
+        },
         async fetchUserRoles(userId) {
             try {
                 await usersApi.fetchUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId);
@@ -159,6 +174,7 @@ export const useUsersStore = defineStore('users', {
     state: () => {
         return {
             users: [],
+            selectedUser: null,
             loading: false,
         };
     }

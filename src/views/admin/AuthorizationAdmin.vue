@@ -6,44 +6,62 @@
         <v-card>
           <v-card-title>
             <span class="headline">Manage Authorization</span>
-            <v-spacer></v-spacer>
-            <v-btn class="mr-2" color="primary" @click="openDialog()">Add</v-btn>
-            <v-btn color="primary" @click="refreshData()">Refresh</v-btn>
           </v-card-title>
           <v-card-text>
-            <v-data-table
-                :headers="headers"
+            <v-select
+                v-model="selectedUserId"
                 :items="users"
-                item-key="userId"
-                class="elevation-1"
-                :loading="loading"
-            >
-              <template #item.actions="{ item }">
-                <v-icon small @click="openDialog(item)">mdi-pencil</v-icon>
-              </template>
-            </v-data-table>
+                item-title="username"
+                item-value="userId"
+                label="Select User"
+                variant="solo"
+                @update:model-value="onSelectUserChange"
+            ></v-select>
           </v-card-text>
+        </v-card>
+
+        <v-card class="mt-3" v-if="selectedUser">
+          <v-card-title>
+            <span class="headline">Manage Roles</span>
+          </v-card-title>
+          <v-card-text>
+            <v-row align="center">
+              <v-col cols="11">
+                <!--            TODO split into scope and title selects -->
+                <v-select
+                    v-model="selectedRole"
+                    :items="roles"
+                    :item-title="(item) => `${item.scope}/${item.title}`"
+                    item-value="roleId"
+                    label="Select Role To Add"
+                    variant="solo"
+                    return-object
+                ></v-select>
+              </v-col>
+              <v-col cols="1">
+                <v-btn
+                    block
+                    color="error"
+                    @click="addSelectedRole"
+                    :disabled="!selectedRole || isRoleAlreadySelected(selectedRole)"
+                >
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-chip-group v-if="selectedRoles">
+              <v-chip v-for="role in selectedRoles" @click="removeRoleFromSelected(role.roleId)">{{ role.scope }}/{{ role.title }}</v-chip>
+              <!-- click on them to remove -->
+            </v-chip-group>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <!--             <v-btn color="blue darken-1" text @click="cancelUpdatingRoles">Cancel</v-btn>-->
+            <!--             <v-btn color="blue darken-1" text @click="saveRoleUpdates">Save</v-btn>-->
+          </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
-
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Add Role</span>
-        </v-card-title>
-        <v-card-text>
-          <v-form ref="userRolesForm">
-            <v-text-field v-model="form.selectedRole" label="First Name" required></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="saveRole">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-container>
 </template>
 
@@ -56,23 +74,22 @@ export default {
 
   data() {
     return {
-      dialog: false,
-      form: {},
-      headers: [
-        { title: 'Username', key: 'username' },
-        { title: 'Actions', key: 'actions', sortable: false },
-      ],
+      selectedUserId: null,
+      selectedRole: null,
+      selectedRoles: [],
     };
   },
 
   computed: {
-    ...mapState(useUsersStore, ['users', 'loading']),
+    ...mapState(useUsersStore, ['users', 'selectedUser', 'loading']),
     ...mapState(useRolesStore, ['roles']),
   },
 
   methods: {
     ...mapActions(useUsersStore, [
       'fetchUsers',
+      'selectUser',
+      'clearSelectedUser',
       'fetchUserRoles',
       'setUserRoles',
       'clearUserRoles',
@@ -84,32 +101,33 @@ export default {
     refreshData() {
       this.fetchUsers();
       this.fetchRoles();
+      this.clearSelectedUser();
     },
-    openDialog(user) {
-      if (user) {
-        this.form = {};
-      } else {
-        this.resetForm();
-      }
-      this.dialog = true;
+    async onSelectUserChange(userId) {
+      await this.selectUser(userId);
+      this.selectedRoles = this.selectedUser.roles;
     },
-    closeDialog() {
-      this.dialog = false;
-    },
-    resetForm() {
-      this.form = {};
-    },
-    async addRoleToUser() {
-      if (this.$refs.userRolesForm.validate()) {
-        await this.addUserRole(this.form);
-        this.closeDialog();
-        await this.refreshData();
+    addSelectedRole(role) {
+      if (!this.isRoleAlreadySelected(role)) {
+        this.selectedRoles.push(this.selectedRole);
       }
     },
-    async removeRoleFromUser(userId) {
-      await this.deleteUserRole(userId, roleId);
-      await this.refreshData();
+    removeRoleFromSelected(roleId) {
+      this.selectedRoles = this.selectedRoles.filter(role => role.roleId !== roleId);
     },
+    isRoleAlreadySelected(role) {
+      return this.selectedRoles.map(role => role.roleId).includes(role.roleId);
+    }
+    // async setRolesForUser() {
+    //   if (this.$refs.userRolesForm.validate()) {
+    //     await this.setUserRoles(this.selectedRoles);
+    //     await this.refreshData();
+    //   }
+    // },
+    // async clearRolesForUser(userId) {
+    //   await this.clearUserRoles(userId);
+    //   await this.refreshData();
+    // },
   },
 
   mounted() {
