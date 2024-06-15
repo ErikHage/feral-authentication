@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <h2>Users Admin</h2>
-    <v-row justify="center">
+    <v-row justify="center" class="mt-2">
       <v-col cols="12" sm="8">
         <v-card>
           <v-card-title>
@@ -19,6 +19,10 @@
             ></v-select>
           </v-card-text>
         </v-card>
+
+        <transition name="fade">
+          <v-alert v-if="alertVisible" :type="alertType" class="mt-3">{{ alertMessage }}</v-alert>
+        </transition>
 
         <v-card class="mt-3" v-if="selectedUser">
           <v-card-title>
@@ -50,14 +54,16 @@
               </v-col>
             </v-row>
             <v-chip-group v-if="selectedRoles">
-              <v-chip v-for="role in selectedRoles" @click="removeRoleFromSelected(role.roleId)">{{ role.scope }}/{{ role.title }}</v-chip>
+              <v-chip v-for="role in selectedRoles" @click="removeRoleFromSelected(role.roleId)">
+                {{role.scope}}/{{ role.title }}
+              </v-chip>
               <!-- click on them to remove -->
             </v-chip-group>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <!--             <v-btn color="blue darken-1" text @click="cancelUpdatingRoles">Cancel</v-btn>-->
-            <!--             <v-btn color="blue darken-1" text @click="saveRoleUpdates">Save</v-btn>-->
+            <v-btn color="blue darken-1" text @click="cancelUpdatingRoles">Cancel</v-btn>
+            <v-btn color="blue darken-1" text @click="saveRoleUpdates">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -81,7 +87,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useUsersStore, ['users', 'selectedUser', 'loading']),
+    ...mapState(useUsersStore, ['users', 'selectedUser', 'loading', 'alertType', 'alertMessage', 'alertVisible']),
     ...mapState(useRolesStore, ['roles']),
   },
 
@@ -98,6 +104,12 @@ export default {
       'fetchRoles',
     ]),
 
+    reset() {
+      this.clearSelectedUser();
+      this.selectedUserId = null;
+      this.selectedRole = null;
+      this.selectedRoles = [];
+    },
     refreshData() {
       this.fetchUsers();
       this.fetchRoles();
@@ -111,23 +123,27 @@ export default {
       if (!this.isRoleAlreadySelected(role)) {
         this.selectedRoles.push(this.selectedRole);
       }
+      this.selectedRole = null;
     },
     removeRoleFromSelected(roleId) {
       this.selectedRoles = this.selectedRoles.filter(role => role.roleId !== roleId);
     },
     isRoleAlreadySelected(role) {
       return this.selectedRoles.map(role => role.roleId).includes(role.roleId);
-    }
-    // async setRolesForUser() {
-    //   if (this.$refs.userRolesForm.validate()) {
-    //     await this.setUserRoles(this.selectedRoles);
-    //     await this.refreshData();
-    //   }
-    // },
-    // async clearRolesForUser(userId) {
-    //   await this.clearUserRoles(userId);
-    //   await this.refreshData();
-    // },
+    },
+    cancelUpdatingRoles() {
+      this.reset();
+    },
+    async saveRoleUpdates() {
+      if (this.selectedRoles.length === 0) {
+        await this.clearUserRoles(this.selectedUserId);
+      } else {
+        const roleIds = this.selectedRoles.map(role => role.roleId);
+        await this.setUserRoles(this.selectedUserId, roleIds);
+      }
+      await this.refreshData();
+      this.reset();
+    },
   },
 
   mounted() {
@@ -137,8 +153,10 @@ export default {
 </script>
 
 <style scoped>
-.red-text {
-  color: darkred;
-  font-weight: bold;
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 1s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+  opacity: 0;
 }
 </style>

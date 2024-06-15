@@ -111,7 +111,7 @@ export const useUsersStore = defineStore('users', {
                 this.users = await usersApi.fetchUsers(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage('error', 'error loading users');
             }
             this.loading = false;
         },
@@ -120,7 +120,7 @@ export const useUsersStore = defineStore('users', {
                 await usersApi.upsertUser(storageUtils.tryToLoadTokenFromStorage(), user);
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage('error', 'error adding user');
             }
         },
         async deleteUser(userId) {
@@ -128,7 +128,7 @@ export const useUsersStore = defineStore('users', {
                 await usersApi.deleteUser(storageUtils.tryToLoadTokenFromStorage(), userId);
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage('error', 'error deleting user');
             }
         },
         async selectUser(userId) {
@@ -151,31 +151,44 @@ export const useUsersStore = defineStore('users', {
                 await usersApi.fetchUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId);
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage('error', 'error loading user roles');
             }
         },
         async setUserRoles(userId, roleIds) {
             try {
                 await usersApi.setUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId, roleIds);
+                this.setAlertMessage('success', 'User Roles Updated!');
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage('error', 'error setting user roles');
             }
         },
         async clearUserRoles(userId) {
             try {
                 await usersApi.clearUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId);
+                this.setAlertMessage('success', 'User Roles Updated!');
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage('error', 'error clearing user roles');
             }
         },
+        setAlertMessage(type, message) {
+            this.alertVisible = true;
+            this.alertType = type;
+            this.alertMessage = message;
+            setTimeout(() => {
+                this.alertVisible = false;
+            }, 3000)
+        }
     },
     state: () => {
         return {
             users: [],
             selectedUser: null,
             loading: false,
+            alertVisible: false,
+            alertType: 'success',
+            alertMessage: null,
         };
     }
 });
