@@ -20,9 +20,7 @@
           </v-card-text>
         </v-card>
 
-        <transition name="fade">
-          <v-alert v-if="alertVisible" :type="alertType" class="mt-3">{{ alertMessage }}</v-alert>
-        </transition>
+        <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
 
         <v-card class="mt-3" v-if="selectedUser">
           <v-card-title>
@@ -74,9 +72,11 @@
 <script>
 import { useRolesStore, useUsersStore } from "@/store";
 import { mapActions, mapState } from "pinia";
+import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: "AuthorizationAdmin",
+  components: { FadeOutAlert },
 
   data() {
     return {
