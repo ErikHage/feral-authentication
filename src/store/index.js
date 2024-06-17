@@ -115,9 +115,10 @@ export const useUsersStore = defineStore('users', {
             }
             this.loading = false;
         },
-        async upsertUser(user) {
+        async addUser(user) {
             try {
-                await usersApi.upsertUser(storageUtils.tryToLoadTokenFromStorage(), user);
+                await usersApi.addUser(storageUtils.tryToLoadTokenFromStorage(), user);
+                this.setAlertMessage('success', 'User added successfully!');
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', 'error adding user');
@@ -126,6 +127,7 @@ export const useUsersStore = defineStore('users', {
         async deleteUser(userId) {
             try {
                 await usersApi.deleteUser(storageUtils.tryToLoadTokenFromStorage(), userId);
+                this.setAlertMessage('success', 'User deleted successfully.');
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', 'error deleting user');

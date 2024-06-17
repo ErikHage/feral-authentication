@@ -20,7 +20,7 @@ async function fetchUsers(token) {
     }));
 }
 
-async function upsertUser(token, user) {
+async function addUser(token, user) {
     const requestData = {
         userId: user.userId !== '' ? user.userId : undefined,
         firstName: user.firstName,
@@ -82,7 +82,7 @@ async function clearUserRoles(token, userId) {
 
 export default {
     fetchUsers,
-    upsertUser,
+    addUser,
     deleteUser,
     fetchUserRoles,
     setUserRoles,

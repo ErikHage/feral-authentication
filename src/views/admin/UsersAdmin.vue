@@ -1,8 +1,10 @@
 <template>
   <v-container>
     <h2>Users Admin</h2>
+
     <v-row justify="center">
       <v-col cols="12" sm="8">
+        <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
         <v-card>
           <v-card-title>
             <span class="headline">Manage Users</span>
@@ -85,11 +87,13 @@
 </template>
 
 <script>
-import { useUsersStore } from "@/store";
 import { mapActions, mapState } from "pinia";
+import { useUsersStore } from "@/store";
+import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: "UsersAdmin",
+  components: { FadeOutAlert },
 
   data() {
     return {
@@ -119,13 +123,13 @@ export default {
   },
 
   computed: {
-    ...mapState(useUsersStore, ['users', 'loading']),
+    ...mapState(useUsersStore, ['users', 'loading', 'alertType', 'alertMessage', 'alertVisible']),
   },
 
   methods: {
     ...mapActions(useUsersStore, [
       'fetchUsers',
-      'upsertUser',
+      'addUser',
       'deleteUser'
     ]),
 
@@ -172,7 +176,7 @@ export default {
     },
     async saveUser() {
       if (this.$refs.userForm.validate()) {
-        await this.upsertUser(this.form);
+        await this.addUser(this.form);
         this.closeDialog();
         await this.fetchUsers();
       }
