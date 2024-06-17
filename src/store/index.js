@@ -16,14 +16,12 @@ export const useAuthenticationStore = defineStore('authentication', {
                 storageUtils.setTokenInLocalStorage(token);
                 this.isAuthenticated = true;
                 this.showAppBar = true;
-                this.error = null;
-                this.errorMessage = '';
                 this.loading = false;
+                this.setAlertMessage("success", "Login Succeeded!");
             } catch (err) {
                 this.isAuthenticated = false;
-                this.error = err;
-                this.errorMessage = err.message;
                 this.loading = false;
+                this.setAlertMessage("error", err.message);
             }
         },
         async logout() {
@@ -44,13 +42,22 @@ export const useAuthenticationStore = defineStore('authentication', {
         async verifyToken() {
             this.isAuthenticated = await authenticationApi.verifyToken(storageUtils.tryToLoadTokenFromStorage());
         },
+        setAlertMessage(type, message) {
+            this.alertVisible = true;
+            this.alertType = type;
+            this.alertMessage = message;
+            setTimeout(() => {
+                this.alertVisible = false;
+            }, 3000)
+        }
     },
     state: () => {
         return {
             isAuthenticated: false,
             loading: false,
-            error: null,
-            errorMessage: '',
+            alertVisible: false,
+            alertType: 'success',
+            alertMessage: null,
             showAppBar: storageUtils.tryToLoadTokenFromStorage() !== null,
         };
     },

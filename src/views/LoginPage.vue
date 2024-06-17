@@ -38,8 +38,8 @@
                 <v-progress-circular v-else color="primary" indeterminate></v-progress-circular>
               </div>
 
-              <v-alert v-if="error()" type="error" class="mt-3">{{ errorMessage() }}</v-alert>
-              <v-alert v-if="showSuccessMessage" type="success" class="mt-3">Login Success!</v-alert>
+              <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+
             </v-form>
           </v-card-text>
         </v-card>
@@ -51,51 +51,50 @@
 <script>
 import { useAuthenticationStore } from '@/store';
 import { mapActions, mapState } from "pinia";
+import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: 'LoginPage',
+
+  components: { FadeOutAlert },
 
   data: () => ({
     username: '',
     password: '',
   }),
-  computed: {
-    showSuccessMessage() {
-      return this.isAuthenticated();
-    },
-    showLoginButton() {
-      return !this.loading() && !this.showSuccessMessage
-    }
-  },
-  methods: {
-    ...mapActions(useAuthenticationStore, {
-        authenticate: 'authenticate',
-    }),
 
-    ...mapState(useAuthenticationStore, {
-        error: (state) => state.error,
-        errorMessage: (state) => state.errorMessage,
-        isAuthenticated: (state) => state.isAuthenticated,
-        loading: (state) => state.loading,
-    }),
+  computed: {
+    ...mapState(useAuthenticationStore, [
+        'isAuthenticated', 'loading', 'alertType', 'alertMessage', 'alertVisible',
+    ]),
+  },
+
+  methods: {
+    ...mapActions(useAuthenticationStore, [
+        'authenticate',
+    ]),
 
     delayedRedirectToDashboard() {
       setTimeout(() => {
         this.$router.push('/dashboard');
-      }, 750);
+      }, 500);
     },
 
     async login() {
       await this.authenticate(this.username, this.password);
 
-      if (this.isAuthenticated()) {
+      if (this.isAuthenticated) {
         this.delayedRedirectToDashboard();
       }
     },
+
+    showLoginButton() {
+      return !this.loading && !this.isAuthenticated
+    }
   },
 
   mounted() {
-    if (this.isAuthenticated()) {
+    if (this.isAuthenticated) {
       this.delayedRedirectToDashboard();
     }
   }
