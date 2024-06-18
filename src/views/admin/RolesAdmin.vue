@@ -3,6 +3,7 @@
     <h2>Roles Admin</h2>
     <v-row justify="center">
       <v-col cols="12" sm="8">
+        <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
         <v-card>
           <v-card-title>
             <span class="headline">Manage Roles</span>
@@ -80,9 +81,11 @@
 <script>
 import { useRolesStore } from "@/store";
 import { mapActions, mapState } from "pinia";
+import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: "RolesAdmin",
+  components: { FadeOutAlert },
 
   data() {
     return {
@@ -104,7 +107,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useRolesStore, ['roles']),
+    ...mapState(useRolesStore, ['roles', 'alertType', 'alertMessage', 'alertVisible']),
   },
 
   methods: {

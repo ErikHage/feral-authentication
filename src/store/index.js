@@ -81,31 +81,44 @@ export const useRolesStore = defineStore('role', {
                 this.roles = await rolesApi.fetchRoles(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage("error", err.message);
             }
             this.loading = false;
         },
         async addRole(role) {
             try {
                 await rolesApi.addRole(storageUtils.tryToLoadTokenFromStorage(), role);
+                this.setAlertMessage("success", `Role ${role.scope}/${role.title} Added`);
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage("error", err.message);
             }
         },
         async deleteRole(roleId) {
             try {
                 await rolesApi.deleteRole(storageUtils.tryToLoadTokenFromStorage(), roleId);
+                this.setAlertMessage("success", "Role Deleted.");
             } catch (err) {
                 console.log(err);
-                // some kind of error popup
+                this.setAlertMessage("error", err.message);
             }
+        },
+        setAlertMessage(type, message) {
+            this.alertVisible = true;
+            this.alertType = type;
+            this.alertMessage = message;
+            setTimeout(() => {
+                this.alertVisible = false;
+            }, 3000)
         }
     },
     state: () => {
         return {
             roles: [],
             loading: false,
+            alertVisible: false,
+            alertType: 'success',
+            alertMessage: null,
         };
     },
 });
