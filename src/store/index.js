@@ -144,6 +144,15 @@ export const useUsersStore = defineStore('users', {
                 this.setAlertMessage('error', 'error adding user');
             }
         },
+        async updateUser(userDetails) {
+            try {
+                await usersApi.updateUser(storageUtils.tryToLoadTokenFromStorage(), userDetails);
+                this.setAlertMessage('success', 'User updated successfully!');
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', 'error updating user');
+            }
+        },
         async deleteUser(userId) {
             try {
                 await usersApi.deleteUser(storageUtils.tryToLoadTokenFromStorage(), userId);

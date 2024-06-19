@@ -40,6 +40,23 @@ async function addUser(token, user) {
     return response.data;
 }
 
+async function updateUser(token, userData) {
+    const requestData = {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+    };
+
+    const response = await axios.put(`${feralAuthenticationServiceUrl.v0.api}/users/${userData.userId}`,
+        requestData,
+        {
+            headers: {
+                'x-feral-auth-token': token,
+            },
+        });
+
+    return response.data;
+}
+
 async function deleteUser(token, userId) {
     await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}`, {
         headers: {
@@ -83,6 +100,7 @@ async function clearUserRoles(token, userId) {
 export default {
     fetchUsers,
     addUser,
+    updateUser,
     deleteUser,
     fetchUserRoles,
     setUserRoles,

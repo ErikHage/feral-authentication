@@ -1,9 +1,7 @@
 <template>
   <v-container v-if="userDetails">
     <h2 class="headline">{{ userDetails.firstName }} {{ userDetails.lastName }}</h2>
-    <br/>
-    <v-row>
-
+    <v-row class="mt-3">
       <v-col cols="2">
       </v-col>
 
@@ -15,14 +13,44 @@
                 Personal Details
               </v-card-title>
               <v-card-text class="ma-3">
-                <v-row>
-                  <v-text-field v-model="userDetails.firstName" label="First Name"></v-text-field>
-                </v-row>
-                <v-row>
-                  <v-text-field v-model="userDetails.lastName" label="Last Name"></v-text-field>
-                </v-row>
-                <v-btn @click="updateName">Save</v-btn>
+                <v-text-field
+                    :rules="[rules.firstName]"
+                    v-model="userDetails.firstName"
+                    label="First Name"
+                    ref="firstNameField"
+                    @input="checkValidity"></v-text-field>
+                <v-text-field
+                    :rules="[rules.lastName]"
+                    v-model="userDetails.lastName"
+                    label="Last Name"
+                    ref="lastNameField"
+                    @input="checkValidity"></v-text-field>
+                <v-text-field
+                    disabled
+                    v-model="userDetails.username"
+                    label="Username"></v-text-field>
+                <v-text-field
+                    disabled
+                    v-model="userDetails.email"
+                    label="Email"></v-text-field>
+                <v-text-field
+                    disabled
+                    v-model="userDetails.lastLogin"
+                    label="Last Login"></v-text-field>
+                <v-text-field
+                    disabled
+                    v-model="userDetails.isSuspended"
+                    label="Suspended"></v-text-field>
+
+                <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
               </v-card-text>
+              <v-card-actions>
+                <v-btn
+                    :disabled="!isInputValid"
+                    @click="updateUserDetails">
+                  Save
+                </v-btn>
+              </v-card-actions>
             </v-card>
           </v-col>
         </v-row>
@@ -74,28 +102,40 @@
 
 import { mapActions, mapState } from "pinia";
 import { useAuthenticationStore, useUsersStore } from "@/store";
+import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: 'UserProfile',
+  components: { FadeOutAlert },
 
   data() {
     return {
       userDetails: null,
       userRoles: [],
       userRolesMap: {},
+      rules: {
+        firstName: (v) => !!v || 'Field is required',
+        lastName: (v) => !!v || 'Field is required',
+      },
+      isInputValid: false,
     };
   },
 
   computed: {
-    ...mapState(useAuthenticationStore, ['actor']),
-    ...mapState(useUsersStore, ['selectedUser']),
+    ...mapState(useAuthenticationStore, [
+      'actor',
+    ]),
+    ...mapState(useUsersStore, [
+      'selectedUser', 'alertType', 'alertMessage', 'alertVisible',
+    ]),
   },
 
   methods: {
-
     ...mapActions(useUsersStore, [
       'fetchUsers',
-      'selectUser'
+      'selectUser',
+      'updateUser',
+      'setAlertMessage',
     ]),
 
     async refreshData() {
@@ -106,9 +146,17 @@ export default {
       this.userDetails = this.selectedUser.details;
     },
 
-    async updateName() {
+    async checkValidity() {
+      const v1 = await this.$refs.firstNameField.validate();
+      const v2 = await this.$refs.lastNameField.validate();
+      console.log('setting isInputValid to', v1.length + v2.length === 0);
+      this.isInputValid = v1.length + v2.length === 0;
+    },
+
+    async updateUserDetails() {
       console.log('update name called', this.userDetails.firstName, this.userDetails.lastName);
-      // TODO
+      await this.updateUser(this.userDetails)
+      await this.refreshData();
     }
   },
 
