@@ -18,11 +18,11 @@ export const useAuthenticationStore = defineStore('authentication', {
                 this.isAuthenticated = true;
                 this.showAppBar = true;
                 this.loading = false;
-                this.setAlertMessage("success", "Login Succeeded!");
+                this.setAlertMessage('success', 'Login Succeeded!');
             } catch (err) {
                 this.isAuthenticated = false;
                 this.loading = false;
-                this.setAlertMessage("error", err.message);
+                this.setAlertMessage('error', err.message);
             }
         },
         async logout() {
@@ -82,26 +82,26 @@ export const useRolesStore = defineStore('role', {
                 this.roles = await rolesApi.fetchRoles(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage("error", err.message);
+                this.setAlertMessage('error', err.message);
             }
             this.loading = false;
         },
         async addRole(role) {
             try {
                 await rolesApi.addRole(storageUtils.tryToLoadTokenFromStorage(), role);
-                this.setAlertMessage("success", `Role ${role.scope}/${role.title} Added`);
+                this.setAlertMessage('success', `Role ${role.scope}/${role.title} Added`);
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage("error", err.message);
+                this.setAlertMessage('error', err.message);
             }
         },
         async deleteRole(roleId) {
             try {
                 await rolesApi.deleteRole(storageUtils.tryToLoadTokenFromStorage(), roleId);
-                this.setAlertMessage("success", "Role Deleted.");
+                this.setAlertMessage('success', 'Role Deleted.');
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage("error", err.message);
+                this.setAlertMessage('error', err.message);
             }
         },
         setAlertMessage(type, message) {
@@ -240,9 +240,18 @@ export const useSessionsStore = defineStore('session', {
                 this.sessions = await sessionsApi.fetchSessionsForCurrentUser(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage("error", err.message);
+                this.setAlertMessage('error', err.message);
             }
             this.loading = false;
+        },
+        async deleteSessionById(sessionId) {
+            try {
+                await sessionsApi.deleteSessionById(storageUtils.tryToLoadTokenFromStorage(), sessionId);
+                this.setAlertMessage('success', `Session ${sessionId} revoked`);
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
         },
         setAlertMessage(type, message) {
             this.alertVisible = true;

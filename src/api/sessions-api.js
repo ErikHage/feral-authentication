@@ -11,6 +11,15 @@ async function fetchSessionsForCurrentUser(token) {
     return response.data;
 }
 
+async function deleteSessionById(token, sessionId) {
+    await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/sessions/${sessionId}`, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+}
+
 export default {
     fetchSessionsForCurrentUser,
+    deleteSessionById,
 };
