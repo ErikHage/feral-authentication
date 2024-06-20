@@ -2,6 +2,7 @@
   <v-container>
     <v-app-bar app>
       <v-btn to="/dashboard/profile">Profile</v-btn>
+      <v-btn to="/dashboard/sessions">Sessions</v-btn>
     </v-app-bar>
     <v-row class="text-center">
       <router-view/>

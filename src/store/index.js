@@ -6,6 +6,7 @@ import rolesApi from "@/api/roles-api";
 import storageUtils from "@/utils/storage-utils";
 import jwtUtils from "@/utils/jwt-utils";
 import usersApi from "@/api/users-api";
+import sessionsApi from "@/api/sessions-api";
 
 export const useAuthenticationStore = defineStore('authentication', {
     actions: {
@@ -123,7 +124,7 @@ export const useRolesStore = defineStore('role', {
     },
 });
 
-export const useUsersStore = defineStore('users', {
+export const useUsersStore = defineStore('user', {
     actions: {
         async fetchUsers() {
             try {
@@ -229,4 +230,36 @@ export const useUsersStore = defineStore('users', {
             alertMessage: null,
         };
     }
+});
+
+export const useSessionsStore = defineStore('session', {
+    actions: {
+        async fetchUserSessions() {
+            try {
+                this.loading = true;
+                this.sessions = await sessionsApi.fetchSessionsForCurrentUser(storageUtils.tryToLoadTokenFromStorage());
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage("error", err.message);
+            }
+            this.loading = false;
+        },
+        setAlertMessage(type, message) {
+            this.alertVisible = true;
+            this.alertType = type;
+            this.alertMessage = message;
+            setTimeout(() => {
+                this.alertVisible = false;
+            }, 3000)
+        }
+    },
+    state: () => {
+        return {
+            sessions: [],
+            loading: false,
+            alertVisible: false,
+            alertType: 'success',
+            alertMessage: null,
+        };
+    },
 });

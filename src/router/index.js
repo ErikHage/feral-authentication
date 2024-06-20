@@ -9,6 +9,7 @@ import { useAuthenticationStore } from '@/store';
 import UsersAdmin from "@/views/admin/UsersAdmin.vue";
 import AuthorizationAdmin from "@/views/admin/AuthorizationAdmin.vue";
 import UserProfile from "@/views/dashboard/UserProfile.vue";
+import ActiveSessions from "@/views/dashboard/ActiveSessions.vue";
 
 const routes = [
     {
@@ -31,6 +32,14 @@ const routes = [
                 path: 'profile',
                 name: 'UserProfile',
                 component: UserProfile,
+                meta: {
+                    requiresAuthenticated: true,
+                },
+            },
+            {
+                path: 'sessions',
+                name: 'ActiveSessions',
+                component: ActiveSessions,
                 meta: {
                     requiresAuthenticated: true,
                 },
