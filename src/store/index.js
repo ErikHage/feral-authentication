@@ -279,7 +279,7 @@ export const useKeysStore = defineStore('key', {
         async fetchKeys() {
             try {
                 this.loading = true;
-                this.keys = await keysApi.fetchKeys(storageUtils.tryToLoadTokenFromStorage());
+                this.availableKeys = await keysApi.fetchKeys(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', err.message);
@@ -288,6 +288,7 @@ export const useKeysStore = defineStore('key', {
         },
         async generateKey(keyName, expiration) {
             try {
+
                 this.keys = await keysApi.generateKey(storageUtils.tryToLoadTokenFromStorage(), keyName, expiration);
             } catch (err) {
                 console.log(err);
@@ -305,7 +306,7 @@ export const useKeysStore = defineStore('key', {
     },
     state: () => {
         return {
-            keys: [],
+            availableKeys: [],
             loading: false,
             alertVisible: false,
             alertType: 'success',
