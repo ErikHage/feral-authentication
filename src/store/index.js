@@ -7,6 +7,7 @@ import storageUtils from "@/utils/storage-utils";
 import jwtUtils from "@/utils/jwt-utils";
 import usersApi from "@/api/users-api";
 import sessionsApi from "@/api/sessions-api";
+import keysApi from "@/api/keys-api";
 
 export const useAuthenticationStore = defineStore('authentication', {
     actions: {
@@ -265,6 +266,46 @@ export const useSessionsStore = defineStore('session', {
     state: () => {
         return {
             sessions: [],
+            loading: false,
+            alertVisible: false,
+            alertType: 'success',
+            alertMessage: null,
+        };
+    },
+});
+
+export const useKeysStore = defineStore('key', {
+    actions: {
+        async fetchKeys() {
+            try {
+                this.loading = true;
+                this.keys = await keysApi.fetchKeys(storageUtils.tryToLoadTokenFromStorage());
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
+            this.loading = false;
+        },
+        async generateKey(keyName, expiration) {
+            try {
+                this.keys = await keysApi.generateKey(storageUtils.tryToLoadTokenFromStorage(), keyName, expiration);
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
+        },
+        setAlertMessage(type, message) {
+            this.alertVisible = true;
+            this.alertType = type;
+            this.alertMessage = message;
+            setTimeout(() => {
+                this.alertVisible = false;
+            }, 3000)
+        }
+    },
+    state: () => {
+        return {
+            keys: [],
             loading: false,
             alertVisible: false,
             alertType: 'success',

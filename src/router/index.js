@@ -10,6 +10,7 @@ import UsersAdmin from "@/views/admin/UsersAdmin.vue";
 import AuthorizationAdmin from "@/views/admin/AuthorizationAdmin.vue";
 import UserProfile from "@/views/dashboard/UserProfile.vue";
 import ActiveSessions from "@/views/dashboard/ActiveSessions.vue";
+import KeysAdmin from "@/views/admin/KeysAdmin.vue";
 
 const routes = [
     {
@@ -74,6 +75,14 @@ const routes = [
                 path: 'authorization',
                 name: 'AuthorizationAdmin',
                 component: AuthorizationAdmin,
+                meta: {
+                    requiresAuthenticated: true,
+                },
+            },
+            {
+                path: 'keys',
+                name: 'KeysAdmin',
+                component: KeysAdmin,
                 meta: {
                     requiresAuthenticated: true,
                 },
