@@ -21,15 +21,13 @@
                 :loading="loading"
             >
               <template #item.actions="{ item }">
-                <v-icon small @click="openDialog(item)">mdi-pencil</v-icon>
-                <v-icon small @click="openDeleteDialog(item)">mdi-delete</v-icon>
+                <v-icon small @click="goToApplicationDetails(item)">mdi-pencil</v-icon>
               </template>
             </v-data-table>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
-
 
   </v-container>
 </template>
@@ -76,6 +74,10 @@ export default {
 
     openDialog(application) {
       this.dialog = true;
+    },
+
+    goToApplicationDetails(application) {
+      this.$router.push(`/admin/applications/${application.applicationId}`);
     }
   },
 

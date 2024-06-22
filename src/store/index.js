@@ -329,10 +329,28 @@ export const useApplicationsStore = defineStore('application', {
             }
             this.loading = false;
         },
+        async selectApplication(applicationId) {
+            try {
+                this.loading = true;
+                console.log(this.applications);
+                const applicationDetails = this.applications.find(
+                    application => application.applicationId === applicationId);
+                console.log(this.applicationDetails);
+
+                this.selectedApplication = {
+                    applicationDetails,
+                    // TODO key details
+                };
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
+            this.loading = false;
+        },
         async createApplication(application) {
             try {
                 this.loading = true;
-                this.keys = await applicationsApi.createApplication(storageUtils.tryToLoadTokenFromStorage(), application);
+                await applicationsApi.createApplication(storageUtils.tryToLoadTokenFromStorage(), application);
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', err.message);
@@ -351,6 +369,7 @@ export const useApplicationsStore = defineStore('application', {
     state: () => {
         return {
             applications: [],
+            selectedApplication: null,
             loading: false,
             alertVisible: false,
             alertType: 'success',

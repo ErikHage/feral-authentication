@@ -14,6 +14,7 @@ import KeysAdmin from "@/views/admin/KeysAdmin.vue";
 import ApplicationsAdmin from "@/views/admin/ApplicationsAdmin.vue";
 
 import { useAuthenticationStore } from '@/store';
+import ApplicationDetails from "@/views/admin/ApplicationDetails.vue";
 
 const routes = [
     {
@@ -94,6 +95,14 @@ const routes = [
                 path: 'applications',
                 name: 'ApplicationsAdmin',
                 component: ApplicationsAdmin,
+                meta: {
+                    requiresAuthenticated: true,
+                },
+            },
+            {
+                path: 'applications/:id',
+                name: 'ApplicationDetails',
+                component: ApplicationDetails,
                 meta: {
                     requiresAuthenticated: true,
                 },

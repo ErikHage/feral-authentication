@@ -87,12 +87,9 @@
             </v-card>
           </v-col>
         </v-row>
-
       </v-col>
 
-      <v-col cols="2">
-
-      </v-col>
+      <v-col cols="2"></v-col>
 
     </v-row>
   </v-container>
@@ -106,6 +103,7 @@ import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: 'UserProfile',
+
   components: { FadeOutAlert },
 
   data() {
