@@ -93,6 +93,7 @@ import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: "UsersAdmin",
+
   components: { FadeOutAlert },
 
   data() {
@@ -123,7 +124,9 @@ export default {
   },
 
   computed: {
-    ...mapState(useUsersStore, ['users', 'loading', 'alertType', 'alertMessage', 'alertVisible']),
+    ...mapState(useUsersStore, [
+        'users', 'loading', 'alertType', 'alertMessage', 'alertVisible',
+    ]),
   },
 
   methods: {

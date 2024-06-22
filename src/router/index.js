@@ -1,16 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import LoginPage from "@/views/LoginPage.vue";
-import Dashboard from "@/views/Dashboard.vue";
-import AdminPage from "@/views/AdminPage.vue";
-import RolesAdmin from "@/views/admin/RolesAdmin.vue";
 
-import { useAuthenticationStore } from '@/store';
-import UsersAdmin from "@/views/admin/UsersAdmin.vue";
-import AuthorizationAdmin from "@/views/admin/AuthorizationAdmin.vue";
+import Dashboard from "@/views/Dashboard.vue";
 import UserProfile from "@/views/dashboard/UserProfile.vue";
 import ActiveSessions from "@/views/dashboard/ActiveSessions.vue";
+
+import AdminPage from "@/views/AdminPage.vue";
+import RolesAdmin from "@/views/admin/RolesAdmin.vue";
+import UsersAdmin from "@/views/admin/UsersAdmin.vue";
+import AuthorizationAdmin from "@/views/admin/AuthorizationAdmin.vue";
 import KeysAdmin from "@/views/admin/KeysAdmin.vue";
+import ApplicationsAdmin from "@/views/admin/ApplicationsAdmin.vue";
+
+import { useAuthenticationStore } from '@/store';
 
 const routes = [
     {
@@ -83,6 +86,14 @@ const routes = [
                 path: 'keys',
                 name: 'KeysAdmin',
                 component: KeysAdmin,
+                meta: {
+                    requiresAuthenticated: true,
+                },
+            },
+            {
+                path: 'applications',
+                name: 'ApplicationsAdmin',
+                component: ApplicationsAdmin,
                 meta: {
                     requiresAuthenticated: true,
                 },

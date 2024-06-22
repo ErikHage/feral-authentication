@@ -2,12 +2,13 @@ import { defineStore } from 'pinia';
 
 import authenticationApi from '@/api/authentication-api';
 import rolesApi from "@/api/roles-api";
-
-import storageUtils from "@/utils/storage-utils";
-import jwtUtils from "@/utils/jwt-utils";
 import usersApi from "@/api/users-api";
 import sessionsApi from "@/api/sessions-api";
 import keysApi from "@/api/keys-api";
+import applicationsApi from "@/api/applications-api";
+
+import storageUtils from "@/utils/storage-utils";
+import jwtUtils from "@/utils/jwt-utils";
 
 export const useAuthenticationStore = defineStore('authentication', {
     actions: {
@@ -288,12 +289,13 @@ export const useKeysStore = defineStore('key', {
         },
         async generateKey(keyName, expiration) {
             try {
-
+                this.loading = true;
                 this.keys = await keysApi.generateKey(storageUtils.tryToLoadTokenFromStorage(), keyName, expiration);
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', err.message);
             }
+            this.loading = false;
         },
         setAlertMessage(type, message) {
             this.alertVisible = true;
@@ -307,6 +309,48 @@ export const useKeysStore = defineStore('key', {
     state: () => {
         return {
             availableKeys: [],
+            loading: false,
+            alertVisible: false,
+            alertType: 'success',
+            alertMessage: null,
+        };
+    },
+});
+
+export const useApplicationsStore = defineStore('application', {
+    actions: {
+        async fetchApplications() {
+            try {
+                this.loading = true;
+                this.applications = await applicationsApi.fetchApplications(storageUtils.tryToLoadTokenFromStorage());
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
+            this.loading = false;
+        },
+        async createApplication(application) {
+            try {
+                this.loading = true;
+                this.keys = await applicationsApi.createApplication(storageUtils.tryToLoadTokenFromStorage(), application);
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
+            this.loading = false;
+        },
+        setAlertMessage(type, message) {
+            this.alertVisible = true;
+            this.alertType = type;
+            this.alertMessage = message;
+            setTimeout(() => {
+                this.alertVisible = false;
+            }, 3000)
+        }
+    },
+    state: () => {
+        return {
+            applications: [],
             loading: false,
             alertVisible: false,
             alertType: 'success',

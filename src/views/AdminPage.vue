@@ -5,6 +5,7 @@
       <v-btn to="/admin/users">Users</v-btn>
       <v-btn to="/admin/authorization">Authorization</v-btn>
       <v-btn to="/admin/keys">Keys</v-btn>
+      <v-btn to="/admin/applications">Applications</v-btn>
     </v-app-bar>
     <v-row class="text-center">
       <router-view/>
