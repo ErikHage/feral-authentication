@@ -113,6 +113,10 @@ export default {
   methods: {
     ...mapActions(useRolesStore, ['fetchRoles', 'addRole', 'deleteRole']),
 
+    async refreshData() {
+      await this.fetchRoles();
+    },
+
     openDialog() {
       this.resetForm();
       this.dialog = true;
@@ -136,9 +140,10 @@ export default {
       };
     },
     async saveRole() {
-      if (this.$refs.roleForm.validate()) {
+      const { valid } = await this.$refs.roleForm.validate();
+      if (valid) {
         await this.addRole(this.form);
-        await this.fetchRoles();
+        await this.refreshData();
         this.closeDialog();
       }
     },
@@ -146,7 +151,7 @@ export default {
       await this.deleteRole(roleId);
       this.deleteDialog = false;
       this.roleToDelete = null;
-      await this.fetchRoles();
+      await this.refreshData();
     },
   },
 

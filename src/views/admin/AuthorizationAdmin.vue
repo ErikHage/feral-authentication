@@ -53,7 +53,7 @@
             </v-row>
             <v-chip-group v-if="selectedRoles">
               <v-chip v-for="role in selectedRoles" @click="removeRoleFromSelected(role.roleId)">
-                {{role.scope}}/{{ role.title }}
+                {{ role.scope }}/{{ role.title }}
               </v-chip>
               <!-- click on them to remove -->
             </v-chip-group>
@@ -87,8 +87,13 @@ export default {
   },
 
   computed: {
-    ...mapState(useUsersStore, ['users', 'selectedUser', 'loading', 'alertType', 'alertMessage', 'alertVisible']),
-    ...mapState(useRolesStore, ['roles']),
+    ...mapState(useUsersStore, [
+      'users', 'selectedUser', 'loading', 'alertType', 'alertMessage', 'alertVisible',
+    ]),
+
+    ...mapState(useRolesStore, [
+      'roles',
+    ]),
   },
 
   methods: {
@@ -100,6 +105,7 @@ export default {
       'setUserRoles',
       'clearUserRoles',
     ]),
+
     ...mapActions(useRolesStore, [
       'fetchRoles',
     ]),
@@ -156,7 +162,9 @@ export default {
 .fade-enter-active, .fade-leave-active {
   transition: opacity 1s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */ {
+
+.fade-enter, .fade-leave-to /* .fade-leave-active in <2.1.8 */
+{
   opacity: 0;
 }
 </style>
