@@ -17,22 +17,33 @@ export default {
 
   components: { AppBar },
 
-  methods: {
-    ...mapActions(useAuthenticationStore, ['verifyToken']),
+  computed: {
+    ...mapState(useAuthenticationStore, [
+      'isAuthenticated',
+    ]),
+  },
 
-    ...mapState(useAuthenticationStore, {
-      isAuthenticated: (state) => state.isAuthenticated,
-    }),
+  methods: {
+    ...mapActions(useAuthenticationStore, [
+      'verifyToken',
+      'setAlertMessage',
+    ]),
   },
 
   mounted() {
-    this.verifyToken().then(() => {
-      if (this.isAuthenticated()) {
-        setTimeout(() => {
-          this.$router.push('/dashboard');
-        }, 750);
-      }
-    });
+    this.verifyToken()
+        .then(() => {
+          if (this.isAuthenticated()) {
+            setTimeout(() => {
+              this.$router.push('/dashboard');
+            }, 750);
+          }
+        })
+        .catch((err) => {
+          if (err.status === 401) {
+            this.$router.push('/');
+          }
+        });
   },
 }
 </script>
