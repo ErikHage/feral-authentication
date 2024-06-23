@@ -45,6 +45,7 @@
                 <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
               </v-card-text>
               <v-card-actions>
+                <v-spacer></v-spacer>
                 <v-btn
                     :disabled="!isInputValid"
                     @click="updateUserDetails">
