@@ -76,6 +76,7 @@ export default {
       keyName: '',
       expiration: '',
       headers: [
+        { title: 'Key Id', key: 'keyId' },
         { title: 'Key Name', key: 'keyName' },
         { title: 'Expiration', key: 'expiration' },
       ],

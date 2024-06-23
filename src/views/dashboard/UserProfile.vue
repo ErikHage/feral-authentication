@@ -18,29 +18,35 @@
                     v-model="userDetails.firstName"
                     label="First Name"
                     ref="firstNameField"
-                    @input="checkValidity"></v-text-field>
+                    @input="checkValidity"
+                ></v-text-field>
                 <v-text-field
                     :rules="[rules.lastName]"
                     v-model="userDetails.lastName"
                     label="Last Name"
                     ref="lastNameField"
-                    @input="checkValidity"></v-text-field>
+                    @input="checkValidity"
+                ></v-text-field>
                 <v-text-field
                     disabled
                     v-model="userDetails.username"
-                    label="Username"></v-text-field>
+                    label="Username"
+                ></v-text-field>
                 <v-text-field
                     disabled
                     v-model="userDetails.email"
-                    label="Email"></v-text-field>
+                    label="Email"
+                ></v-text-field>
                 <v-text-field
                     disabled
                     v-model="userDetails.lastLogin"
-                    label="Last Login"></v-text-field>
+                    label="Last Login"
+                ></v-text-field>
                 <v-text-field
                     disabled
                     v-model="userDetails.isSuspended"
-                    label="Suspended"></v-text-field>
+                    label="Suspended"
+                ></v-text-field>
 
                 <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
               </v-card-text>
@@ -124,6 +130,7 @@ export default {
     ...mapState(useAuthenticationStore, [
       'actor',
     ]),
+
     ...mapState(useUsersStore, [
       'selectedUser', 'alertType', 'alertMessage', 'alertVisible',
     ]),
