@@ -21,7 +21,18 @@ async function createApplication(token, application) {
     return response.data;
 }
 
+async function rotateAuthenticationKey(token, applicationId, newKeyId) {
+    await axios.post(`${feralAuthenticationServiceUrl.v0.api}/applications/${applicationId}/rotate-key`, {
+        newKeyId,
+    }, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+}
+
 export default {
     fetchApplications,
     createApplication,
+    rotateAuthenticationKey,
 };

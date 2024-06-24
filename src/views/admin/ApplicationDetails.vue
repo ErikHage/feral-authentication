@@ -30,10 +30,22 @@
                 label="Key Pair Id"
             ></v-text-field>
             <v-text-field
+                v-if="currentKeyDetails"
+                disabled
+                v-model="currentKeyDetails.keyName"
+                label="Key Pair Name"
+            ></v-text-field>
+            <v-text-field
                 v-if="applicationDetails.previousKeyPairId"
                 disabled
                 v-model="applicationDetails.previousKeyPairId"
                 label="Previous Key Pair Id"
+            ></v-text-field>
+            <v-text-field
+                v-if="previousKeyDetails"
+                disabled
+                v-model="previousKeyDetails.keyName"
+                label="Previous Key Pair Name"
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
@@ -63,8 +75,8 @@
         </v-card-title>
         <v-card-text>
           <v-autocomplete
-              v-model="form.keyPairId"
-              :items="availableKeys"
+              v-model="form.newKeyId"
+              :items="rotateKeysSelect"
               item-title="keyName"
               item-value="keyId"
               label="Key"
@@ -98,6 +110,9 @@ export default {
     return {
       dialog: false,
       applicationDetails: null,
+      currentKeyDetails: null,
+      previousKeyDetails: null,
+      rotateKeysSelect: [],
       isInputValid: false,
       form: {
         newKeyId: '',
@@ -116,16 +131,13 @@ export default {
     ...mapState(useKeysStore, [
       'availableKeys',
     ]),
-
-    // ...mapState(useKeysStore, {
-    //   availableKeys: (state) => state.availableKeys.filter(key => key.keyPairId !== this.applicationDetails.keyPairId),
-    // }),
   },
 
   methods: {
     ...mapActions(useApplicationsStore, [
       'fetchApplications',
       'selectApplication',
+      'rotateAuthenticationKey',
     ]),
 
     ...mapActions(useKeysStore, [
@@ -153,6 +165,16 @@ export default {
       await this.fetchApplications();
       await this.selectApplication(this.$route.params.id);
       this.applicationDetails = this.selectedApplication.applicationDetails;
+
+      this.currentKeyDetails = this.availableKeys.find(key => key.keyId === this.applicationDetails.keyPairId);
+      this.previousKeyDetails = this.availableKeys.find(key => key.keyId === this.applicationDetails.previousKeyPairId);
+      this.rotateKeysSelect = this.availableKeys.filter(key => key.keyId !== this.applicationDetails.keyPairId);
+
+      console.log('refreshData', {
+        currentKey: this.currentKeyDetails,
+        prevKey: this.previousKeyDetails,
+        app: this.applicationDetails,
+      });
     },
 
     async checkValidity() {
@@ -168,7 +190,7 @@ export default {
 
     async performKeyRotation() {
       console.log('performKeyRotation');
-      // TODO
+      await this.rotateAuthenticationKey(this.applicationDetails.applicationId, this.form.newKeyId);
       this.closeDialog();
       await this.refreshData();
     },

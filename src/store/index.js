@@ -297,6 +297,23 @@ export const useKeysStore = defineStore('key', {
             }
             this.loading = false;
         },
+        async selectKey(keyId) {
+            try {
+                console.log('selecting key with id', keyId);
+                this.loading = true;
+                console.log('this.availableKeys', this.availableKeys);
+                const keyDetails = this.availableKeys.find(key => key.keyId === keyId);
+                console.log('found key', keyDetails);
+
+                this.selectedKey = {
+                    keyDetails,
+                };
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
+            this.loading = false;
+        },
         setAlertMessage(type, message) {
             this.alertVisible = true;
             this.alertType = type;
@@ -356,6 +373,16 @@ export const useApplicationsStore = defineStore('application', {
                 this.setAlertMessage('error', err.message);
             }
             this.loading = false;
+        },
+        async rotateAuthenticationKey(applicationId, newKeyId) {
+            try {
+                await applicationsApi.rotateAuthenticationKey(
+                    storageUtils.tryToLoadTokenFromStorage(), applicationId, newKeyId);
+                this.setAlertMessage('success', `Key Rotated!`);
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
         },
         setAlertMessage(type, message) {
             this.alertVisible = true;
