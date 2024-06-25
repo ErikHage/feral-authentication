@@ -8,6 +8,11 @@
         <v-card class="mt-3">
           <v-card-text>
             <v-text-field
+                disabled
+                v-model="applicationDetails.applicationId"
+                label="Application Id"
+            ></v-text-field>
+            <v-text-field
                 :rules="[rules.applicationName]"
                 v-model="applicationDetails.applicationName"
                 label="Application Name"
@@ -15,14 +20,11 @@
                 @input="checkValidity"
             ></v-text-field>
             <v-text-field
-                disabled
-                v-model="applicationDetails.applicationId"
-                label="Application Id"
-            ></v-text-field>
-            <v-text-field
-                disabled
+                :rules="[rules.applicationUrl]"
                 v-model="applicationDetails.applicationUrl"
                 label="Application Landing Page"
+                ref="applicationUrl"
+                @input="checkValidity"
             ></v-text-field>
             <v-text-field
                 disabled
@@ -119,6 +121,7 @@ export default {
       },
       rules: {
         applicationName: (v) => !!v || 'Field is required',
+        applicationUrl: (v) => !!v || 'Field is required',
       },
     };
   },
@@ -179,7 +182,8 @@ export default {
 
     async checkValidity() {
       const nameValidation = await this.$refs.applicationNameField.validate();
-      this.isInputValid = nameValidation.length === 0;
+      const urlValidation = await this.$refs.applicationUrl.validate();
+      this.isInputValid = nameValidation.length + urlValidation.length === 0;
     },
 
     async updateApplicationDetails() {
