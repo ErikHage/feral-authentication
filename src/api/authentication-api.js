@@ -7,6 +7,8 @@ async function login(username, password) {
         const response = await axios.post(`${feralAuthenticationServiceUrl.v0.auth}/login`, {
             username,
             password,
+            // TODO how to handle this? some kind of user-scopes table?
+            scope: 'feral',
         });
 
         return response.data.token;
