@@ -30,6 +30,12 @@
               </template>
               <v-card-text class="ma-3">
                 <v-text-field
+                    v-model="session.scope"
+                    label="Scope"
+                    disabled
+                    density="compact"
+                ></v-text-field>
+                <v-text-field
                     v-model="session.roles"
                     label="Authorization"
                     disabled
