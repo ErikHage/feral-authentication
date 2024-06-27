@@ -38,6 +38,7 @@
           <v-form ref="applicationForm">
             <v-text-field v-model="form.applicationName" label="Name" required></v-text-field>
             <v-text-field v-model="form.applicationUrl" label="Url" required></v-text-field>
+            <v-text-field v-model="form.scope" label="Scope" required></v-text-field>
             <v-autocomplete
                 v-model="form.keyPairId"
                 :items="availableKeys"
@@ -77,11 +78,13 @@ export default {
       form: {
         applicationName: '',
         applicationUrl: '',
+        scope: '',
         keyPairId: '',
       },
       headers: [
         { title: 'Application Name', key: 'applicationName' },
         { title: 'Application Url', key: 'applicationUrl' },
+        { title: 'Scope', key: 'scope' },
         { title: 'Key Id', key: 'keyPairId' },
         { title: 'Prev Key Id', key: 'previousKeyPairId' },
         { title: 'Actions', key: 'actions', sortable: false },
@@ -119,6 +122,7 @@ export default {
       this.form = {
         applicationName: '',
         applicationUrl: '',
+        scope: '',
         keyPairId: '',
       };
     },

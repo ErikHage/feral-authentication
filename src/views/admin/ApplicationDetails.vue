@@ -27,6 +27,13 @@
                 @input="checkValidity"
             ></v-text-field>
             <v-text-field
+                :rules="[rules.scope]"
+                v-model="applicationDetails.scope"
+                label="Roles Scope"
+                ref="scope"
+                @input="checkValidity"
+            ></v-text-field>
+            <v-text-field
                 disabled
                 v-model="applicationDetails.keyPairId"
                 label="Key Pair Id"
@@ -120,8 +127,9 @@ export default {
         newKeyId: '',
       },
       rules: {
-        applicationName: (v) => !!v || 'Field is required',
-        applicationUrl: (v) => !!v || 'Field is required',
+        applicationName: (v) => !!v || 'applicationName is required',
+        applicationUrl: (v) => !!v || 'applicationUrl is required',
+        scope: (v) => !!v || 'scope is required',
       },
     };
   },
@@ -173,6 +181,8 @@ export default {
       this.previousKeyDetails = this.availableKeys.find(key => key.keyId === this.applicationDetails.previousKeyPairId);
       this.rotateKeysSelect = this.availableKeys.filter(key => key.keyId !== this.applicationDetails.keyPairId);
 
+      this.isInputValid = false;
+
       console.log('refreshData', {
         currentKey: this.currentKeyDetails,
         prevKey: this.previousKeyDetails,
@@ -183,7 +193,8 @@ export default {
     async checkValidity() {
       const nameValidation = await this.$refs.applicationNameField.validate();
       const urlValidation = await this.$refs.applicationUrl.validate();
-      this.isInputValid = nameValidation.length + urlValidation.length === 0;
+      const scopeValidation = await this.$refs.scope.validate();
+      this.isInputValid = nameValidation.length + urlValidation.length + scopeValidation.length === 0;
     },
 
     async updateApplicationDetails() {
