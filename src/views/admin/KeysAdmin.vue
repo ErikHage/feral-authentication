@@ -123,6 +123,7 @@ export default {
       console.log('expiration', this.expiration);
       await this.generateKey(this.keyName, this.expiration);
       this.closeGenerateDialog();
+      await this.refresh();
     },
 
     async refresh() {
