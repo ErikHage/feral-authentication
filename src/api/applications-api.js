@@ -31,8 +31,20 @@ async function rotateAuthenticationKey(token, applicationId, newKeyId) {
     });
 }
 
+async function fetchApplicationsForUser(token) {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/users/current/applications`, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+
+    return response.data;
+}
+
 export default {
     fetchApplications,
     createApplication,
     rotateAuthenticationKey,
+
+    fetchApplicationsForUser,
 };

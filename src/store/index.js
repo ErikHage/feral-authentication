@@ -384,6 +384,16 @@ export const useApplicationsStore = defineStore('application', {
                 this.setAlertMessage('error', err.message);
             }
         },
+        async fetchApplicationsForCurrentUser() {
+            try {
+                this.loading = true;
+                this.userAllowedApplications = await applicationsApi.fetchApplicationsForUser(storageUtils.tryToLoadTokenFromStorage());
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
+            this.loading = false;
+        },
         setAlertMessage(type, message) {
             this.alertVisible = true;
             this.alertType = type;
@@ -396,6 +406,7 @@ export const useApplicationsStore = defineStore('application', {
     state: () => {
         return {
             applications: [],
+            userAllowedApplications: [],
             selectedApplication: null,
             loading: false,
             alertVisible: false,
