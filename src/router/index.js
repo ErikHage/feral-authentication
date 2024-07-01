@@ -35,7 +35,7 @@ const routes = [
         },
         children: [
             {
-                path: '/',
+                path: 'applications',
                 name: 'ApplicationPicker',
                 component: ApplicationPicker,
                 meta: {

@@ -76,7 +76,7 @@ export default {
 
     delayedRedirectToDashboard() {
       setTimeout(() => {
-        this.$router.push('/dashboard');
+        this.$router.push('/dashboard/applications');
       }, 500);
     },
 
