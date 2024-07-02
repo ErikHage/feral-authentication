@@ -37,13 +37,20 @@ export const useAuthenticationStore = defineStore('authentication', {
                     // show some error
                 }
             }
-            storageUtils.clearTokenFromStorage();
+            this.clearToken();
             this.showAppBar = false;
             this.loading = false;
             this.isAuthenticated = false;
         },
+        tokenPresent() {
+            const maybeToken = storageUtils.tryToLoadTokenFromStorage();
+            return maybeToken !== null;
+        },
         async verifyToken() {
             this.isAuthenticated = await authenticationApi.verifyToken(storageUtils.tryToLoadTokenFromStorage());
+        },
+        clearToken() {
+            storageUtils.clearTokenFromStorage();
         },
         setAlertMessage(type, message) {
             this.alertVisible = true;

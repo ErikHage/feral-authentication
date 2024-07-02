@@ -25,25 +25,33 @@ export default {
 
   methods: {
     ...mapActions(useAuthenticationStore, [
+      'tokenPresent',
+      'clearToken',
       'verifyToken',
       'setAlertMessage',
     ]),
   },
 
   mounted() {
-    this.verifyToken()
-        .then(() => {
-          if (this.isAuthenticated()) {
-            setTimeout(() => {
-              this.$router.push('/dashboard');
-            }, 750);
-          }
-        })
-        .catch((err) => {
-          if (err.status === 401) {
-            this.$router.push('/');
-          }
-        });
+    if (this.tokenPresent()) {
+      this.verifyToken()
+          .then(() => {
+            if (this.isAuthenticated) {
+              setTimeout(() => {
+                this.$router.push('/dashboard/applications');
+              }, 750);
+            } else {
+              this.clearToken();
+              this.$router.push('/');
+            }
+          })
+          .catch((err) => {
+            this.clearToken();
+            if (err.status === 401) {
+              this.$router.push('/');
+            }
+          });
+    }
   },
 }
 </script>
