@@ -16,6 +16,7 @@
               </v-card-title>
               <v-card-text class="ma-3">
                 <!-- TODO add a logo to click instead of an anchor tag -->
+                <!-- TODO this should not be a direct link, we need to get a proper token first -->
                 <a :href="application.applicationUrl" target="_blank">
                   Go
                 </a>
