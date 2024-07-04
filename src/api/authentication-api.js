@@ -18,6 +18,20 @@ async function login(username, password) {
     }
 }
 
+async function loginToApplication(token, applicationId) {
+    try {
+        const response = await axios.get(`${feralAuthenticationServiceUrl.v0.auth}/login/${applicationId}`, {
+            headers: {
+                'x-feral-auth-token': token,
+            },
+        });
+        return response.data;
+    } catch (err) {
+        console.log('Error:', err);
+        throw new Error('Error logging in');
+    }
+}
+
 async function logout(token) {
     await axios.post(`${feralAuthenticationServiceUrl.v0.auth}/logout`, {}, {
         headers: {
@@ -43,6 +57,7 @@ async function verifyToken(token) {
 
 export default {
     login,
+    loginToApplication,
     logout,
     verifyToken,
 };

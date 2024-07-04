@@ -27,6 +27,21 @@ export const useAuthenticationStore = defineStore('authentication', {
                 this.setAlertMessage('error', err.message);
             }
         },
+        async loginToApplication(applicationId) {
+            try {
+                const html = await authenticationApi.loginToApplication(storageUtils.tryToLoadTokenFromStorage(), applicationId);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
+
+                // Extract and append the form to the body
+                const form = tempDiv.querySelector('form');
+                document.body.appendChild(form);
+                form.submit();
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', err.message);
+            }
+        },
         async logout() {
             try {
                 await authenticationApi.logout(storageUtils.tryToLoadTokenFromStorage());

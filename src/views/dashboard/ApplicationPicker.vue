@@ -17,9 +17,7 @@
               <v-card-text class="ma-3">
                 <!-- TODO add a logo to click instead of an anchor tag -->
                 <!-- TODO this should not be a direct link, we need to get a proper token first -->
-                <a :href="application.applicationUrl" target="_blank">
-                  Go
-                </a>
+                <v-btn @click="goToApplication(application.applicationId)">Go!</v-btn>
               </v-card-text>
             </v-card>
           </v-col>
@@ -35,7 +33,7 @@
 <script>
 import {mapActions, mapState} from "pinia";
 
-import {useApplicationsStore,} from "@/store";
+import { useApplicationsStore, useAuthenticationStore, } from "@/store";
 
 export default {
   name: 'ApplicationPicker',
@@ -56,6 +54,15 @@ export default {
     ...mapActions(useApplicationsStore, [
       'fetchApplicationsForCurrentUser',
     ]),
+
+    ...mapActions(useAuthenticationStore, [
+      'loginToApplication',
+    ]),
+
+    async goToApplication(applicationId) {
+      console.log('goToApplication', applicationId);
+      await this.loginToApplication(applicationId);
+    },
 
     async refreshData() {
       await this.fetchApplicationsForCurrentUser();
