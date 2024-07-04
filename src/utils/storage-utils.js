@@ -1,13 +1,15 @@
+const tokenKey = 'feral-token';
+
 function setTokenInLocalStorage(token) {
-    localStorage.setItem('token', token);
+    localStorage.setItem(tokenKey, token);
 }
 
 function tryToLoadTokenFromStorage() {
-    return localStorage.getItem('token') || null;
+    return localStorage.getItem(tokenKey) || null;
 }
 
 function clearTokenFromStorage() {
-    localStorage.removeItem('token');
+    localStorage.removeItem(tokenKey);
 }
 
 export default {
