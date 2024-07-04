@@ -7,7 +7,6 @@ async function login(username, password) {
         const response = await axios.post(`${feralAuthenticationServiceUrl.v0.auth}/login`, {
             username,
             password,
-            // TODO how to handle this? some kind of user-applications table?
             applicationId: 'e3304693-9a9f-48a0-ad03-f45bb3b73884',
         });
 
@@ -25,7 +24,7 @@ async function loginToApplication(token, applicationId) {
                 'x-feral-auth-token': token,
             },
         });
-        return response.data;
+        return response.data.redirectUrl;
     } catch (err) {
         console.log('Error:', err);
         throw new Error('Error logging in');

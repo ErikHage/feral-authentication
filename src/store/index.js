@@ -29,14 +29,8 @@ export const useAuthenticationStore = defineStore('authentication', {
         },
         async loginToApplication(applicationId) {
             try {
-                const html = await authenticationApi.loginToApplication(storageUtils.tryToLoadTokenFromStorage(), applicationId);
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = html;
-
-                // Extract and append the form to the body
-                const form = tempDiv.querySelector('form');
-                document.body.appendChild(form);
-                form.submit();
+                const redirectUrl = await authenticationApi.loginToApplication(storageUtils.tryToLoadTokenFromStorage(), applicationId);
+                window.open(redirectUrl, '_blank');
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', err.message);
