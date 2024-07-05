@@ -1,7 +1,6 @@
 <template>
   <v-container>
-    <h2>Users Admin</h2>
-    <v-row justify="center" class="mt-2">
+    <v-row justify="center">
       <v-col cols="12" sm="8">
         <v-card>
           <v-card-title>
