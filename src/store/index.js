@@ -42,6 +42,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             } catch (err) {
                 if (err.status === 401) {
                     // token must already be expired, don't worry about it
+                    this.clearToken();
                 } else {
                     // show some error
                 }
