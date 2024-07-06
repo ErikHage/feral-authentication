@@ -183,10 +183,10 @@ export const useUsersStore = defineStore('user', {
             }
         },
         async selectUser(userId) {
-            console.log('select User', userId);
             const token = storageUtils.tryToLoadTokenFromStorage();
             const userDetails = this.users.find(user => user.userId === userId);
             const userRoles = await usersApi.fetchUserRoles(token, userId);
+            const userApplications = await usersApi.fetchUserApplications(token, userId);
             const rolesByScope = userRoles.roles.reduce((acc, role) => {
                 if (!acc[role.scope]) {
                     acc[role.scope] = [];
@@ -199,6 +199,7 @@ export const useUsersStore = defineStore('user', {
                 details: userDetails,
                 roles: userRoles.roles,
                 rolesByScope,
+                applications: userApplications,
             };
         },
         clearSelectedUser() {
@@ -228,6 +229,32 @@ export const useUsersStore = defineStore('user', {
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', 'error clearing user roles');
+            }
+        },
+        async fetchUserApplications(userId) {
+            try {
+                await usersApi.fetchUserApplications(storageUtils.tryToLoadTokenFromStorage(), userId);
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', 'error loading user applications');
+            }
+        },
+        async setUserApplications(userId, applicationIds) {
+            try {
+                await usersApi.setUserApplications(storageUtils.tryToLoadTokenFromStorage(), userId, applicationIds);
+                this.setAlertMessage('success', 'User Applications Updated!');
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', 'error setting user applications');
+            }
+        },
+        async clearUserApplications(userId) {
+            try {
+                await usersApi.clearUserApplications(storageUtils.tryToLoadTokenFromStorage(), userId);
+                this.setAlertMessage('success', 'User Applications Updated!');
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', 'error clearing user applications');
             }
         },
         setAlertMessage(type, message) {

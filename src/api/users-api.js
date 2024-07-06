@@ -97,12 +97,49 @@ async function clearUserRoles(token, userId) {
         });
 }
 
+async function fetchUserApplications(token, userId) {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/applications`,
+        {
+            headers: {
+                'x-feral-auth-token': token,
+            },
+        });
+    console.log('user applications', response.data);
+    return response.data;
+}
+
+async function setUserApplications(token, userId, applicationIds) {
+    await axios.post(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/applications`,
+        {
+            applicationIds,
+        },
+        {
+            headers: {
+                'x-feral-auth-token': token,
+            },
+        });
+}
+
+async function clearUserApplications(token, userId) {
+    await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/applications`,
+        {
+            headers: {
+                'x-feral-auth-token': token,
+            },
+        });
+}
+
 export default {
     fetchUsers,
     addUser,
     updateUser,
     deleteUser,
+
     fetchUserRoles,
     setUserRoles,
     clearUserRoles,
+
+    fetchUserApplications,
+    setUserApplications,
+    clearUserApplications,
 };

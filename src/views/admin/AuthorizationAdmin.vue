@@ -23,6 +23,48 @@
 
         <v-card class="mt-3" v-if="selectedUser">
           <v-card-title>
+            <span class="headline">Manage Applications</span>
+          </v-card-title>
+          <v-card-text>
+            <v-row align="center">
+              <v-col cols="11">
+                <v-select
+                    v-model="selectedApplication"
+                    :items="applications"
+                    item-title="applicationName"
+                    item-value="applicationId"
+                    label="Select Application To Add"
+                    variant="solo"
+                    return-object
+                ></v-select>
+              </v-col>
+              <v-col cols="1">
+                <v-btn
+                    block
+                    color="error"
+                    @click="addSelectedApplication"
+                    :disabled="!selectedApplication || isApplicationAlreadySelected(selectedApplication)"
+                >
+                  <v-icon>mdi-plus</v-icon>
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-chip-group v-if="selectedApplications">
+              <v-chip v-for="application in selectedApplications" @click="removeApplicationFromSelected(application.applicationId)">
+                {{ application.applicationName }}
+              </v-chip>
+              <!-- click on them to remove -->
+            </v-chip-group>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="cancelUpdatingApplications">Cancel</v-btn>
+            <v-btn color="blue darken-1" text @click="saveApplicationUpdates">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+
+        <v-card class="mt-3" v-if="selectedUser">
+          <v-card-title>
             <span class="headline">Manage Roles</span>
           </v-card-title>
           <v-card-text>
@@ -63,13 +105,14 @@
             <v-btn color="blue darken-1" text @click="saveRoleUpdates">Save</v-btn>
           </v-card-actions>
         </v-card>
+
       </v-col>
     </v-row>
   </v-container>
 </template>
 
 <script>
-import { useRolesStore, useUsersStore } from "@/store";
+import { useApplicationsStore, useRolesStore, useUsersStore } from "@/store";
 import { mapActions, mapState } from "pinia";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
@@ -80,8 +123,12 @@ export default {
   data() {
     return {
       selectedUserId: null,
+
       selectedRole: null,
       selectedRoles: [],
+
+      selectedApplication: null,
+      selectedApplications: [],
     };
   },
 
@@ -93,6 +140,10 @@ export default {
     ...mapState(useRolesStore, [
       'roles',
     ]),
+
+    ...mapState(useApplicationsStore, [
+      'applications',
+    ]),
   },
 
   methods: {
@@ -103,10 +154,17 @@ export default {
       'fetchUserRoles',
       'setUserRoles',
       'clearUserRoles',
+      'fetchUserApplications',
+      'setUserApplications',
+      'clearUserApplications',
     ]),
 
     ...mapActions(useRolesStore, [
       'fetchRoles',
+    ]),
+
+    ...mapActions(useApplicationsStore, [
+      'fetchApplications',
     ]),
 
     reset() {
@@ -114,37 +172,82 @@ export default {
       this.selectedUserId = null;
       this.selectedRole = null;
       this.selectedRoles = [];
+      this.selectedApplication = null;
+      this.selectedApplications = [];
     },
+
     refreshData() {
       this.fetchUsers();
       this.fetchRoles();
+      this.fetchApplications();
       this.clearSelectedUser();
     },
+
     async onSelectUserChange(userId) {
       await this.selectUser(userId);
       this.selectedRoles = this.selectedUser.roles;
+      this.selectedApplications = this.selectedUser.applications;
     },
+
+    // ROLE METHODS
     addSelectedRole(role) {
       if (!this.isRoleAlreadySelected(role)) {
         this.selectedRoles.push(this.selectedRole);
       }
       this.selectedRole = null;
     },
+
     removeRoleFromSelected(roleId) {
       this.selectedRoles = this.selectedRoles.filter(role => role.roleId !== roleId);
     },
+
     isRoleAlreadySelected(role) {
       return this.selectedRoles.map(role => role.roleId).includes(role.roleId);
     },
+
     cancelUpdatingRoles() {
       this.reset();
     },
+
     async saveRoleUpdates() {
       if (this.selectedRoles.length === 0) {
         await this.clearUserRoles(this.selectedUserId);
       } else {
         const roleIds = this.selectedRoles.map(role => role.roleId);
         await this.setUserRoles(this.selectedUserId, roleIds);
+      }
+      await this.refreshData();
+      this.reset();
+    },
+
+    // APPLICATION METHODS
+    addSelectedApplication(application) {
+      if (!this.isApplicationAlreadySelected(application)) {
+        this.selectedApplications.push(this.selectedApplication);
+      }
+      this.selectedApplication = null;
+    },
+
+    removeApplicationFromSelected(applicationId) {
+      this.selectedApplications = this.selectedApplications.filter(
+          application => application.applicationId !== applicationId);
+    },
+
+    isApplicationAlreadySelected(application) {
+      return this.selectedApplications.map(application => application.applicationId)
+          .includes(application.applicationId);
+    },
+
+    cancelUpdatingApplications() {
+      this.reset();
+    },
+
+    async saveApplicationUpdates() {
+      if (this.selectedApplications.length === 0) {
+        await this.clearUserApplications(this.selectedUserId);
+      } else {
+        const applicationIds = this.selectedApplications.map(application => application.applicationId);
+        await this.setUserApplications(this.selectedUserId, applicationIds);
       }
       await this.refreshData();
       this.reset();
