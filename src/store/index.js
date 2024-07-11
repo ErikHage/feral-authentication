@@ -27,10 +27,17 @@ export const useAuthenticationStore = defineStore('authentication', {
                 this.setAlertMessage('error', err.message);
             }
         },
-        async loginToApplication(applicationId) {
+        async loginToApplication(applicationId, newTab) {
             try {
                 const redirectUrl = await authenticationApi.loginToApplication(storageUtils.tryToLoadTokenFromStorage(), applicationId);
-                window.open(redirectUrl, '_blank');
+                console.log('login to application successful');
+                console.log(`redirect to: ${redirectUrl}`);
+
+                if (!!newTab) {
+                    window.open(redirectUrl, '_blank');
+                } else {
+                    window.open(redirectUrl, '_self');
+                }
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', err.message);

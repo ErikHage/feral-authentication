@@ -72,6 +72,7 @@ export default {
   methods: {
     ...mapActions(useAuthenticationStore, [
         'authenticate',
+        'loginToApplication',
     ]),
 
     delayedRedirectToDashboard() {
@@ -81,21 +82,39 @@ export default {
     },
 
     async login() {
+      const maybeAppQueryParam = this.maybeGetApplicationIdQueryParam();
+
       await this.authenticate(this.username, this.password);
 
       if (this.isAuthenticated) {
-        this.delayedRedirectToDashboard();
+        if (maybeAppQueryParam) {
+          await this.loginToApplication(maybeAppQueryParam, false);
+        } else {
+          this.delayedRedirectToDashboard();
+        }
       }
     },
 
     showLoginButton() {
       return !this.loading && !this.isAuthenticated
-    }
+    },
+
+    maybeGetApplicationIdQueryParam() {
+      const urlParams = new URLSearchParams(window.location.search);
+      console.log('app query param: ', urlParams.get('app'));
+      return urlParams.get('app');
+    },
   },
 
-  mounted() {
+  async mounted() {
+    const maybeAppQueryParam = this.maybeGetApplicationIdQueryParam();
+
     if (this.isAuthenticated) {
-      this.delayedRedirectToDashboard();
+      if (maybeAppQueryParam) {
+        await this.loginToApplication(maybeAppQueryParam, false);
+      } else {
+        this.delayedRedirectToDashboard();
+      }
     }
   }
 }

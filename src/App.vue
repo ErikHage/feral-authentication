@@ -33,7 +33,6 @@ export default {
 
     maybeGetApplicationIdQueryParam() {
       const urlParams = new URLSearchParams(window.location.search);
-      console.log('app query param: ', urlParams.get('app'));
       return urlParams.get('app');
     },
 
