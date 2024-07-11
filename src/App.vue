@@ -43,8 +43,12 @@ export default {
       }, 750);
     },
 
-    redirectToLogin() {
-      this.$router.push('/login');
+    redirectToLogin(maybeApplicationId) {
+      if (maybeApplicationId) {
+        this.$router.push(`/login?app=${maybeApplicationId}`);
+      } else {
+        this.$router.push('/login');
+      }
     }
   },
 
@@ -58,12 +62,12 @@ export default {
           this.delayedRedirectToDashboard();
         } else {
           this.clearToken();
-          this.redirectToLogin();
+          this.redirectToLogin(maybeApplicationId);
         }
       } catch (err) {
         this.clearToken();
         if (err.status === 401) {
-          this.redirectToLogin();
+          this.redirectToLogin(maybeApplicationId);
         }
       }
     }
