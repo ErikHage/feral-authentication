@@ -30,27 +30,42 @@ export default {
       'verifyToken',
       'setAlertMessage',
     ]),
+
+    maybeGetApplicationIdQueryParam() {
+      const urlParams = new URLSearchParams(window.location.search);
+      console.log('app query param: ', urlParams.get('app'));
+      return urlParams.get('app');
+    },
+
+    delayedRedirectToDashboard() {
+      setTimeout(() => {
+        this.$router.push('/dashboard/applications');
+      }, 750);
+    },
+
+    redirectToLogin() {
+      this.$router.push('/login');
+    }
   },
 
-  mounted() {
+  async mounted() {
+    const maybeApplicationId = this.maybeGetApplicationIdQueryParam();
+
     if (this.tokenPresent()) {
-      this.verifyToken()
-          .then(() => {
-            if (this.isAuthenticated) {
-              setTimeout(() => {
-                this.$router.push('/dashboard/applications');
-              }, 750);
-            } else {
-              this.clearToken();
-              this.$router.push('/login');
-            }
-          })
-          .catch((err) => {
-            this.clearToken();
-            if (err.status === 401) {
-              this.$router.push('/login');
-            }
-          });
+      try {
+        await this.verifyToken();
+        if (this.isAuthenticated) {
+          this.delayedRedirectToDashboard();
+        } else {
+          this.clearToken();
+          this.redirectToLogin();
+        }
+      } catch (err) {
+        this.clearToken();
+        if (err.status === 401) {
+          this.redirectToLogin();
+        }
+      }
     }
   },
 }
