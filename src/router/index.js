@@ -19,7 +19,7 @@ import ApplicationDetails from "@/views/admin/ApplicationDetails.vue";
 
 const routes = [
     {
-        path: '/',
+        path: '/login',
         name: 'Login',
         component: LoginPage,
         meta: {

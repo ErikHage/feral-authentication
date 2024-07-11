@@ -42,13 +42,13 @@ export default {
               }, 750);
             } else {
               this.clearToken();
-              this.$router.push('/');
+              this.$router.push('/login');
             }
           })
           .catch((err) => {
             this.clearToken();
             if (err.status === 401) {
-              this.$router.push('/');
+              this.$router.push('/login');
             }
           });
     }

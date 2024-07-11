@@ -28,7 +28,7 @@ export default {
 
     async logoutUser() {
       await this.logout();
-      this.$router.push('/');
+      this.$router.push('/login');
     }
   },
 }
