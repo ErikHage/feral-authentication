@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 import { useAuthenticationStore } from '@/store';
-
-import LoginPage from "@/views/LoginPage.vue";
+import { views } from "@/utils/constants";
 
 import Dashboard from "@/views/Dashboard.vue";
+import LoginPage from "@/views/LoginPage.vue";
 import UserProfile from "@/views/dashboard/UserProfile.vue";
 import ApplicationPicker from "@/views/dashboard/ApplicationPicker.vue";
-import ActiveSessions from "@/views/dashboard/ActiveSessions.vue";
 
+import ActiveSessions from "@/views/dashboard/ActiveSessions.vue";
 import AdminPage from "@/views/AdminPage.vue";
 import RolesAdmin from "@/views/admin/RolesAdmin.vue";
 import UsersAdmin from "@/views/admin/UsersAdmin.vue";
@@ -16,11 +16,20 @@ import AuthorizationAdmin from "@/views/admin/AuthorizationAdmin.vue";
 import KeysAdmin from "@/views/admin/KeysAdmin.vue";
 import ApplicationsAdmin from "@/views/admin/ApplicationsAdmin.vue";
 import ApplicationDetails from "@/views/admin/ApplicationDetails.vue";
+import PublicPage from "@/views/PublicPage.vue";
 
 const routes = [
     {
-        path: '/login',
-        name: 'Login',
+        path: views.public.path,
+        name: views.public.name,
+        component: PublicPage,
+        meta: {
+            requiresAuthenticated: false,
+        },
+    },
+    {
+        path: views.login.path,
+        name: views.login.name,
         component: LoginPage,
         meta: {
             requiresAuthenticated: false,

@@ -71,6 +71,8 @@ export default {
 
   methods: {
     ...mapActions(useAuthenticationStore, [
+        'tokenPresent',
+        'verifyToken',
         'authenticate',
         'loginToApplication',
     ]),
@@ -101,18 +103,32 @@ export default {
 
     maybeGetApplicationIdQueryParam() {
       const urlParams = new URLSearchParams(window.location.search);
-      console.log('app query param: ', urlParams.get('app'));
       return urlParams.get('app');
     },
   },
 
   async mounted() {
+    if (this.tokenPresent()) {
+      try {
+        await this.verifyToken();
+        if (!this.isAuthenticated) {
+          this.clearToken();
+        }
+      } catch (err) {
+        this.clearToken();
+      }
+    } else {
+    }
+
     const maybeAppQueryParam = this.maybeGetApplicationIdQueryParam();
 
     if (this.isAuthenticated) {
+      console.log('is authenticated: true');
       if (maybeAppQueryParam) {
+        console.log('app query param present, login to application', maybeAppQueryParam);
         await this.loginToApplication(maybeAppQueryParam, false);
       } else {
+        console.log('app query param not present, redirect to dashboard');
         this.delayedRedirectToDashboard();
       }
     }
