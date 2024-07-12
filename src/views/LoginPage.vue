@@ -61,6 +61,7 @@ export default {
   data: () => ({
     username: '',
     password: '',
+    ssoAppId: null,
   }),
 
   computed: {
@@ -84,13 +85,11 @@ export default {
     },
 
     async login() {
-      const maybeAppQueryParam = this.maybeGetApplicationIdQueryParam();
-
       await this.authenticate(this.username, this.password);
 
       if (this.isAuthenticated) {
-        if (maybeAppQueryParam) {
-          await this.loginToApplication(maybeAppQueryParam, false);
+        if (this.ssoAppId) {
+          await this.loginToApplication(this.ssoAppId, false);
         } else {
           this.delayedRedirectToDashboard();
         }
@@ -108,6 +107,8 @@ export default {
   },
 
   async mounted() {
+    this.ssoAppId = this.maybeGetApplicationIdQueryParam();
+
     if (this.tokenPresent()) {
       try {
         await this.verifyToken();
@@ -117,18 +118,12 @@ export default {
       } catch (err) {
         this.clearToken();
       }
-    } else {
     }
 
-    const maybeAppQueryParam = this.maybeGetApplicationIdQueryParam();
-
     if (this.isAuthenticated) {
-      console.log('is authenticated: true');
-      if (maybeAppQueryParam) {
-        console.log('app query param present, login to application', maybeAppQueryParam);
-        await this.loginToApplication(maybeAppQueryParam, false);
+      if (this.ssoAppId) {
+        await this.loginToApplication(this.ssoAppId, false);
       } else {
-        console.log('app query param not present, redirect to dashboard');
         this.delayedRedirectToDashboard();
       }
     }
