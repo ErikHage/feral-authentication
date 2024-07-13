@@ -11,13 +11,18 @@
                  cols="4"
           >
             <v-card>
-              <v-card-title class="text-left">
+              <v-card-title class="text-center">
                 {{ application.applicationName }}
               </v-card-title>
               <v-card-text class="ma-3">
-                <!-- TODO add a logo to click instead of an anchor tag -->
-                <!-- TODO this should not be a direct link, we need to get a proper token first -->
-                <v-btn @click="goToApplication(application.applicationId)">Go!</v-btn>
+                <v-img
+                    :src="getAssetPathToDisplay(application)"
+                    alt="Logo"
+                    contain
+                    max-width="125"
+                    class="mx-auto pointer"
+                    @click="goToApplication(application.applicationId)"
+                ></v-img>
               </v-card-text>
             </v-card>
           </v-col>
@@ -31,7 +36,7 @@
 </template>
 
 <script>
-import {mapActions, mapState} from "pinia";
+import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useAuthenticationStore, } from "@/store";
 
@@ -59,6 +64,13 @@ export default {
       'loginToApplication',
     ]),
 
+    getAssetPathToDisplay(application) {
+      if (application.mascotAssetPath) {
+        return `/src/assets/${application.mascotAssetPath}`;
+      }
+      return '/src/assets/default-mascot.jpg';
+    },
+
     async goToApplication(applicationId) {
       console.log('goToApplication', applicationId);
       await this.loginToApplication(applicationId);
@@ -77,5 +89,7 @@ export default {
 </script>
 
 <style scoped>
-
+.pointer {
+  cursor: pointer;
+}
 </style>
