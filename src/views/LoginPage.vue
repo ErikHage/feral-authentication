@@ -76,6 +76,7 @@ export default {
         'verifyToken',
         'authenticate',
         'loginToApplication',
+        'clearToken',
     ]),
 
     delayedRedirectToDashboard() {
