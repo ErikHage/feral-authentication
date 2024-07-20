@@ -15,4 +15,12 @@ export const views = {
         name: 'Login',
         path: '/login',
     },
+    dashboard:  {
+        name: 'Dashboard',
+        path: '/dashboard',
+    },
+    admin:  {
+        name: 'Admin',
+        path: '/admin',
+    },
 };

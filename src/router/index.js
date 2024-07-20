@@ -36,8 +36,8 @@ const routes = [
         },
     },
     {
-        path: '/dashboard',
-        name: 'Dashboard',
+        path: views.dashboard.path,
+        name: views.dashboard.name,
         component: Dashboard,
         meta: {
             requiresAuthenticated: true,
@@ -70,8 +70,8 @@ const routes = [
         ],
     },
     {
-        path: '/admin',
-        name: 'Admin',
+        path: views.admin.path,
+        name: views.admin.name,
         component: AdminPage,
         meta: {
             requiresAuthenticated: true,
@@ -134,14 +134,14 @@ const router = createRouter({
     routes
 });
 
-router.beforeEach((to, from) => {
+router.beforeEach((to /*, from */) => {
     const user = useAuthenticationStore();
     const requiresAuthenticated = to.matched.some(record => record.meta.requiresAuthenticated);
     // todo required roles in meta too
 
-    if (requiresAuthenticated && !user.isAuthenticated && to.name !== 'Login') { // ❗️ Avoid an infinite redirect
+    if (requiresAuthenticated && !user.isAuthenticated && to.name !== views.login.name) { // ❗️ Avoid an infinite redirect
         console.log('sending you back to Login');
-        return { name: 'Login' };
+        return { name: views.login.name };
     }
 });
 
