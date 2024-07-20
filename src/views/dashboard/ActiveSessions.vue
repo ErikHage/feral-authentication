@@ -15,7 +15,7 @@
         </v-row>
 
         <v-row>
-          <v-col cols="6" v-for="session in sessions">
+          <v-col cols="6" v-for="session in sessions" v-bind:key="session.sessionId">
             <v-card
                 class="ma-2 text-left"
                 :title="session.sessionId"
