@@ -5,7 +5,7 @@
     </v-app-bar>
     <div class="text-center mb-4">
       <v-img
-          src="/assets/ai-rooster.jpg"
+          src="/auth/assets/ai-rooster.jpg"
           alt="Logo"
           contain
           max-width="500"
