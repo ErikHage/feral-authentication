@@ -66,9 +66,9 @@ export default {
 
     getAssetPathToDisplay(application) {
       if (application.mascotAssetPath) {
-        return `/src/assets/${application.mascotAssetPath}`;
+        return `/assets/${application.mascotAssetPath}`;
       }
-      return '/src/assets/default-mascot.jpg';
+      return '/assets/default-mascot.jpg';
     },
 
     async goToApplication(applicationId) {
