@@ -1,9 +1,6 @@
 
 export const feralAuthenticationServiceUrl = {
-    v0: {
-        auth: 'http://localhost:8003/v0/auth',
-        api: 'http://localhost:8003/v0/api',
-    },
+    v0: import.meta.env.VITE_AUTH_SERVICE_V0_BASE_URL,
 };
 
 export const views = {

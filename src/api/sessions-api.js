@@ -3,7 +3,7 @@ import axios from "axios";
 import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
 async function fetchSessionsForCurrentUser(token) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/sessions/current`, {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/sessions/current`, {
         headers: {
             'x-feral-auth-token': token,
         },
@@ -12,7 +12,7 @@ async function fetchSessionsForCurrentUser(token) {
 }
 
 async function deleteSessionById(token, sessionId) {
-    await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/sessions/${sessionId}`, {
+    await axios.delete(`${feralAuthenticationServiceUrl.v0}/sessions/${sessionId}`, {
         headers: {
             'x-feral-auth-token': token,
         },

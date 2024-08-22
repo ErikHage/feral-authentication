@@ -3,7 +3,7 @@ import axios from "axios";
 import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
 async function fetchUsers(token) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/users`, {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users`, {
         headers: {
             'x-feral-auth-token': token,
         },
@@ -30,7 +30,7 @@ async function addUser(token, user) {
         password: user.password,
     };
 
-    const response = await axios.post(`${feralAuthenticationServiceUrl.v0.api}/users`,
+    const response = await axios.post(`${feralAuthenticationServiceUrl.v0}/users`,
         requestData,
         {
             headers: {
@@ -46,7 +46,7 @@ async function updateUser(token, userData) {
         lastName: userData.lastName,
     };
 
-    const response = await axios.put(`${feralAuthenticationServiceUrl.v0.api}/users/${userData.userId}`,
+    const response = await axios.put(`${feralAuthenticationServiceUrl.v0}/users/${userData.userId}`,
         requestData,
         {
             headers: {
@@ -58,7 +58,7 @@ async function updateUser(token, userData) {
 }
 
 async function deleteUser(token, userId) {
-    await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}`, {
+    await axios.delete(`${feralAuthenticationServiceUrl.v0}/users/${userId}`, {
         headers: {
             'x-feral-auth-token': token,
         },
@@ -66,7 +66,7 @@ async function deleteUser(token, userId) {
 }
 
 async function fetchUserRoles(token, userId) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/roles`,
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users/${userId}/roles`,
         {
             headers: {
                 'x-feral-auth-token': token,
@@ -77,7 +77,7 @@ async function fetchUserRoles(token, userId) {
 }
 
 async function setUserRoles(token, userId, roleIds) {
-    await axios.post(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/roles`,
+    await axios.post(`${feralAuthenticationServiceUrl.v0}/users/${userId}/roles`,
         {
             roleIds,
         },
@@ -89,7 +89,7 @@ async function setUserRoles(token, userId, roleIds) {
 }
 
 async function clearUserRoles(token, userId) {
-    await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/roles`,
+    await axios.delete(`${feralAuthenticationServiceUrl.v0}/users/${userId}/roles`,
         {
             headers: {
                 'x-feral-auth-token': token,
@@ -98,7 +98,7 @@ async function clearUserRoles(token, userId) {
 }
 
 async function fetchUserApplications(token, userId) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/applications`,
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users/${userId}/applications`,
         {
             headers: {
                 'x-feral-auth-token': token,
@@ -109,7 +109,7 @@ async function fetchUserApplications(token, userId) {
 }
 
 async function setUserApplications(token, userId, applicationIds) {
-    await axios.post(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/applications`,
+    await axios.post(`${feralAuthenticationServiceUrl.v0}/users/${userId}/applications`,
         {
             applicationIds,
         },
@@ -121,7 +121,7 @@ async function setUserApplications(token, userId, applicationIds) {
 }
 
 async function clearUserApplications(token, userId) {
-    await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/users/${userId}/applications`,
+    await axios.delete(`${feralAuthenticationServiceUrl.v0}/users/${userId}/applications`,
         {
             headers: {
                 'x-feral-auth-token': token,

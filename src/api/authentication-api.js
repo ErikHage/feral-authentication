@@ -4,7 +4,7 @@ import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
 async function login(username, password) {
     try {
-        const response = await axios.post(`${feralAuthenticationServiceUrl.v0.auth}/login`, {
+        const response = await axios.post(`${feralAuthenticationServiceUrl.v0}/login`, {
             username,
             password,
             applicationId: 'e3304693-9a9f-48a0-ad03-f45bb3b73884',
@@ -19,7 +19,7 @@ async function login(username, password) {
 
 async function loginToApplication(token, applicationId) {
     try {
-        const response = await axios.get(`${feralAuthenticationServiceUrl.v0.auth}/login/${applicationId}`, {
+        const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/login/${applicationId}`, {
             headers: {
                 'x-feral-auth-token': token,
             },
@@ -32,7 +32,7 @@ async function loginToApplication(token, applicationId) {
 }
 
 async function logout(token) {
-    await axios.post(`${feralAuthenticationServiceUrl.v0.auth}/logout`, {}, {
+    await axios.post(`${feralAuthenticationServiceUrl.v0}/logout`, {}, {
         headers: {
             'x-feral-auth-token': token,
         },
@@ -41,7 +41,7 @@ async function logout(token) {
 
 async function verifyToken(token) {
     try {
-        await axios.post(`${feralAuthenticationServiceUrl.v0.auth}/tokens/verify`, {}, {
+        await axios.post(`${feralAuthenticationServiceUrl.v0}/tokens/verify`, {}, {
             headers: {
                 'x-feral-auth-token': token,
             },

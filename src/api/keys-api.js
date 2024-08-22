@@ -15,7 +15,7 @@ function convertToUTC(localDatetime) {
 }
 
 async function fetchKeys(token) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/keys`, {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/keys`, {
         headers: {
             'x-feral-auth-token': token,
         },
@@ -25,7 +25,7 @@ async function fetchKeys(token) {
 }
 
 async function generateKey(token, keyName, expiration) {
-    const response = await axios.post(`${feralAuthenticationServiceUrl.v0.api}/keys/generate`, {
+    const response = await axios.post(`${feralAuthenticationServiceUrl.v0}/keys/generate`, {
         keyName,
         expiration: convertToUTC(expiration),
     }, {

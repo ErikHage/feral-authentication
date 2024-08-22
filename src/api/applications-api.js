@@ -3,7 +3,7 @@ import axios from "axios";
 import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
 async function fetchApplications(token) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/applications`, {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/applications`, {
         headers: {
             'x-feral-auth-token': token,
         },
@@ -13,7 +13,7 @@ async function fetchApplications(token) {
 }
 
 async function createApplication(token, application) {
-    const response = await axios.post(`${feralAuthenticationServiceUrl.v0.api}/applications`, application, {
+    const response = await axios.post(`${feralAuthenticationServiceUrl.v0}/applications`, application, {
         headers: {
             'x-feral-auth-token': token,
         },
@@ -22,7 +22,7 @@ async function createApplication(token, application) {
 }
 
 async function rotateAuthenticationKey(token, applicationId, newKeyId) {
-    await axios.post(`${feralAuthenticationServiceUrl.v0.api}/applications/${applicationId}/rotate-key`, {
+    await axios.post(`${feralAuthenticationServiceUrl.v0}/applications/${applicationId}/rotate-key`, {
         newKeyId,
     }, {
         headers: {
@@ -32,7 +32,7 @@ async function rotateAuthenticationKey(token, applicationId, newKeyId) {
 }
 
 async function fetchApplicationsForUser(token) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/users/current/applications`, {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users/current/applications`, {
         headers: {
             'x-feral-auth-token': token,
         },

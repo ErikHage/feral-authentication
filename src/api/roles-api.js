@@ -3,7 +3,7 @@ import axios from "axios";
 import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
 async function fetchRoles(token) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0.api}/roles`, {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/roles`, {
         headers: {
             'x-feral-auth-token': token,
         },
@@ -12,7 +12,7 @@ async function fetchRoles(token) {
 }
 
 async function addRole(token, role) {
-    const response = await axios.post(`${feralAuthenticationServiceUrl.v0.api}/roles`,
+    const response = await axios.post(`${feralAuthenticationServiceUrl.v0}/roles`,
         {
             ...role,
         },
@@ -26,7 +26,7 @@ async function addRole(token, role) {
 }
 
 async function deleteRole(token, roleId) {
-    await axios.delete(`${feralAuthenticationServiceUrl.v0.api}/roles/${roleId}`, {
+    await axios.delete(`${feralAuthenticationServiceUrl.v0}/roles/${roleId}`, {
         headers: {
             'x-feral-auth-token': token,
         },
