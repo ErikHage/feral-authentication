@@ -1,13 +1,13 @@
 import axios from "axios";
 
-import { feralAuthenticationServiceUrl } from "@/utils/constants";
+import { applicationId, feralAuthenticationServiceUrl } from "@/utils/constants";
 
 async function login(username, password) {
     try {
         const response = await axios.post(`${feralAuthenticationServiceUrl.v0}/login`, {
             username,
             password,
-            applicationId: 'e3304693-9a9f-48a0-ad03-f45bb3b73884',
+            applicationId,
         });
 
         return response.data.token;
