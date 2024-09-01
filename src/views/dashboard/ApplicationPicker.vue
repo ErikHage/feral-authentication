@@ -39,6 +39,7 @@
 import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useAuthenticationStore, } from "@/store";
+import { getAssetPath } from "@/utils/assets";
 
 export default {
   name: 'ApplicationPicker',
@@ -66,9 +67,9 @@ export default {
 
     getAssetPathToDisplay(application) {
       if (application.mascotAssetPath) {
-        return `/assets/${application.mascotAssetPath}`;
+        return getAssetPath(application.mascotAssetPath);
       }
-      return '/assets/default-mascot.jpg';
+      return getAssetPath('/default-mascot.jpg');
     },
 
     async goToApplication(applicationId) {

@@ -5,7 +5,7 @@
       <v-col cols="12" sm="8" md="4">
         <div class="text-center mb-4">
           <v-img
-              src="/assets/ai-rooster.jpg"
+              :src="getLogoPath()"
               alt="Logo"
               contain
               max-width="250"
@@ -52,6 +52,7 @@
 import { useAuthenticationStore } from '@/store';
 import { mapActions, mapState } from "pinia";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import { getAssetPath } from "@/utils/assets";
 
 export default {
   name: 'LoginPage',
@@ -83,6 +84,10 @@ export default {
       setTimeout(() => {
         this.$router.push('/dashboard/applications');
       }, 500);
+    },
+
+    getLogoPath() {
+      return getAssetPath('/ai-rooster.jpg');
     },
 
     async login() {

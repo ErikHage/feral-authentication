@@ -5,7 +5,7 @@
     </v-app-bar>
     <div class="text-center mb-4">
       <v-img
-          src="/assets/ai-rooster.jpg"
+          :src="getLogoPath()"
           alt="Logo"
           contain
           max-width="500"
@@ -18,6 +18,8 @@
 <script>
 
 import { views } from "@/utils/constants";
+import { getAssetPath } from "@/utils/assets";
+
 
 export default {
   name: 'PublicPage',
@@ -25,5 +27,11 @@ export default {
   data: () => ({
     loginPath: views.login.path,
   }),
+
+  methods: {
+    getLogoPath() {
+      return getAssetPath('/ai-rooster.jpg');
+    }
+  },
 }
 </script>

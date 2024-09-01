@@ -4,6 +4,8 @@ export const feralAuthenticationServiceUrl = {
     v0: import.meta.env.VITE_AUTH_SERVICE_V0_BASE_URL,
 };
 
+export const assetBasePath = import.meta.env.VITE_ASSET_BASE_PATH;
+
 export const views = {
     public: {
         name: 'Public',
