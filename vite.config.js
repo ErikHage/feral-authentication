@@ -14,7 +14,6 @@ export default defineConfig({
     }),
   ],
   define: { 'process.env': {} },
-  base: '/auth/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

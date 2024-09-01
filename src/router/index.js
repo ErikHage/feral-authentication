@@ -130,7 +130,7 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory('/auth'),
+    history: createWebHistory(),
     routes
 });
 
