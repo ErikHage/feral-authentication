@@ -1,6 +1,9 @@
 import { expectUrl, expectVisible } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
-import { urlOf } from './urls';
+import { openPath, urlOf } from './urls';
+
+// For a URL to match literally inside a RegExp
+const escaped = text => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /** The login page, as Playwright sees it. */
 export function createLoginPageDriver(page) {
@@ -30,6 +33,33 @@ export function createLoginPageDriver(page) {
 
             await expectVisible(loginError, what);
             await expectUrl(page, urlOf('login'), what);
+        },
+
+        /**
+         * Opens the login page for single sign-on to an application. The
+         * application's URL is made up, so the browser is answered with an
+         * empty page when it's sent there.
+         */
+        async openForApplication(applicationId, applicationUrl) {
+            await page.route(`${applicationUrl}**`, route => route.fulfill({
+                contentType: 'text/html',
+                body: '<!doctype html><title>A made-up application</title>',
+            }));
+            await openPath(page, `login?app=${applicationId}`);
+        },
+
+        /** The login page, opened for single sign-on: its URL names the application. */
+        async isShownForSignOn() {
+            const what = 'showing the login page for single sign-on';
+
+            await expectUrl(page, new RegExp(`^${escaped(urlOf('login'))}\\?app=[0-9a-f-]{36}$`), what);
+            await expectVisible(submitButton, what);
+        },
+
+        /** The browser was sent to the application, with a single sign-on token. */
+        async sentToApplication(applicationUrl) {
+            await expectUrl(page, new RegExp(`^${escaped(applicationUrl)}\\?sso=[^&]+$`),
+                `signing on to ${applicationUrl}`);
         },
 
         async goBack() {

@@ -1,14 +1,13 @@
 import { test as base } from '@playwright/test';
 
 import { createWorld } from './world';
-import {
-    createAdminPage,
-    createApplicationsAdminPage,
-    createKeysAdminPage,
-} from './pages/admin-pages';
+import { createAdminPage } from './pages/admin-pages';
+import { createApplicationDetailsPage } from './pages/application-details-page';
 import { createApplicationPickerPage } from './pages/application-picker-page';
+import { createApplicationsAdminPage } from './pages/applications-admin-page';
 import { createAuthorizationAdminPage } from './pages/authorization-admin-page';
 import { createDashboardPage } from './pages/dashboard-pages';
+import { createKeysAdminPage } from './pages/keys-admin-page';
 import { createLoginPage } from './pages/login-page';
 import { createProfilePage } from './pages/profile-page';
 import { createPublicPage } from './pages/public-page';
@@ -54,6 +53,7 @@ export const test = base.extend({
     authorizationAdminPage: pageFixture('authorizationAdminPage', createAuthorizationAdminPage),
     keysAdminPage: pageFixture('keysAdminPage', createKeysAdminPage),
     applicationsAdminPage: pageFixture('applicationsAdminPage', createApplicationsAdminPage),
+    applicationDetailsPage: pageFixture('applicationDetailsPage', createApplicationDetailsPage),
 
     // A second browser, with its own login, for a test that needs the same
     // user logged in twice. It shares the test's names; cleanup stays with

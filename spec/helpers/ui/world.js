@@ -3,7 +3,8 @@ import { randomUUID } from 'node:crypto';
 import { admin } from './setup/config';
 import { createDrivers } from './drivers/drivers';
 import {
-    clearUserApplications, clearUserRoles, deleteRole, deleteUser, listRoles, listUsers, login, logout,
+    clearUserApplications, clearUserRoles, deleteRole, deleteUser, listApplications, listRoles, listUsers, login,
+    logout,
 } from './support/service-client';
 
 const suffix = () => randomUUID().slice(0, 8);
@@ -87,10 +88,14 @@ async function deleteAll(added) {
 export function createWorld(page, names = {
     usersByAlias: new Map(),
     rolesByAlias: new Map(),
+    keysByAlias: new Map(),
+    applicationsByAlias: new Map(),
     // Newest first, the order cleanup deletes in
     added: [],
 }) {
-    const { usersByAlias, rolesByAlias, added } = names;
+    const {
+        usersByAlias, rolesByAlias, keysByAlias, applicationsByAlias, added,
+    } = names;
 
     function named(known, alias, what, step) {
         const value = known.get(alias);
@@ -111,6 +116,22 @@ export function createWorld(page, names = {
 
     const userNamed = alias => named(usersByAlias, alias, 'user', 'usersAdminPage.addUser');
     const roleNamed = alias => named(rolesByAlias, alias, 'role', 'rolesAdminPage.addRole');
+    const keyNamed = alias => named(keysByAlias, alias, 'key', 'keysAdminPage.generateKey');
+    const applicationNamed = alias => named(
+        applicationsByAlias, alias, 'application', 'applicationsAdminPage.addApplication');
+
+    /**
+     * Keys and applications can't be deleted: the service has no endpoint
+     * for keys, and DELETE /applications never replies. So they're named
+     * `ui-...` and left in the database, and cleanup only forgets them.
+     */
+    function rememberForever(kind, known, alias, details) {
+        if (known.has(alias)) {
+            throw new Error(`there is already a ${kind} called "${alias}" in this test`);
+        }
+        known.set(alias, details);
+        return { ...details };
+    }
 
     return {
         /** So a page object can be handed the driver it drives. */
@@ -157,6 +178,62 @@ export function createWorld(page, names = {
 
         roleNamed,
 
+        /**
+         * As `newUser`, for a key pair, which stays in the database. Its
+         * expiration is fixed, in the browser's local time, as typed into
+         * the page.
+         */
+        newKey(alias) {
+            return rememberForever('key', keysByAlias, alias, {
+                keyName: `ui-${alias}-${suffix()}`,
+                expiration: '2030-06-01T10:00',
+            });
+        },
+
+        keyNamed,
+
+        /** As `newUser`, for an application, which stays in the database. */
+        newApplication(alias) {
+            const applicationName = `ui-${alias}-${suffix()}`;
+            return rememberForever('application', applicationsByAlias, alias, {
+                applicationName,
+                // Made up: a driver answers for it, when the browser goes there
+                applicationUrl: `https://${applicationName}.example.test/`,
+                scope: `ui-${suffix()}`,
+            });
+        },
+
+        applicationNamed,
+
+        /** An application the test added, by alias, or else an existing one by its listed name. */
+        applicationNameOf(nameOrAlias) {
+            return applicationsByAlias.has(nameOrAlias)
+                ? applicationsByAlias.get(nameOrAlias).applicationName
+                : nameOrAlias;
+        },
+
+        /**
+         * The id the service gave the application called `alias`, which no
+         * page shows outside its details. Looked up over the API, as the
+         * admin.
+         */
+        async applicationIdOf(alias) {
+            const { applicationName } = applicationNamed(alias);
+            const session = await login(admin.username, admin.password);
+            const token = session.body?.token;
+            const listed = token ? await listApplications(token) : session;
+            if (token) {
+                await logout(token);
+            }
+            const found = Array.isArray(listed.body)
+                ? listed.body.find(application => application.applicationName === applicationName)
+                : undefined;
+            if (!found) {
+                throw new Error(`couldn't find the application ${applicationName} over the API: ${listed.status ?? listed.error}`);
+            }
+            return found.applicationId;
+        },
+
         /** The username and password behind `user: <name>`. */
         credentialsFor(name) {
             if (name === 'admin') {
@@ -171,6 +248,8 @@ export function createWorld(page, names = {
             const toDelete = added.splice(0, added.length);
             usersByAlias.clear();
             rolesByAlias.clear();
+            keysByAlias.clear();
+            applicationsByAlias.clear();
 
             if (toDelete.length > 0) {
                 await deleteAll(toDelete);

@@ -1,5 +1,6 @@
 import { expectCount, expectVisible } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
+import { chooseOption } from './select';
 
 /**
  * The authorization admin page, as Playwright sees it: a user select, and
@@ -20,35 +21,7 @@ export function createAuthorizationAdminPageDriver(page) {
     const rolesCard = card('Manage Roles');
     const chipIn = (cardLocator, text) => cardLocator.locator('.v-chip').getByText(text, { exact: true });
 
-    /**
-     * Chooses `option` in a Vuetify select. A long list renders only the
-     * options in view, so this scrolls the select's own menu until it's
-     * there. Typing would bring it into view too, but it selects every option
-     * that matches on the way, and choosing a user loads their grants: a
-     * slower load for an earlier match can land last (backlog B17).
-     */
-    async function choose(select, option) {
-        await select.click();
-        // The open select names its menu; a closing one may still be shown
-        const menu = page.locator(`[id="${await select.getAttribute('aria-owns')}"]`);
-        const list = menu.getByRole('listbox');
-        const wanted = menu.getByRole('option', { name: option, exact: true });
-
-        while (await wanted.count() === 0) {
-            const moved = await list.evaluate(element => {
-                const before = element.scrollTop;
-                element.scrollTop += element.clientHeight;
-                return element.scrollTop !== before;
-            });
-            // Two frames, for the list to render what scrolled into view
-            await page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))));
-            if (!moved) {
-                // At the bottom: the click below fails, naming the option
-                break;
-            }
-        }
-        await wanted.click();
-    }
+    const choose = (select, option) => chooseOption(page, select, option);
 
     async function selectUser(username) {
         await choose(userSelect, username);

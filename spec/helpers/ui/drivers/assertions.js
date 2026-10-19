@@ -37,6 +37,10 @@ export async function expectDisabled(locator, what) {
     await expect(locator, failureMessage(what, `${locator} to be disabled`)).toBeDisabled();
 }
 
+export async function expectEnabled(locator, what) {
+    await expect(locator, failureMessage(what, `${locator} to be enabled`)).toBeEnabled();
+}
+
 /** Retries, so it waits for elements to come or go: use it only once they are sure to. */
 export async function expectCount(locator, count, what) {
     await expect(locator, failureMessage(what, `${count} of ${locator}`)).toHaveCount(count);

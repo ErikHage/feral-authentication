@@ -1,8 +1,11 @@
 import { createAdminNavDriver } from './admin-nav-driver';
 import { createAppBarDriver } from './app-bar-driver';
+import { createApplicationDetailsPageDriver } from './application-details-page-driver';
 import { createApplicationPickerPageDriver } from './application-picker-page-driver';
+import { createApplicationsAdminPageDriver } from './applications-admin-page-driver';
 import { createAuthorizationAdminPageDriver } from './authorization-admin-page-driver';
 import { createDashboardNavDriver } from './dashboard-nav-driver';
+import { createKeysAdminPageDriver } from './keys-admin-page-driver';
 import { createLoginPageDriver } from './login-page-driver';
 import { createProfilePageDriver } from './profile-page-driver';
 import { createPublicPageDriver } from './public-page-driver';
@@ -11,9 +14,6 @@ import { createRoutedPageDriver } from './routed-page-driver';
 import { recordServiceCalls } from './service-calls';
 import { createSessionsPageDriver } from './sessions-page-driver';
 import { createUsersAdminPageDriver } from './users-admin-page-driver';
-
-// Admin pages show their title as card text, not as a heading
-const titled = title => main => main.getByText(title, { exact: true });
 
 /**
  * Builds each driver once per test, over Playwright's `page`. A page with
@@ -47,11 +47,8 @@ export function createDrivers(page) {
         rolesAdminPage: createRolesAdminPageDriver(page),
         usersAdminPage: createUsersAdminPageDriver(page),
         authorizationAdminPage: createAuthorizationAdminPageDriver(page),
-        keysAdminPage: createRoutedPageDriver(page, {
-            name: 'the keys admin page', path: 'admin/keys', marker: titled('Manage Keys'),
-        }),
-        applicationsAdminPage: createRoutedPageDriver(page, {
-            name: 'the applications admin page', path: 'admin/applications', marker: titled('Manage Applications'),
-        }),
+        keysAdminPage: createKeysAdminPageDriver(page),
+        applicationsAdminPage: createApplicationsAdminPageDriver(page),
+        applicationDetailsPage: createApplicationDetailsPageDriver(page),
     };
 }

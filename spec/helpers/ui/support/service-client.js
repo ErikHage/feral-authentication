@@ -61,6 +61,8 @@ export const listRoles = token => call('GET', '/roles', { token });
 
 export const deleteRole = (token, roleId) => call('DELETE', `/roles/${roleId}`, { token });
 
+export const listApplications = token => call('GET', '/applications', { token });
+
 /** The app's own address, outside the service; any status. */
 export async function probeApp(url) {
     try {

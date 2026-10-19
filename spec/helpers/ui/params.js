@@ -15,8 +15,15 @@ export const user = () => required();
  */
 export const role = () => required();
 
-/** An existing application, by the name it's listed under, e.g. `Feral Authentication`. */
+/**
+ * An application the test added, by its alias; or, where a step only uses
+ * it, an existing one by the name it's listed under, e.g. `Feral
+ * Authentication`.
+ */
 export const application = () => required();
+
+/** A key pair the test generated, by its alias. */
+export const key = () => required();
 
 /** Which password to log in with: the user's own, or a wrong one. Defaults to correct. */
 export const password = () => optional().allowedValues('correct', 'wrong').withDefault('correct');

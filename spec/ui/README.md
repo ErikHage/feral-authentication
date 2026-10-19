@@ -57,6 +57,13 @@ helpers/ui/drivers/assertions.js the only importer of expect
 
 The world remembers each one under its alias, so later steps can name it. When the test ends, pass or fail, the world deletes everything it named, newest first, over the API, as the admin. It clears a user's roles and applications first, since the service's tables don't cascade. A spec never cleans up for itself.
 
+**Keys and applications a test adds stay in the database.** The service can't delete them: it has no endpoint for keys, and `DELETE /applications` never replies. So `keysAdminPage.generateKey('key: signing')` and `applicationsAdminPage.addApplication('application: game', 'key: signing')` give them `ui-` names, and cleanup only forgets them. An application's URL is made up (`https://ui-game-<random>.example.test/`). The single sign-on driver answers for it, so the browser can land there. To find what the suite left behind:
+
+```sql
+SELECT key_id, key_name, date_created FROM key_pairs WHERE key_name LIKE 'ui-%';
+SELECT application_id, application_name, date_created FROM applications WHERE application_name LIKE 'ui-%';
+```
+
 Steps that only use a role or an application can name existing ones: `'role: feral/admin'` (scope/title), and `'application: Feral Authentication'` (its listed name).
 
 **Switching users: load the app afresh, unless that's the point.** Logging out clears nothing from the app's stores, so the next user to log in sees what the last one loaded wherever their own request is refused. After `appBar.logOut()`, check `loginPage.checkIsShown()` (logging out has finished once the login page shows), then call `loginPage.open()` before logging in as someone else. Only a test that pins the leftovers skips the reload. Without the check, the reload can beat the logout: the fresh login page then finds the old token, and redirects to the applications page half a second later, wherever the test has got to.

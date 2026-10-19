@@ -34,7 +34,7 @@ export function createAuthorizationAdminPage(world, driver) {
         async grantApplication(...args) {
             const params = parseDslArgs(args, { user: user(), application: application() });
 
-            await driver.grantApplication(usernameOf(params.user), params.application);
+            await driver.grantApplication(usernameOf(params.user), world.applicationNameOf(params.application));
         },
 
         /** Choosing the `user` shows they have the `role`. */
@@ -48,7 +48,7 @@ export function createAuthorizationAdminPage(world, driver) {
         async checkUserHasApplication(...args) {
             const params = parseDslArgs(args, { user: user(), application: application() });
 
-            await driver.showsApplication(usernameOf(params.user), params.application);
+            await driver.showsApplication(usernameOf(params.user), world.applicationNameOf(params.application));
         },
     };
 }

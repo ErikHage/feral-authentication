@@ -13,7 +13,7 @@ export function createApplicationPickerPage(world, driver) {
         async checkOffersApplication(...args) {
             const params = parseDslArgs(args, { application: application() });
 
-            await driver.offersNoneAsTheListIsRefused(params.application);
+            await driver.offersNoneAsTheListIsRefused(world.applicationNameOf(params.application));
         },
 
         /** The logged-in user, granted no applications, is offered none. No parameters. */
