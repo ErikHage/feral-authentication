@@ -23,7 +23,7 @@ export function createUsersAdminPage(world, driver) {
         async checkUserIsListed(...args) {
             const params = parseDslArgs(args, { user: user() });
 
-            await driver.listsNewUser(world.userNamed(params.user));
+            await driver.listsUser(world.userNamed(params.user));
         },
 
         /** Changes the `user`'s `firstName` through the Edit dialog. */

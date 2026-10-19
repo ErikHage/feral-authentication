@@ -47,7 +47,7 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - dashboard pages add `dashboardNav`;
 - admin pages add `adminNav`.
 
-`drivers/routed-page-driver.js` checks a page by its URL and by something only that page shows. A page with nothing else to do yet lives in `pages/dashboard-pages.js` or `pages/admin-pages.js`, and its driver is a plain routed one in `drivers/drivers.js`. It moves to its own files once it gets steps of its own, as the login, users and roles pages have.
+`drivers/routed-page-driver.js` checks a page by its URL and by something only that page shows. A page with nothing else to do yet lives in `pages/dashboard-pages.js` or `pages/admin-pages.js`, and its driver is a plain routed one in `drivers/drivers.js`. It moves to its own files once it gets steps of its own, as most pages now have.
 
 **Logging in is a step.** `loginPage.logIn('user: admin')` logs in as the account in `.env.ui`. `admin` is a reserved name; any other is a user the test added. Add `'password: wrong'` to log in with a wrong password. Nothing is restored from a saved session: the app keeps "logged in" only in memory, so any page load goes through the login page. Each test logs in for itself.
 
@@ -55,9 +55,15 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - `usersAdminPage.addUser('user: bob')` adds a user through the page, with details unique to the run (the username is `ui-bob-<random>`).
 - `rolesAdminPage.addRole('role: tester')` adds a role titled `tester`, under the scope `ui-<random>`.
 
-The world remembers each one under its alias, so later steps can name it. When the test ends, pass or fail, the world deletes everything it named, newest first, over the API, as the admin. A spec never cleans up for itself.
+The world remembers each one under its alias, so later steps can name it. When the test ends, pass or fail, the world deletes everything it named, newest first, over the API, as the admin. It clears a user's roles and applications first, since the service's tables don't cascade. A spec never cleans up for itself.
 
-The admin tables show 10 rows a page, in no particular order, so their drivers switch to showing all rows first (`drivers/data-table.js`).
+Steps that only use a role or an application can name existing ones: `'role: feral/admin'` (scope/title), and `'application: Feral Authentication'` (its listed name).
+
+**Switching users: load the app afresh, unless that's the point.** Logging out clears nothing from the app's stores, so the next user to log in sees what the last one loaded wherever their own request is refused. After `appBar.logOut()`, call `loginPage.open()` before logging in as someone else. Only a test that pins the leftovers skips it.
+
+**Checking that something is absent.** A page that shows nothing looks the same before its data arrives as after. A driver checking for absence first waits for the service call that would have filled the page to be answered (`drivers/service-calls.js` records the app's calls from the start of each test), then reads the page once.
+
+The admin tables show 10 rows a page, in no particular order, so their drivers switch to showing all rows first (`drivers/data-table.js`). Selects that list many options render only those in view, so a driver opens one and types the start of the option to bring it into view.
 
 **Navigation is checked at the destination.** A step that clicks (`loginPage.logIn(...)`) asserts nothing about where it leads. The next step checks that, by URL and heading (`applicationPickerPage.checkIsShown()`).
 

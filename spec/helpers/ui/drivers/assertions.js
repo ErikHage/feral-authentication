@@ -17,14 +17,25 @@ export async function expectVisible(locator, what) {
     await expect(locator, failureMessage(what, `${locator} to be visible`)).toBeVisible();
 }
 
-/** `text` is a string, or an array with one string per element `locator` matches. */
+// JSON, except that a RegExp reads as itself rather than as {}
+const shown = value => JSON.stringify(value, (key, each) => (each instanceof RegExp ? String(each) : each));
+
+/**
+ * `text` is a string or RegExp, or an array with one per element `locator`
+ * matches.
+ */
 export async function expectText(locator, text, what) {
-    await expect(locator, failureMessage(what, `${locator} to read ${JSON.stringify(text)}`)).toHaveText(text);
+    await expect(locator, failureMessage(what, `${locator} to read ${shown(text)}`)).toHaveText(text);
 }
 
 /** Retries, so it waits for elements to come or go: use it only once they are sure to. */
 export async function expectCount(locator, count, what) {
     await expect(locator, failureMessage(what, `${count} of ${locator}`)).toHaveCount(count);
+}
+
+/** Retries `check`, a function returning a boolean, until it returns true. */
+export async function expectEventually(check, expectation, what) {
+    await expect.poll(check, { message: failureMessage(what, expectation) }).toBe(true);
 }
 
 /**

@@ -4,18 +4,16 @@ import { createWorld } from './world';
 import {
     createAdminPage,
     createApplicationsAdminPage,
-    createAuthorizationAdminPage,
     createKeysAdminPage,
 } from './pages/admin-pages';
-import {
-    createApplicationPickerPage,
-    createDashboardPage,
-    createProfilePage,
-    createSessionsPage,
-} from './pages/dashboard-pages';
+import { createApplicationPickerPage } from './pages/application-picker-page';
+import { createAuthorizationAdminPage } from './pages/authorization-admin-page';
+import { createDashboardPage } from './pages/dashboard-pages';
 import { createLoginPage } from './pages/login-page';
+import { createProfilePage } from './pages/profile-page';
 import { createPublicPage } from './pages/public-page';
 import { createRolesAdminPage } from './pages/roles-admin-page';
+import { createSessionsPage } from './pages/sessions-page';
 import { createUsersAdminPage } from './pages/users-admin-page';
 
 /** A fixture for a page object, over the driver of the same name. */

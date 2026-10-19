@@ -1,15 +1,19 @@
 import { createAdminNavDriver } from './admin-nav-driver';
 import { createAppBarDriver } from './app-bar-driver';
+import { createApplicationPickerPageDriver } from './application-picker-page-driver';
+import { createAuthorizationAdminPageDriver } from './authorization-admin-page-driver';
 import { createDashboardNavDriver } from './dashboard-nav-driver';
 import { createLoginPageDriver } from './login-page-driver';
+import { createProfilePageDriver } from './profile-page-driver';
 import { createPublicPageDriver } from './public-page-driver';
 import { createRolesAdminPageDriver } from './roles-admin-page-driver';
 import { createRoutedPageDriver } from './routed-page-driver';
+import { recordServiceCalls } from './service-calls';
+import { createSessionsPageDriver } from './sessions-page-driver';
 import { createUsersAdminPageDriver } from './users-admin-page-driver';
 
 // Admin pages show their title as card text, not as a heading
 const titled = title => main => main.getByText(title, { exact: true });
-const headed = heading => main => main.getByRole('heading', { name: heading });
 
 /**
  * Builds each driver once per test, over Playwright's `page`. A page with
@@ -17,6 +21,9 @@ const headed = heading => main => main.getByRole('heading', { name: heading });
  * driver file once it has more.
  */
 export function createDrivers(page) {
+    // Before anything loads, so no call goes unrecorded
+    const serviceCalls = recordServiceCalls(page);
+
     return {
         appBar: createAppBarDriver(page),
         dashboardNav: createDashboardNavDriver(page),
@@ -30,24 +37,16 @@ export function createDrivers(page) {
         dashboardPage: createRoutedPageDriver(page, {
             name: 'the dashboard', path: 'dashboard', marker: main => main.getByRole('link', { name: 'Profile' }),
         }),
-        applicationPickerPage: createRoutedPageDriver(page, {
-            name: 'the applications page', path: 'dashboard/applications', marker: headed('Available Applications'),
-        }),
-        profilePage: createRoutedPageDriver(page, {
-            name: 'the profile page', path: 'dashboard/profile', marker: titled('Personal Details'),
-        }),
-        sessionsPage: createRoutedPageDriver(page, {
-            name: 'the sessions page', path: 'dashboard/sessions', marker: headed('Active Sessions'),
-        }),
+        applicationPickerPage: createApplicationPickerPageDriver(page, serviceCalls),
+        profilePage: createProfilePageDriver(page, serviceCalls),
+        sessionsPage: createSessionsPageDriver(page),
 
         adminPage: createRoutedPageDriver(page, {
             name: 'the admin area', path: 'admin', marker: main => main.getByRole('link', { name: 'Keys' }),
         }),
         rolesAdminPage: createRolesAdminPageDriver(page),
         usersAdminPage: createUsersAdminPageDriver(page),
-        authorizationAdminPage: createRoutedPageDriver(page, {
-            name: 'the authorization admin page', path: 'admin/authorization', marker: titled('Manage Authorization'),
-        }),
+        authorizationAdminPage: createAuthorizationAdminPageDriver(page),
         keysAdminPage: createRoutedPageDriver(page, {
             name: 'the keys admin page', path: 'admin/keys', marker: titled('Manage Keys'),
         }),

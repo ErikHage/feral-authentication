@@ -53,6 +53,10 @@ export const listUsers = token => call('GET', '/users', { token });
 
 export const deleteUser = (token, userId) => call('DELETE', `/users/${userId}`, { token });
 
+export const clearUserRoles = (token, userId) => call('DELETE', `/users/${userId}/roles`, { token });
+
+export const clearUserApplications = (token, userId) => call('DELETE', `/users/${userId}/applications`, { token });
+
 export const listRoles = token => call('GET', '/roles', { token });
 
 export const deleteRole = (token, roleId) => call('DELETE', `/roles/${roleId}`, { token });

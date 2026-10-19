@@ -3,21 +3,33 @@ import { randomUUID } from 'node:crypto';
 import { admin } from './setup/config';
 import { createDrivers } from './drivers/drivers';
 import {
-    deleteRole, deleteUser, listRoles, listUsers, login, logout,
+    clearUserApplications, clearUserRoles, deleteRole, deleteUser, listRoles, listUsers, login, logout,
 } from './support/service-client';
 
 const suffix = () => randomUUID().slice(0, 8);
+const failed = reply => reply.error !== undefined || reply.status >= 300;
 const capitalized = word => word.charAt(0).toUpperCase() + word.slice(1);
 
 /**
  * How cleanup finds and deletes each kind of thing a test adds: none of them
  * has an id the test can see, so each is looked up in its list first.
+ *
+ * The service's tables have no foreign keys, so nothing blocks a delete, and
+ * nothing cascades from it either: a user's grants are cleared first, or
+ * they'd stay behind.
  */
 const kinds = {
     user: {
         list: listUsers,
         matches: (user, listed) => listed.username === user.username,
-        remove: (token, listed) => deleteUser(token, listed.userId),
+        async remove(token, listed) {
+            const replies = [
+                await clearUserRoles(token, listed.userId),
+                await clearUserApplications(token, listed.userId),
+                await deleteUser(token, listed.userId),
+            ];
+            return replies.find(failed) ?? replies[2];
+        },
         describe: user => `the user ${user.username}`,
     },
     role: {
@@ -53,7 +65,7 @@ async function deleteAll(added) {
         const found = listed[kind].find(each => kinds[kind].matches(details, each));
         if (found) {
             const deleted = await kinds[kind].remove(token, found);
-            if (deleted.status !== 204) {
+            if (failed(deleted)) {
                 console.warn(`cleanup: couldn't delete ${kinds[kind].describe(details)}: ${deleted.status ?? deleted.error}`);
             }
         }
@@ -74,7 +86,7 @@ async function deleteAll(added) {
 export function createWorld(page) {
     const usersByAlias = new Map();
     const rolesByAlias = new Map();
-    // Newest first, so cleanup deletes a user before a role granted to them
+    // Newest first, the order cleanup deletes in
     const added = [];
 
     function named(known, alias, what, step) {
@@ -121,6 +133,9 @@ export function createWorld(page) {
 
         /** As `newUser`, for a role: the title is `alias`, under a scope unique to this run. */
         newRole(alias) {
+            if (alias.includes('/')) {
+                throw new Error(`"${alias}" names an existing role; a new role's alias is just its title`);
+            }
             return remember('role', rolesByAlias, alias, {
                 scope: `ui-${suffix()}`,
                 title: alias,

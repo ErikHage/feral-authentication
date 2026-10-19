@@ -3,6 +3,9 @@ import { createDataTable } from './data-table';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { urlOf } from './urls';
 
+// The Last Login column: "-" until the user first logs in
+const neverOrATime = /^(-|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/;
+
 /** The users admin page, as Playwright sees it. Its table's rows are found by username. */
 export function createUsersAdminPageDriver(page) {
     const main = page.getByRole('main');
@@ -33,12 +36,12 @@ export function createUsersAdminPageDriver(page) {
             await userDialog.getByRole('button', { name: 'Save' }).click();
         },
 
-        /** A user who has never logged in and isn't suspended. */
-        async listsNewUser({ firstName, lastName, email, username }) {
+        /** A user who isn't suspended, and may or may not have logged in. */
+        async listsUser({ firstName, lastName, email, username }) {
             const what = `listing the user ${username}`;
 
             await table.showAllRows();
-            await expectText(table.detailsIn(username), [firstName, lastName, username, email, '-', 'N'], what);
+            await expectText(table.detailsIn(username), [firstName, lastName, username, email, neverOrATime, 'N'], what);
         },
 
         async renameUser(username, firstName) {
