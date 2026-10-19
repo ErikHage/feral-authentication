@@ -81,13 +81,16 @@ async function deleteAll(added) {
  * in on another, so the names live here. `admin` is reserved: it resolves
  * to the account in .env.ui.
  *
- * One world per test, built over Playwright's `page`.
+ * One world per test, built over Playwright's `page`. Another device in the
+ * same test (`onAnotherPage`) gets its own drivers, over the same names.
  */
-export function createWorld(page) {
-    const usersByAlias = new Map();
-    const rolesByAlias = new Map();
+export function createWorld(page, names = {
+    usersByAlias: new Map(),
+    rolesByAlias: new Map(),
     // Newest first, the order cleanup deletes in
-    const added = [];
+    added: [],
+}) {
+    const { usersByAlias, rolesByAlias, added } = names;
 
     function named(known, alias, what, step) {
         const value = known.get(alias);
@@ -112,6 +115,15 @@ export function createWorld(page) {
     return {
         /** So a page object can be handed the driver it drives. */
         drivers: createDrivers(page),
+
+        /**
+         * This world's names, with drivers over `otherPage`, for another
+         * device in the same test. Cleanup stays with this world.
+         */
+        onAnotherPage(otherPage) {
+            const { cleanup, ...rest } = createWorld(otherPage, names);
+            return rest;
+        },
 
         /**
          * Makes up the details of a new user called `alias`, unique to this

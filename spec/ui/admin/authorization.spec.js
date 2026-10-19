@@ -36,6 +36,7 @@ test.describe('Authorization admin page', () => {
         await usersAdminPage.adminNav.goToAuthorization();
         await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
         await authorizationAdminPage.appBar.logOut();
+        await loginPage.checkIsShown();
         // Afresh: the admin's users list would still be in the store (A31)
         await loginPage.open();
 
@@ -55,6 +56,7 @@ test.describe('Authorization admin page', () => {
         usersAdminPage, loginPage, applicationPickerPage,
     }) => {
         await usersAdminPage.appBar.logOut();
+        await loginPage.checkIsShown();
 
         // In the same running app: no reload since the admin logged out
         await loginPage.logIn('user: bob');
@@ -76,6 +78,7 @@ test.describe('Authorization admin page', () => {
             await usersAdminPage.adminNav.goToAuthorization();
             await authorizationAdminPage.grantApplication('user: bob', 'application: Feral Authentication');
             await authorizationAdminPage.appBar.logOut();
+            await loginPage.checkIsShown();
             await loginPage.open();
 
             await loginPage.logIn('user: bob');
@@ -88,13 +91,14 @@ test.describe('Authorization admin page', () => {
         // and no error (A18). Should show bob's details.
         test('shows them their profile', async ({ usersAdminPage, loginPage, applicationPickerPage, profilePage }) => {
             await usersAdminPage.appBar.logOut();
+            await loginPage.checkIsShown();
             await loginPage.open();
             await loginPage.logIn('user: bob');
             await applicationPickerPage.checkIsShown();
 
             await applicationPickerPage.dashboardNav.goToProfile();
 
-            await profilePage.checkShowsUser('user: bob');
+            await profilePage.checkShowsUserWithoutAdminRole('user: bob');
         });
 
         // DocumentsCurrentBehavior: the service refuses the list (403, A30), and
@@ -102,6 +106,7 @@ test.describe('Authorization admin page', () => {
         // session bob is logged in with.
         test('lists their sessions', async ({ usersAdminPage, loginPage, applicationPickerPage, sessionsPage }) => {
             await usersAdminPage.appBar.logOut();
+            await loginPage.checkIsShown();
             await loginPage.open();
             await loginPage.logIn('user: bob');
             await applicationPickerPage.checkIsShown();

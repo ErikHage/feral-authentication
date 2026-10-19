@@ -54,13 +54,6 @@ export function createUsersAdminPage(world, driver) {
             await driver.noLongerListsUser(world.userNamed(params.user).username);
         },
 
-        /** Reloads the page. No parameters. */
-        async reload(...args) {
-            parseDslArgs(args, {});
-
-            await driver.reload();
-        },
-
         /** The page is still shown after a reload. No parameters. */
         async checkIsShownAfterReload(...args) {
             parseDslArgs(args, {});

@@ -17,6 +17,16 @@ export function routedPageSteps(driver) {
             await driver.open();
         },
 
+        /**
+         * Reloads the page. The next step checks where that landed: a reload
+         * goes through the login page. No parameters.
+         */
+        async reload(...args) {
+            parseDslArgs(args, {});
+
+            await driver.reload();
+        },
+
         /** The browser is on this page. No parameters. */
         async checkIsShown(...args) {
             parseDslArgs(args, {});

@@ -28,6 +28,15 @@ export async function expectText(locator, text, what) {
     await expect(locator, failureMessage(what, `${locator} to read ${shown(text)}`)).toHaveText(text);
 }
 
+/** A form field's value. */
+export async function expectValue(locator, value, what) {
+    await expect(locator, failureMessage(what, `${locator} to hold ${shown(value)}`)).toHaveValue(value);
+}
+
+export async function expectDisabled(locator, what) {
+    await expect(locator, failureMessage(what, `${locator} to be disabled`)).toBeDisabled();
+}
+
 /** Retries, so it waits for elements to come or go: use it only once they are sure to. */
 export async function expectCount(locator, count, what) {
     await expect(locator, failureMessage(what, `${count} of ${locator}`)).toHaveCount(count);

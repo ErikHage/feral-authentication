@@ -42,7 +42,7 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - `helpers/ui/support/service-client.js` is the only place that calls `fetch`. The preflight uses it, and so does cleanup, which deletes the users and roles a test added.
 - Steps are parsed with [`@feral-auth/ts-simple-dsl`](https://github.com/ErikHage/ts-simple-dsl).
 
-**Every page has `open` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the components each part of the app shows:
+**Every page has `open`, `reload` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the components each part of the app shows:
 - every page has `appBar`;
 - dashboard pages add `dashboardNav`;
 - admin pages add `adminNav`.
@@ -59,11 +59,13 @@ The world remembers each one under its alias, so later steps can name it. When t
 
 Steps that only use a role or an application can name existing ones: `'role: feral/admin'` (scope/title), and `'application: Feral Authentication'` (its listed name).
 
-**Switching users: load the app afresh, unless that's the point.** Logging out clears nothing from the app's stores, so the next user to log in sees what the last one loaded wherever their own request is refused. After `appBar.logOut()`, call `loginPage.open()` before logging in as someone else. Only a test that pins the leftovers skips it.
+**Switching users: load the app afresh, unless that's the point.** Logging out clears nothing from the app's stores, so the next user to log in sees what the last one loaded wherever their own request is refused. After `appBar.logOut()`, check `loginPage.checkIsShown()` (logging out has finished once the login page shows), then call `loginPage.open()` before logging in as someone else. Only a test that pins the leftovers skips the reload. Without the check, the reload can beat the logout: the fresh login page then finds the old token, and redirects to the applications page half a second later, wherever the test has got to.
+
+**Another device.** A test that needs the same user logged in twice asks for `anotherDevice`: a second browser context with its own `loginPage` and `applicationPickerPage`. It shares the test's names, so `anotherDevice.loginPage.logIn('user: bob')` logs in as the same bob.
 
 **Checking that something is absent.** A page that shows nothing looks the same before its data arrives as after. A driver checking for absence first waits for the service call that would have filled the page to be answered (`drivers/service-calls.js` records the app's calls from the start of each test), then reads the page once.
 
-The admin tables show 10 rows a page, in no particular order, so their drivers switch to showing all rows first (`drivers/data-table.js`). Selects that list many options render only those in view, so a driver opens one and types the start of the option to bring it into view.
+The admin tables show 10 rows a page, in no particular order, so their drivers switch to showing all rows first (`drivers/data-table.js`). Selects that list many options render only those in view, so a driver opens one and scrolls its menu until the option is there. Typing would bring it into view too, but it selects every option that matches on the way.
 
 **Navigation is checked at the destination.** A step that clicks (`loginPage.logIn(...)`) asserts nothing about where it leads. The next step checks that, by URL and heading (`applicationPickerPage.checkIsShown()`).
 

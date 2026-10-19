@@ -54,4 +54,20 @@ export const test = base.extend({
     authorizationAdminPage: pageFixture('authorizationAdminPage', createAuthorizationAdminPage),
     keysAdminPage: pageFixture('keysAdminPage', createKeysAdminPage),
     applicationsAdminPage: pageFixture('applicationsAdminPage', createApplicationsAdminPage),
+
+    // A second browser, with its own login, for a test that needs the same
+    // user logged in twice. It shares the test's names; cleanup stays with
+    // the first
+    anotherDevice: async ({ browser, world }, use) => {
+        const context = await browser.newContext();
+        // A context made here doesn't take the config's actionTimeout
+        context.setDefaultTimeout(10_000);
+        const device = world.onAnotherPage(await context.newPage());
+
+        await use({
+            loginPage: createLoginPage(device, device.drivers.loginPage),
+            applicationPickerPage: createApplicationPickerPage(device, device.drivers.applicationPickerPage),
+        });
+        await context.close();
+    },
 });
