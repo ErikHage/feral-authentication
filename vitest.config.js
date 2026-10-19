@@ -1,6 +1,10 @@
 import { defineConfig, mergeConfig } from 'vitest/config'
 import viteConfig from './vite.config.js'
 
+// One timezone for every run, so date handling is tested the same way on
+// any machine. Set here because the test workers can't change it themselves
+process.env.TZ = 'America/New_York'
+
 export default mergeConfig(viteConfig, defineConfig({
   test: {
     environment: 'jsdom',
