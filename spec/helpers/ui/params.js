@@ -8,5 +8,8 @@ import { optional, required } from '@feral-auth/ts-simple-dsl';
 /** Who a step acts as: the reserved `admin` (from .env.ui), or a user the test created. */
 export const user = () => required();
 
+/** A role the test added, by its alias, which is also its title. */
+export const role = () => required();
+
 /** Which password to log in with: the user's own, or a wrong one. Defaults to correct. */
 export const password = () => optional().allowedValues('correct', 'wrong').withDefault('correct');

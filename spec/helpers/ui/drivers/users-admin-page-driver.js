@@ -1,39 +1,19 @@
 import { expectCount, expectText, expectUrl, expectVisible } from './assertions';
+import { createDataTable } from './data-table';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { urlOf } from './urls';
 
-/** The users admin page, as Playwright sees it. */
+/** The users admin page, as Playwright sees it. Its table's rows are found by username. */
 export function createUsersAdminPageDriver(page) {
     const main = page.getByRole('main');
     const applicationsHeading = main.getByRole('heading', { name: 'Available Applications' });
     const addButton = main.getByRole('button', { name: 'Add' });
     const alertSaying = message => main.getByRole('alert').filter({ hasText: message });
-
-    // The table pages at 10 rows, in no particular order
-    const rowsPerPage = main.getByRole('combobox');
-    const rowsPerPageValue = rowsPerPage.getByRole('textbox');
-    const row = username => main.getByRole('row')
-        .filter({ has: page.getByRole('cell', { name: username, exact: true }) });
-    // Every cell but Actions: first and last name, username, email, last
-    // login and suspended
-    const detailsIn = username => row(username).getByRole('cell')
-        .filter({ hasNot: page.getByRole('button') });
-    // The Actions icons' only accessible name is their glyph, so they're
-    // found by their icon class
-    const editIcon = username => row(username).locator('.mdi-pencil');
-    const deleteIcon = username => row(username).locator('.mdi-delete');
+    const table = createDataTable(page);
 
     // Dialogs open outside main
     const userDialog = page.getByRole('dialog').filter({ hasText: /Add User|Edit User/ });
     const deleteDialog = page.getByRole('dialog').filter({ hasText: 'Delete User' });
-
-    async function showAllRows() {
-        // "All" is stored as -1
-        if (await rowsPerPageValue.inputValue() !== '-1') {
-            await rowsPerPage.click();
-            await page.getByRole('option', { name: 'All' }).click();
-        }
-    }
 
     return {
         ...createRoutedPageDriver(page, {
@@ -57,13 +37,13 @@ export function createUsersAdminPageDriver(page) {
         async listsNewUser({ firstName, lastName, email, username }) {
             const what = `listing the user ${username}`;
 
-            await showAllRows();
-            await expectText(detailsIn(username), [firstName, lastName, username, email, '-', 'N'], what);
+            await table.showAllRows();
+            await expectText(table.detailsIn(username), [firstName, lastName, username, email, '-', 'N'], what);
         },
 
         async renameUser(username, firstName) {
-            await showAllRows();
-            await editIcon(username).click();
+            await table.showAllRows();
+            await table.icon(username, 'pencil').click();
             await userDialog.getByLabel('First Name').fill(firstName);
             await userDialog.getByRole('button', { name: 'Save' }).click();
         },
@@ -77,12 +57,12 @@ export function createUsersAdminPageDriver(page) {
             const what = `renaming ${username} to ${newFirstName}`;
 
             await expectVisible(alertSaying('error adding user'), what);
-            await expectText(detailsIn(username).first(), firstName, what);
+            await expectText(table.detailsIn(username).first(), firstName, what);
         },
 
         async deleteUser(username) {
-            await showAllRows();
-            await deleteIcon(username).click();
+            await table.showAllRows();
+            await table.icon(username, 'delete').click();
             await expectText(deleteDialog.getByRole('cell'), username, `confirming the deletion of ${username}`);
             await deleteDialog.getByRole('button', { name: 'Delete' }).click();
         },
@@ -91,7 +71,7 @@ export function createUsersAdminPageDriver(page) {
         async noLongerListsUser(username) {
             const what = `deleting the user ${username}`;
 
-            await expectCount(row(username), 0, what);
+            await expectCount(table.row(username), 0, what);
         },
 
         /** Today's behaviour: a reload goes through login, on to the applications page. */

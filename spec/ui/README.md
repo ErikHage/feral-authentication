@@ -39,7 +39,7 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - `helpers/ui/world.js` holds what a spec has named, shared by every page object in a test, and the drivers.
 - `helpers/ui/params.js` holds shared parameter declarations.
 - `helpers/ui/setup/` holds the config and the preflight.
-- `helpers/ui/support/service-client.js` is the only place that calls `fetch`. The preflight uses it, and so does cleanup, which deletes the users a test added.
+- `helpers/ui/support/service-client.js` is the only place that calls `fetch`. The preflight uses it, and so does cleanup, which deletes the users and roles a test added.
 - Steps are parsed with [`@feral-auth/ts-simple-dsl`](https://github.com/ErikHage/ts-simple-dsl).
 
 **Every page has `open` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the components each part of the app shows:
@@ -47,11 +47,17 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - dashboard pages add `dashboardNav`;
 - admin pages add `adminNav`.
 
-`drivers/routed-page-driver.js` checks a page by its URL and by something only that page shows. A page with nothing else to do yet lives in `pages/dashboard-pages.js` or `pages/admin-pages.js`, and its driver is a plain routed one in `drivers/drivers.js`. It moves to its own files once it gets steps of its own, as the login and users pages have.
+`drivers/routed-page-driver.js` checks a page by its URL and by something only that page shows. A page with nothing else to do yet lives in `pages/dashboard-pages.js` or `pages/admin-pages.js`, and its driver is a plain routed one in `drivers/drivers.js`. It moves to its own files once it gets steps of its own, as the login, users and roles pages have.
 
 **Logging in is a step.** `loginPage.logIn('user: admin')` logs in as the account in `.env.ui`. `admin` is a reserved name; any other is a user the test added. Add `'password: wrong'` to log in with a wrong password. Nothing is restored from a saved session: the app keeps "logged in" only in memory, so any page load goes through the login page. Each test logs in for itself.
 
-**Users a test adds are made up, and deleted afterwards.** `usersAdminPage.addUser('user: bob')` adds a user through the page, with details unique to the run (the username is `ui-bob-<random>`). The world remembers them under `bob`, so later steps can name them. When the test ends, pass or fail, the world deletes every user it named, over the API, as the admin. A spec never cleans up for itself.
+**Users and roles a test adds are made up, and deleted afterwards.**
+- `usersAdminPage.addUser('user: bob')` adds a user through the page, with details unique to the run (the username is `ui-bob-<random>`).
+- `rolesAdminPage.addRole('role: tester')` adds a role titled `tester`, under the scope `ui-<random>`.
+
+The world remembers each one under its alias, so later steps can name it. When the test ends, pass or fail, the world deletes everything it named, newest first, over the API, as the admin. A spec never cleans up for itself.
+
+The admin tables show 10 rows a page, in no particular order, so their drivers switch to showing all rows first (`drivers/data-table.js`).
 
 **Navigation is checked at the destination.** A step that clicks (`loginPage.logIn(...)`) asserts nothing about where it leads. The next step checks that, by URL and heading (`applicationPickerPage.checkIsShown()`).
 

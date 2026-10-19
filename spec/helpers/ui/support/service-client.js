@@ -53,6 +53,10 @@ export const listUsers = token => call('GET', '/users', { token });
 
 export const deleteUser = (token, userId) => call('DELETE', `/users/${userId}`, { token });
 
+export const listRoles = token => call('GET', '/roles', { token });
+
+export const deleteRole = (token, roleId) => call('DELETE', `/roles/${roleId}`, { token });
+
 /** The app's own address, outside the service; any status. */
 export async function probeApp(url) {
     try {

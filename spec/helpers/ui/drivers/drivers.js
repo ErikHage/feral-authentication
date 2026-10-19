@@ -3,6 +3,7 @@ import { createAppBarDriver } from './app-bar-driver';
 import { createDashboardNavDriver } from './dashboard-nav-driver';
 import { createLoginPageDriver } from './login-page-driver';
 import { createPublicPageDriver } from './public-page-driver';
+import { createRolesAdminPageDriver } from './roles-admin-page-driver';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { createUsersAdminPageDriver } from './users-admin-page-driver';
 
@@ -42,9 +43,7 @@ export function createDrivers(page) {
         adminPage: createRoutedPageDriver(page, {
             name: 'the admin area', path: 'admin', marker: main => main.getByRole('link', { name: 'Keys' }),
         }),
-        rolesAdminPage: createRoutedPageDriver(page, {
-            name: 'the roles admin page', path: 'admin/roles', marker: titled('Manage Roles'),
-        }),
+        rolesAdminPage: createRolesAdminPageDriver(page),
         usersAdminPage: createUsersAdminPageDriver(page),
         authorizationAdminPage: createRoutedPageDriver(page, {
             name: 'the authorization admin page', path: 'admin/authorization', marker: titled('Manage Authorization'),

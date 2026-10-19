@@ -6,7 +6,6 @@ import {
     createApplicationsAdminPage,
     createAuthorizationAdminPage,
     createKeysAdminPage,
-    createRolesAdminPage,
 } from './pages/admin-pages';
 import {
     createApplicationPickerPage,
@@ -16,6 +15,7 @@ import {
 } from './pages/dashboard-pages';
 import { createLoginPage } from './pages/login-page';
 import { createPublicPage } from './pages/public-page';
+import { createRolesAdminPage } from './pages/roles-admin-page';
 import { createUsersAdminPage } from './pages/users-admin-page';
 
 /** A fixture for a page object, over the driver of the same name. */
