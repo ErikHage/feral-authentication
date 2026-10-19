@@ -23,3 +23,13 @@ pnpm-debug.log*
 *.sw?
 *.pid
 /coverage
+
+# Local start/stop script state
+/.run
+
+# Playwright output
+/test-results
+/playwright-report
+
+# UI test credentials; see spec/helpers/ui/.env.ui.example
+.env.ui

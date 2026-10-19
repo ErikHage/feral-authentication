@@ -13,6 +13,13 @@ export default defineConfig({
       autoImport: true,
     }),
   ],
+  server: {
+    watch: {
+      // Playwright writes these while the UI tests run against this dev
+      // server. Watching them makes Vite reload the pages under test
+      ignored: ['**/test-results/**', '**/playwright-report/**'],
+    },
+  },
   define: { 'process.env': {} },
   base: '/auth/',
   resolve: {
