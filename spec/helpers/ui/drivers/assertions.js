@@ -17,6 +17,16 @@ export async function expectVisible(locator, what) {
     await expect(locator, failureMessage(what, `${locator} to be visible`)).toBeVisible();
 }
 
+/** `text` is a string, or an array with one string per element `locator` matches. */
+export async function expectText(locator, text, what) {
+    await expect(locator, failureMessage(what, `${locator} to read ${JSON.stringify(text)}`)).toHaveText(text);
+}
+
+/** Retries, so it waits for elements to come or go: use it only once they are sure to. */
+export async function expectCount(locator, count, what) {
+    await expect(locator, failureMessage(what, `${count} of ${locator}`)).toHaveCount(count);
+}
+
 /**
  * For conditions a driver has already worked out. `expectation` says, in
  * words, what should have been true, and `actual` what was found instead.

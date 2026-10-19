@@ -3,8 +3,8 @@ import { applicationId, authServiceUrl } from '../setup/config';
 /**
  * The only place the suite calls `fetch`: feral-authentication-service
  * itself, and the app's address for the preflight. The browser makes the
- * app's own calls; this is for the preflight, and later for cleaning up
- * what a test created.
+ * app's own calls; this is for the preflight, and for cleaning up what a
+ * test created.
  *
  * Every call has a short timeout, so a request the service never answers
  * can't hang a run. Nothing here throws or asserts: each call resolves to
@@ -46,7 +46,12 @@ export const login = (username, password) => call('POST', '/login', {
     body: { username, password, applicationId },
 });
 
+/** Ends the session behind `token`, so cleanup leaves none behind. */
+export const logout = token => call('POST', '/logout', { token });
+
 export const listUsers = token => call('GET', '/users', { token });
+
+export const deleteUser = (token, userId) => call('DELETE', `/users/${userId}`, { token });
 
 /** The app's own address, outside the service; any status. */
 export async function probeApp(url) {
