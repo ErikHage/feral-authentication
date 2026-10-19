@@ -42,6 +42,13 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - `helpers/ui/support/service-client.js` is the only place that calls `fetch`. The preflight uses it, and so will cleanup, which deletes what tests created.
 - Steps are parsed with [`@feral-auth/ts-simple-dsl`](https://github.com/ErikHage/ts-simple-dsl).
 
+**Every page has `open` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the components each part of the app shows:
+- every page has `appBar`;
+- dashboard pages add `dashboardNav`;
+- admin pages add `adminNav`.
+
+`drivers/routed-page-driver.js` checks a page by its URL and by something only that page shows. A page with nothing else to do yet lives in `pages/dashboard-pages.js` or `pages/admin-pages.js`, and its driver is a plain routed one in `drivers/drivers.js`. It moves to its own files once it gets steps of its own, as the login and users pages have.
+
 **Logging in is a step.** `loginPage.logIn('user: admin')` logs in as the account in `.env.ui`. `admin` is a reserved name. Add `'password: wrong'` to log in with a wrong password. Nothing is restored from a saved session: the app keeps "logged in" only in memory, so any page load goes through the login page. Each test logs in for itself.
 
 **Navigation is checked at the destination.** A step that clicks (`loginPage.logIn(...)`) asserts nothing about where it leads. The next step checks that, by URL and heading (`applicationPickerPage.checkIsShown()`).

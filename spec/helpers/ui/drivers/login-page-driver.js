@@ -1,5 +1,6 @@
 import { expectUrl, expectVisible } from './assertions';
-import { openPath, urlOf } from './urls';
+import { createRoutedPageDriver } from './routed-page-driver';
+import { urlOf } from './urls';
 
 /** The login page, as Playwright sees it. */
 export function createLoginPageDriver(page) {
@@ -12,10 +13,11 @@ export function createLoginPageDriver(page) {
     const loginError = page.getByRole('alert').filter({ hasText: 'Error logging in' });
 
     return {
-        async open() {
-            await openPath(page, 'login');
-            await expectVisible(submitButton, 'opening the login page');
-        },
+        ...createRoutedPageDriver(page, {
+            name: 'the login page',
+            path: 'login',
+            marker: main => main.getByRole('button', { name: 'Submit' }),
+        }),
 
         async logIn(username, password) {
             await usernameField.fill(username);
@@ -28,6 +30,21 @@ export function createLoginPageDriver(page) {
 
             await expectVisible(loginError, what);
             await expectUrl(page, urlOf('login'), what);
+        },
+
+        async goBack() {
+            await page.goBack();
+        },
+
+        /**
+         * Today's behaviour after going Back to the applications page while
+         * logged out: the login form shows, under the applications page's URL.
+         */
+        async isShownUnderTheApplicationsUrl() {
+            const what = 'going back to the applications page after logging out';
+
+            await expectVisible(submitButton, what);
+            await expectUrl(page, urlOf('dashboard/applications'), what);
         },
     };
 }

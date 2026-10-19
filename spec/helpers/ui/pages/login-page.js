@@ -1,16 +1,13 @@
 import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 import { password, user } from '../params';
+import { routedPageSteps, shellComponents } from './routed-page';
 
 /** The login page, in words. Where a login leads is checked by the destination page. */
 export function createLoginPage(world, driver) {
     return {
-        /** Opens the page. No parameters. */
-        async open(...args) {
-            parseDslArgs(args, {});
-
-            await driver.open();
-        },
+        ...shellComponents(world),
+        ...routedPageSteps(driver),
 
         /**
          * Logs in as `user` (`admin`, or a user the test created), with
@@ -31,6 +28,20 @@ export function createLoginPage(world, driver) {
             parseDslArgs(args, {});
 
             await driver.showsLoginError();
+        },
+
+        /** Goes back in the browser's history. No parameters. */
+        async goBack(...args) {
+            parseDslArgs(args, {});
+
+            await driver.goBack();
+        },
+
+        /** Going back to a page that needs a login showed this page instead. No parameters. */
+        async checkIsShownAfterGoingBack(...args) {
+            parseDslArgs(args, {});
+
+            await driver.isShownUnderTheApplicationsUrl();
         },
     };
 }

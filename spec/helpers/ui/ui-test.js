@@ -1,8 +1,27 @@
 import { test as base } from '@playwright/test';
 
 import { createWorld } from './world';
-import { createApplicationPickerPage } from './pages/application-picker-page';
+import {
+    createAdminPage,
+    createApplicationsAdminPage,
+    createAuthorizationAdminPage,
+    createKeysAdminPage,
+    createRolesAdminPage,
+} from './pages/admin-pages';
+import {
+    createApplicationPickerPage,
+    createDashboardPage,
+    createProfilePage,
+    createSessionsPage,
+} from './pages/dashboard-pages';
 import { createLoginPage } from './pages/login-page';
+import { createPublicPage } from './pages/public-page';
+import { createUsersAdminPage } from './pages/users-admin-page';
+
+/** A fixture for a page object, over the driver of the same name. */
+const pageFixture = (name, createPage) => async ({ world }, use) => {
+    await use(createPage(world, world.drivers[name]));
+};
 
 /**
  * The one thing a spec imports.
@@ -23,11 +42,18 @@ export const test = base.extend({
         await world.cleanup();
     },
 
-    loginPage: async ({ world }, use) => {
-        await use(createLoginPage(world, world.drivers.loginPage));
-    },
+    publicPage: pageFixture('publicPage', createPublicPage),
+    loginPage: pageFixture('loginPage', createLoginPage),
 
-    applicationPickerPage: async ({ world }, use) => {
-        await use(createApplicationPickerPage(world, world.drivers.applicationPickerPage));
-    },
+    dashboardPage: pageFixture('dashboardPage', createDashboardPage),
+    applicationPickerPage: pageFixture('applicationPickerPage', createApplicationPickerPage),
+    profilePage: pageFixture('profilePage', createProfilePage),
+    sessionsPage: pageFixture('sessionsPage', createSessionsPage),
+
+    adminPage: pageFixture('adminPage', createAdminPage),
+    rolesAdminPage: pageFixture('rolesAdminPage', createRolesAdminPage),
+    usersAdminPage: pageFixture('usersAdminPage', createUsersAdminPage),
+    authorizationAdminPage: pageFixture('authorizationAdminPage', createAuthorizationAdminPage),
+    keysAdminPage: pageFixture('keysAdminPage', createKeysAdminPage),
+    applicationsAdminPage: pageFixture('applicationsAdminPage', createApplicationsAdminPage),
 });
