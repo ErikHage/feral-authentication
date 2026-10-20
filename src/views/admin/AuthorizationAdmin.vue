@@ -50,7 +50,7 @@
               </v-col>
             </v-row>
             <v-chip-group v-if="selectedApplications">
-              <v-chip v-for="application in selectedApplications" @click="removeApplicationFromSelected(application.applicationId)">
+              <v-chip v-for="application in selectedApplications" :key="application.applicationId" @click="removeApplicationFromSelected(application.applicationId)">
                 {{ application.applicationName }}
               </v-chip>
               <!-- click on them to remove -->
@@ -93,7 +93,7 @@
               </v-col>
             </v-row>
             <v-chip-group v-if="selectedRoles">
-              <v-chip v-for="role in selectedRoles" @click="removeRoleFromSelected(role.roleId)">
+              <v-chip v-for="role in selectedRoles" :key="role.roleId" @click="removeRoleFromSelected(role.roleId)">
                 {{ role.scope }}/{{ role.title }}
               </v-chip>
               <!-- click on them to remove -->

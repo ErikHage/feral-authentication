@@ -73,6 +73,7 @@
                   <v-card
                       class="ma-2"
                       v-for="scope in Object.keys(userRolesMap)"
+                      :key="scope"
                       variant="tonal"
                   >
                     <v-card-subtitle class="text-left pt-2">
@@ -82,6 +83,7 @@
                       <v-chip-group>
                         <v-chip
                             v-for="role in userRolesMap[scope]"
+                            :key="role.roleId"
                             text="Elevator"
                             variant="outlined"
                         >{{ role.title }}

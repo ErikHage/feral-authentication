@@ -33,7 +33,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 console.log('login to application successful');
                 console.log(`redirect to: ${redirectUrl}`);
 
-                if (!!newTab) {
+                if (newTab) {
                     window.open(redirectUrl, '_blank');
                 } else {
                     window.open(redirectUrl, '_self');

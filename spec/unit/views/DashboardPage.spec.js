@@ -2,7 +2,7 @@ import { h } from 'vue';
 import { createTestingPinia } from '@pinia/testing';
 import { createRouter, createMemoryHistory } from 'vue-router';
 import { mountInLayout } from '../../helpers/layout';
-import Dashboard from '@/views/Dashboard.vue';
+import DashboardPage from '@/views/DashboardPage.vue';
 
 // Flat routes: mounted directly, the dashboard's router-view is the top one
 async function mountDashboard(path) {
@@ -15,10 +15,10 @@ async function mountDashboard(path) {
     });
     await router.push(path);
 
-    return mountInLayout(Dashboard, { global: { plugins: [router, createTestingPinia()] } });
+    return mountInLayout(DashboardPage, { global: { plugins: [router, createTestingPinia()] } });
 }
 
-describe('Dashboard', () => {
+describe('DashboardPage', () => {
     it('links to its three pages', async () => {
         const wrapper = await mountDashboard('/dashboard/applications');
 

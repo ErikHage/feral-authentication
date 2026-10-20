@@ -121,7 +121,7 @@ export default {
         if (!this.isAuthenticated) {
           this.clearToken();
         }
-      } catch (err) {
+      } catch {
         this.clearToken();
       }
     }

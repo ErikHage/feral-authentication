@@ -3,7 +3,7 @@ import router from '@/router';
 import { useAuthenticationStore } from '@/store';
 import PublicPage from '@/views/PublicPage.vue';
 import LoginPage from '@/views/LoginPage.vue';
-import Dashboard from '@/views/Dashboard.vue';
+import DashboardPage from '@/views/DashboardPage.vue';
 import ApplicationPicker from '@/views/dashboard/ApplicationPicker.vue';
 import UserProfile from '@/views/dashboard/UserProfile.vue';
 import ActiveSessions from '@/views/dashboard/ActiveSessions.vue';
@@ -38,10 +38,10 @@ describe('router', () => {
         it.each([
             ['/', 'Public', [PublicPage]],
             ['/login', 'Login', [LoginPage]],
-            ['/dashboard', 'Dashboard', [Dashboard]],
-            ['/dashboard/applications', 'ApplicationPicker', [Dashboard, ApplicationPicker]],
-            ['/dashboard/profile', 'UserProfile', [Dashboard, UserProfile]],
-            ['/dashboard/sessions', 'ActiveSessions', [Dashboard, ActiveSessions]],
+            ['/dashboard', 'Dashboard', [DashboardPage]],
+            ['/dashboard/applications', 'ApplicationPicker', [DashboardPage, ApplicationPicker]],
+            ['/dashboard/profile', 'UserProfile', [DashboardPage, UserProfile]],
+            ['/dashboard/sessions', 'ActiveSessions', [DashboardPage, ActiveSessions]],
             ['/admin', 'Admin', [AdminPage]],
             ['/admin/roles', 'RolesAdmin', [AdminPage, RolesAdmin]],
             ['/admin/users', 'UsersAdmin', [AdminPage, UsersAdmin]],

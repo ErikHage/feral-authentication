@@ -17,7 +17,7 @@ import { mapState } from "pinia";
 import { useAuthenticationStore } from "@/store";
 
 export default {
-  name: 'Dashboard',
+  name: 'DashboardPage',
 
   methods: {
     ...mapState(useAuthenticationStore, {

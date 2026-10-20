@@ -13,7 +13,7 @@ async function login(username, password) {
         return response.data.token;
     } catch (err) {
         console.log('Error:', err);
-        throw new Error('Error logging in');
+        throw new Error('Error logging in', { cause: err });
     }
 }
 
@@ -27,7 +27,7 @@ async function loginToApplication(token, applicationId) {
         return response.data.redirectUrl;
     } catch (err) {
         console.log('Error:', err);
-        throw new Error('Error logging in');
+        throw new Error('Error logging in', { cause: err });
     }
 }
 
@@ -46,7 +46,7 @@ async function verifyToken(token) {
                 'x-feral-auth-token': token,
             },
         });
-    } catch (err) {
+    } catch {
         console.log('token is invalid');
         return false;
     }

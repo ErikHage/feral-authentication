@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthenticationStore } from '@/store';
 import { views } from "@/utils/constants";
 
-import Dashboard from "@/views/Dashboard.vue";
+import DashboardPage from "@/views/DashboardPage.vue";
 import LoginPage from "@/views/LoginPage.vue";
 import UserProfile from "@/views/dashboard/UserProfile.vue";
 import ApplicationPicker from "@/views/dashboard/ApplicationPicker.vue";
@@ -38,7 +38,7 @@ const routes = [
     {
         path: views.dashboard.path,
         name: views.dashboard.name,
-        component: Dashboard,
+        component: DashboardPage,
         meta: {
             requiresAuthenticated: true,
         },
