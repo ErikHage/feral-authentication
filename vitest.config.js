@@ -14,8 +14,8 @@ export default mergeConfig(viteConfig, defineConfig({
     // Runs each file in its own VM context, built once per worker. Needed on
     // a Node with Web Storage on by default (26 here): its own localStorage
     // global, undefined without --localstorage-file, otherwise hides
-    // jsdom's. Vitest 1+ calls this pool: 'vmThreads'
-    experimentalVmThreads: true,
+    // jsdom's
+    pool: 'vmThreads',
     server: {
       deps: {
         // Vuetify imports its own CSS, which must go through Vite
