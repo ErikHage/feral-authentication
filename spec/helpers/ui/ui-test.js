@@ -1,5 +1,6 @@
 import { test as base } from '@playwright/test';
 
+import { guardNetwork } from './support/network-guard';
 import { createWorld } from './world';
 import { createAdminPage } from './pages/admin-pages';
 import { createApplicationDetailsPage } from './pages/application-details-page';
@@ -31,6 +32,14 @@ const pageFixture = (name, createPage) => async ({ world }, use) => {
  * `expect` is deliberately not exported; assertions live in the drivers.
  */
 export const test = base.extend({
+    // Every test's browser reaches only the local app and service; see
+    // support/network-guard.js
+    context: async ({ context }, use) => {
+        const guard = await guardNetwork(context);
+        await use(context);
+        guard.check();
+    },
+
     // One world per test, shared by every page object in it, and cleaned up
     // when the test ends, so specs need no afterEach
     world: async ({ page }, use) => {
@@ -60,8 +69,10 @@ export const test = base.extend({
     // the first
     anotherDevice: async ({ browser, world }, use) => {
         const context = await browser.newContext();
-        // A context made here doesn't take the config's actionTimeout
+        // A context made here doesn't take the config's actionTimeout, or
+        // the test's network guard
         context.setDefaultTimeout(10_000);
+        const guard = await guardNetwork(context);
         const device = world.onAnotherPage(await context.newPage());
 
         await use({
@@ -69,5 +80,6 @@ export const test = base.extend({
             applicationPickerPage: createApplicationPickerPage(device, device.drivers.applicationPickerPage),
         });
         await context.close();
+        guard.check();
     },
 });

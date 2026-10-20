@@ -18,12 +18,24 @@ if (existsSync(envFile)) {
 
 const withTrailingSlash = url => (url.endsWith('/') ? url : `${url}/`);
 
-// baseURL must end in a slash, or page.goto('login') drops the app's base path
-export const appUrl = withTrailingSlash(
-    process.env.UI_APP_URL || 'http://localhost:5173/auth/');
+// The suite adds users, grants feral/admin and leaves keys behind, so it only
+// ever runs against services on this machine
+const localHosts = ['localhost', '127.0.0.1', '[::1]'];
 
-export const authServiceUrl = process.env.UI_AUTH_SERVICE_URL
-    || 'http://localhost:8003/api/feral-authentication-service/v0';
+function localOnly(name, url) {
+    if (!localHosts.includes(new URL(url).hostname)) {
+        throw new Error(`${name} is ${url}, which isn't on this machine. The UI suite only runs `
+            + `against a local app and service (${localHosts.join(', ')}).`);
+    }
+    return url;
+}
+
+// baseURL must end in a slash, or page.goto('login') drops the app's base path
+export const appUrl = localOnly('UI_APP_URL', withTrailingSlash(
+    process.env.UI_APP_URL || 'http://localhost:5173/auth/'));
+
+export const authServiceUrl = localOnly('UI_AUTH_SERVICE_URL', process.env.UI_AUTH_SERVICE_URL
+    || 'http://localhost:8003/api/feral-authentication-service/v0');
 
 // The application the app logs in to (its VITE_APPLICATION_ID). It must be
 // the one scoped `feral`, or the admin's token carries no admin role

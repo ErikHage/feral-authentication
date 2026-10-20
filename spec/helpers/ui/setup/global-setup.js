@@ -1,4 +1,9 @@
+import { randomBytes } from 'node:crypto';
+import { chromium } from '@playwright/test';
+
 import { admin, appUrl, authServiceUrl, envFileHint } from './config';
+import { createLoginPageDriver } from '../drivers/login-page-driver';
+import { describeBlocked, guardNetwork, wiringHint } from '../support/network-guard';
 import { listUsers, login, ping, probeApp } from '../support/service-client';
 
 /**
@@ -49,5 +54,46 @@ export default async function globalSetup() {
 
     if (app.error || app.status !== 200) {
         throw new Error(`the app is not answering at ${appUrl} (${describe(app)}). ${startHint}`);
+    }
+
+    await checkAppCallsTheService();
+}
+
+/**
+ * The checks above reach the service the suite was told about; the app in
+ * the browser calls whichever one it was built with. So log in through the
+ * page, as a user who doesn't exist, and check where the request went. The
+ * network guard aborts it before it leaves if it's going anywhere else.
+ */
+async function checkAppCallsTheService() {
+    const browser = await chromium.launch();
+
+    try {
+        const context = await browser.newContext();
+        const guard = await guardNetwork(context);
+        const page = await context.newPage();
+        const loginPage = createLoginPageDriver(page);
+        const loginRequest = page.waitForRequest(
+            request => request.method() === 'POST' && new URL(request.url()).pathname.endsWith('/login'),
+            { timeout: 15_000 },
+        ).catch(() => undefined);
+
+        await loginPage.open();
+        await loginPage.logIn(`ui-preflight-${randomBytes(4).toString('hex')}`, randomBytes(12).toString('hex'));
+        const request = await loginRequest;
+
+        if (guard.blocked.length > 0) {
+            throw new Error(`${describeBlocked(guard.blocked)}${wiringHint}`);
+        }
+        if (!request) {
+            throw new Error(`logging in on ${appUrl}login sent no login request. Is the app at `
+                + 'UI_APP_URL feral-authentication?');
+        }
+        if (request.url() !== `${authServiceUrl.replace(/\/$/, '')}/login`) {
+            throw new Error(`the app logs in at ${request.url()}, not at ${authServiceUrl}/login. `
+                + wiringHint);
+        }
+    } finally {
+        await browser.close();
     }
 }

@@ -19,6 +19,16 @@ Any value can also be set from the shell, which wins over the file:
 
 A preflight runs before any test. It checks that the service answers, that the admin can log in and list users, and that the app answers. If any of that fails, it stops with a message naming the fix.
 
+## Safety: local services only
+
+The suite adds users, grants them `feral/admin`, and leaves keys and applications it can't delete. It must never run against the live service, and three guards stop it from doing so:
+
+1. **Local URLs only.** `setup/config.js` refuses a `UI_APP_URL` or `UI_AUTH_SERVICE_URL` whose host isn't `localhost`, `127.0.0.1` or `[::1]`.
+2. **The preflight checks where the app logs in.** The app in the browser calls whichever service it was built with, not `UI_AUTH_SERVICE_URL`. A production build (`vite build`, `vite preview`, `npm run serve`) reads `.env.production`, which names the live service. So the preflight logs in through the page, as a user who doesn't exist, and stops the run unless the request went to `UI_AUTH_SERVICE_URL`.
+3. **Every browser context reaches only the local app and service.** `support/network-guard.js` aborts any other request before it leaves the machine, and fails the test that made it, naming the request. Google Fonts requests are answered empty, and routes a driver sets on a page (the single sign-on stub) take precedence. `ui-test.js` applies the guard to each test's context and to `anotherDevice`.
+
+Run the suite against the dev server, as `./start-feral-authentication.sh` starts it. The guards were added after a run against `vite preview` wrote test data to the live service (see the security-updates changelog, 2026-10-20).
+
 Failures save a screenshot and a trace under `test-results/`. Open a trace with `npx playwright show-trace <path>/trace.zip`, or open the HTML report with `npx playwright show-report`.
 
 ## Layers
@@ -40,6 +50,7 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - `helpers/ui/params.js` holds shared parameter declarations.
 - `helpers/ui/setup/` holds the config and the preflight.
 - `helpers/ui/support/service-client.js` is the only place that calls `fetch`. The preflight uses it, and so does cleanup, which deletes the users and roles a test added.
+- `helpers/ui/support/network-guard.js` keeps each browser context to the local app and service (see Safety, above).
 - Steps are parsed with [`@feral-auth/ts-simple-dsl`](https://github.com/ErikHage/ts-simple-dsl).
 
 **Every page has `open`, `reload` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the components each part of the app shows:
