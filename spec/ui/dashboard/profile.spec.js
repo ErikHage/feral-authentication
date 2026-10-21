@@ -1,7 +1,7 @@
 import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Profile page', () => {
-    // As bob, granted feral/admin, so the real admin's name is never edited.
+    // As bob, granted feral/admin, so the admin's own name is never edited.
     // Only an admin can use the dashboard (backlog A30)
     test.beforeEach(async ({
         loginPage, applicationPickerPage, adminPage, usersAdminPage, authorizationAdminPage,

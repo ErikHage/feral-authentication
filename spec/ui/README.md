@@ -10,7 +10,7 @@ npm run test:ui
 ./stop-feral-authentication.sh
 ```
 
-The suite logs in as a real admin. Copy `spec/helpers/ui/.env.ui.example` to `spec/helpers/ui/.env.ui` (gitignored), and fill in `UI_ADMIN_USERNAME` and `UI_ADMIN_PASSWORD`. The user needs the `feral/admin` role.
+The suite logs in as `feral-test-admin`, a local-only admin that the service's `scripts/init-test-data.sql` seeds. Copy `spec/helpers/ui/.env.ui.example` to `spec/helpers/ui/.env.ui` (gitignored), and fill in `UI_ADMIN_PASSWORD`. The user needs the `feral/admin` role and at least one application. Never use a real user's account: one that also exists on the live service would let a misdirected run log in there.
 
 Any value can also be set from the shell, which wins over the file:
 - `UI_APP_URL` (default `http://localhost:5173/auth/`)
@@ -21,7 +21,7 @@ A preflight runs before any test. It checks that the service answers, that the a
 
 ## Safety: local services only
 
-The suite adds users, grants them `feral/admin`, and leaves keys and applications it can't delete. It must never run against the live service, and three guards stop it from doing so:
+The suite adds users, grants them `feral/admin`, and leaves keys and applications it can't delete. It must never run against the live service. Logging in as a local-only admin means a stray run fails at login, and three guards stop it before then:
 
 1. **Local URLs only.** `setup/config.js` refuses a `UI_APP_URL` or `UI_AUTH_SERVICE_URL` whose host isn't `localhost`, `127.0.0.1` or `[::1]`.
 2. **The preflight checks where the app logs in.** The app in the browser calls whichever service it was built with, not `UI_AUTH_SERVICE_URL`. A production build (`vite build`, `vite preview`, `npm run serve`) reads `.env.production`, which names the live service. So the preflight logs in through the page, as a user who doesn't exist, and stops the run unless the request went to `UI_AUTH_SERVICE_URL`.
