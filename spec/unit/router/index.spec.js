@@ -14,6 +14,7 @@ import AuthorizationAdmin from '@/views/admin/AuthorizationAdmin.vue';
 import KeysAdmin from '@/views/admin/KeysAdmin.vue';
 import ApplicationsAdmin from '@/views/admin/ApplicationsAdmin.vue';
 import ApplicationDetails from '@/views/admin/ApplicationDetails.vue';
+import NotFoundPage from '@/views/NotFoundPage.vue';
 import authenticationApi from '@/api/authentication-api';
 
 vi.mock('@/api/authentication-api', () => ({
@@ -34,6 +35,13 @@ const protectedPaths = [
     '/admin/applications/app-1',
 ];
 
+// Each shell, only navigation on its own, and the first page it opens at
+const shells = [
+    ['/dashboard', '/dashboard/applications'],
+    ['/admin', '/admin/roles'],
+];
+const pagePaths = protectedPaths.filter(path => !shells.some(([shell]) => shell === path));
+
 describe('router', () => {
     it('serves the app under /auth/', () => {
         expect(router.resolve('/login').href).toBe('/auth/login');
@@ -43,17 +51,17 @@ describe('router', () => {
         it.each([
             ['/', 'Public', [PublicPage]],
             ['/login', 'Login', [LoginPage]],
-            ['/dashboard', 'Dashboard', [DashboardPage]],
             ['/dashboard/applications', 'ApplicationPicker', [DashboardPage, ApplicationPicker]],
             ['/dashboard/profile', 'UserProfile', [DashboardPage, UserProfile]],
             ['/dashboard/sessions', 'ActiveSessions', [DashboardPage, ActiveSessions]],
-            ['/admin', 'Admin', [AdminPage]],
             ['/admin/roles', 'RolesAdmin', [AdminPage, RolesAdmin]],
             ['/admin/users', 'UsersAdmin', [AdminPage, UsersAdmin]],
             ['/admin/authorization', 'AuthorizationAdmin', [AdminPage, AuthorizationAdmin]],
             ['/admin/keys', 'KeysAdmin', [AdminPage, KeysAdmin]],
             ['/admin/applications', 'ApplicationsAdmin', [AdminPage, ApplicationsAdmin]],
             ['/admin/applications/app-1', 'ApplicationDetails', [AdminPage, ApplicationDetails]],
+            ['/no-such-page', 'NotFound', [NotFoundPage]],
+            ['/admin/no-such-page', 'NotFound', [NotFoundPage]],
         ])('resolves %s to %s', (path, name, components) => {
             const route = router.resolve(path);
 
@@ -63,13 +71,6 @@ describe('router', () => {
 
         it('passes the application id as a route param', () => {
             expect(router.resolve('/admin/applications/app-1').params).toEqual({ id: 'app-1' });
-        });
-
-        it('has no route for an unknown path', () => {
-            // current behavior: there is no catch-all, so an unknown url shows an empty page
-            vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-            expect(router.resolve('/no-such-page').matched).toEqual([]);
         });
     });
 
@@ -96,7 +97,7 @@ describe('router', () => {
             setActivePinia(createPinia());
         }
 
-        it.each(['/', '/login'])('lets anyone open %s', async path => {
+        it.each(['/', '/login', '/no-such-page'])('lets anyone open %s', async path => {
             await router.push(path);
 
             expect(router.currentRoute.value.path).toBe(path);
@@ -115,12 +116,20 @@ describe('router', () => {
             expect(router.currentRoute.value.query).toEqual({ redirect: '/admin/users?tab=2' });
         });
 
-        it.each(protectedPaths)('lets someone logged in open %s', async path => {
+        it.each(pagePaths)('lets someone logged in open %s', async path => {
             store.$patch({ isAuthenticated: true });
 
             await router.push(path);
 
             expect(router.currentRoute.value.path).toBe(path);
+        });
+
+        it.each(shells)('opens %s at its first page, %s', async (shell, firstPage) => {
+            store.$patch({ isAuthenticated: true });
+
+            await router.push(shell);
+
+            expect(router.currentRoute.value.path).toBe(firstPage);
         });
 
         it('lets someone with a stored token the service accepts open the page they reload', async () => {

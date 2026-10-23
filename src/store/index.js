@@ -160,6 +160,18 @@ export const useRolesStore = defineStore('role', {
     },
 });
 
+// Each store's latest selectUser, so an earlier, slower one can't overwrite
+// the user chosen after it
+const latestSelections = new WeakMap();
+
+function startSelection(store) {
+    const selection = (latestSelections.get(store) ?? 0) + 1;
+    latestSelections.set(store, selection);
+    return selection;
+}
+
+const isLatestSelection = (store, selection) => latestSelections.get(store) === selection;
+
 export const useUsersStore = defineStore('user', {
     actions: {
         async fetchUsers() {
@@ -200,12 +212,16 @@ export const useUsersStore = defineStore('user', {
             }
         },
         async selectUser(userId) {
+            const selection = startSelection(this);
             try {
                 const token = storageUtils.tryToLoadTokenFromStorage();
                 const userDetails = this.users.find(user => user.userId === userId)
                     ?? await usersApi.fetchUser(token, userId);
                 const userRoles = await usersApi.fetchUserRoles(token, userId);
                 const userApplications = await usersApi.fetchUserApplications(token, userId);
+                if (!isLatestSelection(this, selection)) {
+                    return;
+                }
                 const rolesByScope = userRoles.roles.reduce((acc, role) => {
                     if (!acc[role.scope]) {
                         acc[role.scope] = [];
@@ -222,47 +238,61 @@ export const useUsersStore = defineStore('user', {
                 };
             } catch (err) {
                 console.log(err);
+                if (!isLatestSelection(this, selection)) {
+                    return;
+                }
                 this.selectedUser = null;
                 this.setAlertMessage('error', failureMessage(err, "Couldn't load the user"));
             }
         },
         clearSelectedUser() {
+            // A selection still loading is dropped too
+            startSelection(this);
             this.selectedUser = null;
         },
+        // Each of these four resolves to whether it saved
         async setUserRoles(userId, roleIds) {
             try {
                 await usersApi.setUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId, roleIds);
                 this.setAlertMessage('success', 'User Roles Updated!');
+                return true;
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', failureMessage(err, "Couldn't update the user's roles"));
+                return false;
             }
         },
         async clearUserRoles(userId) {
             try {
                 await usersApi.clearUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId);
                 this.setAlertMessage('success', 'User Roles Updated!');
+                return true;
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', failureMessage(err, "Couldn't update the user's roles"));
+                return false;
             }
         },
         async setUserApplications(userId, applicationIds) {
             try {
                 await usersApi.setUserApplications(storageUtils.tryToLoadTokenFromStorage(), userId, applicationIds);
                 this.setAlertMessage('success', 'User Applications Updated!');
+                return true;
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', failureMessage(err, "Couldn't update the user's applications"));
+                return false;
             }
         },
         async clearUserApplications(userId) {
             try {
                 await usersApi.clearUserApplications(storageUtils.tryToLoadTokenFromStorage(), userId);
                 this.setAlertMessage('success', 'User Applications Updated!');
+                return true;
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', failureMessage(err, "Couldn't update the user's applications"));
+                return false;
             }
         },
         setAlertMessage(type, message) {

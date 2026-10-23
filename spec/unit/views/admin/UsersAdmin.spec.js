@@ -176,7 +176,7 @@ describe('UsersAdmin', () => {
         it("opens the form with the user's details, only the name editable, and no password", async () => {
             const { wrapper } = await mountPage();
 
-            await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
+            await click(rowWith(wrapper, 'bob').find('[aria-label="Edit bob"]'));
 
             const dialog = dialogTitled('Edit User');
             const details = ['First Name', 'Last Name', 'Email', 'Username']
@@ -193,14 +193,14 @@ describe('UsersAdmin', () => {
         it('can be saved without a password', async () => {
             const { wrapper } = await mountPage();
 
-            await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
+            await click(rowWith(wrapper, 'bob').find('[aria-label="Edit bob"]'));
 
             expect(buttonLabelled(dialogTitled('Edit User'), 'Save').attributes('disabled')).toBeUndefined();
         });
 
         it("updates the user's name, closes and reloads", async () => {
             const { wrapper, store } = await mountPage();
-            await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
+            await click(rowWith(wrapper, 'bob').find('[aria-label="Edit bob"]'));
             await inputLabelled(dialogTitled('Edit User'), 'First Name').setValue('Robert');
 
             await click(buttonLabelled(dialogTitled('Edit User'), 'Save'));
@@ -215,7 +215,7 @@ describe('UsersAdmin', () => {
 
         it('opens an empty Add form after an edit', async () => {
             const { wrapper } = await mountPage();
-            await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
+            await click(rowWith(wrapper, 'bob').find('[aria-label="Edit bob"]'));
             await click(buttonLabelled(dialogTitled('Edit User'), 'Cancel'));
 
             await click(buttonLabelled(wrapper, 'Add'));
@@ -228,7 +228,7 @@ describe('UsersAdmin', () => {
         it('asks first, naming the user', async () => {
             const { wrapper } = await mountPage();
 
-            await click(rowWith(wrapper, 'bob').find('.mdi-delete'));
+            await click(rowWith(wrapper, 'bob').find('[aria-label="Delete bob"]'));
 
             const dialog = dialogTitled('Delete User');
             expect(tableRows(dialog)).toEqual([['bob']]);
@@ -237,7 +237,7 @@ describe('UsersAdmin', () => {
 
         it('deletes the user, closes and reloads', async () => {
             const { wrapper, store } = await mountPage();
-            await click(rowWith(wrapper, 'bob').find('.mdi-delete'));
+            await click(rowWith(wrapper, 'bob').find('[aria-label="Delete bob"]'));
 
             await click(buttonLabelled(dialogTitled('Delete User'), 'Delete'));
 
@@ -248,7 +248,7 @@ describe('UsersAdmin', () => {
 
         it('deletes nothing when cancelled', async () => {
             const { wrapper, store } = await mountPage();
-            await click(rowWith(wrapper, 'bob').find('.mdi-delete'));
+            await click(rowWith(wrapper, 'bob').find('[aria-label="Delete bob"]'));
 
             await click(buttonLabelled(dialogTitled('Delete User'), 'Cancel'));
 

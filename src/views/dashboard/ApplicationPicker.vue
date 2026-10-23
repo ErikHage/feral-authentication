@@ -2,6 +2,8 @@
   <v-container v-if="userApplications">
     <h2 class="headline">Available Applications</h2>
     <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+    <!-- Logging in, and opening an application, are the authentication store's -->
+    <FadeOutAlert class="my-2" :is-visible="signOnAlertVisible" :alert-type="signOnAlertType" :message="signOnAlertMessage"/>
     <v-row class="mt-3">
       <v-col cols="2"></v-col>
 
@@ -58,6 +60,12 @@ export default {
     ...mapState(useApplicationsStore, [
       'userAllowedApplications', 'alertType', 'alertMessage', 'alertVisible',
     ]),
+
+    ...mapState(useAuthenticationStore, {
+      signOnAlertType: 'alertType',
+      signOnAlertMessage: 'alertMessage',
+      signOnAlertVisible: 'alertVisible',
+    }),
   },
 
   methods: {

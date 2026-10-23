@@ -161,7 +161,7 @@ describe('RolesAdmin', () => {
         it('asks first, naming the role', async () => {
             const { wrapper } = await mountPage();
 
-            await click(rowWith(wrapper, 'harvest').find('.mdi-delete'));
+            await click(rowWith(wrapper, 'harvest').find('[aria-label="Delete harvest/user"]'));
 
             const dialog = dialogTitled('Delete Role');
             expect(tableRows(dialog)).toEqual([['harvest'], ['user']]);
@@ -170,7 +170,7 @@ describe('RolesAdmin', () => {
 
         it('deletes the role, reloads and closes', async () => {
             const { wrapper, store } = await mountPage();
-            await click(rowWith(wrapper, 'harvest').find('.mdi-delete'));
+            await click(rowWith(wrapper, 'harvest').find('[aria-label="Delete harvest/user"]'));
 
             await click(buttonLabelled(dialogTitled('Delete Role'), 'Delete'));
 
@@ -181,7 +181,7 @@ describe('RolesAdmin', () => {
 
         it('deletes nothing when cancelled', async () => {
             const { wrapper, store } = await mountPage();
-            await click(rowWith(wrapper, 'harvest').find('.mdi-delete'));
+            await click(rowWith(wrapper, 'harvest').find('[aria-label="Delete harvest/user"]'));
 
             await click(buttonLabelled(dialogTitled('Delete Role'), 'Cancel'));
 

@@ -14,7 +14,8 @@ const harvestUser = { roleId: 'role-2', scope: 'harvest', title: 'user' };
 const feral = { applicationId: 'app-1', applicationName: 'Feral' };
 const harvest = { applicationId: 'app-2', applicationName: 'Harvest' };
 
-// Bob starts with the feral admin role and the Feral application
+// Bob starts with the feral admin role and the Feral application. Saving
+// changes what selecting him loads next, as the service would
 async function mountPage() {
     const pinia = createTestingPinia({
         initialState: {
@@ -24,14 +25,24 @@ async function mountPage() {
         },
     });
     const usersStore = useUsersStore(pinia);
+    const saved = { roles: [feralAdmin], applications: [feral] };
     usersStore.selectUser.mockImplementation(async userId => {
         usersStore.selectedUser = {
             details: usersStore.users.find(user => user.userId === userId),
-            roles: userId === 'user-2' ? [feralAdmin] : [],
-            applications: userId === 'user-2' ? [feral] : [],
+            roles: userId === 'user-2' ? saved.roles : [],
+            applications: userId === 'user-2' ? saved.applications : [],
         };
     });
     usersStore.clearSelectedUser.mockImplementation(() => { usersStore.selectedUser = null; });
+    const save = (kind, all, idOf) => async (userId, ids = []) => {
+        saved[kind] = all.filter(item => ids.includes(idOf(item)));
+        return true;
+    };
+    usersStore.setUserRoles.mockImplementation(save('roles', [feralAdmin, harvestUser], role => role.roleId));
+    usersStore.clearUserRoles.mockImplementation(save('roles', [], role => role.roleId));
+    usersStore.setUserApplications.mockImplementation(
+        save('applications', [feral, harvest], application => application.applicationId));
+    usersStore.clearUserApplications.mockImplementation(save('applications', [], application => application.applicationId));
 
     const wrapper = mountWithPlugins(AuthorizationAdmin, { global: { plugins: [pinia] } });
     await flushPromises();
@@ -47,10 +58,12 @@ async function mountPage() {
 const selectLabelled = (wrapper, label) => wrapper.findAllComponents({ name: 'VSelect' })
     .find(select => select.props('label') === label);
 
-const cardTitled = (wrapper, title) => wrapper.findAll('.v-card')
-    .find(card => card.find('.v-card-title').text() === title);
+// A card is a region, named by its title
+const cardTitled = (wrapper, title) => wrapper.findAll('[role="region"]')
+    .find(card => card.find(`#${card.attributes('aria-labelledby')}`).text() === title);
 
 const chips = card => card.findAll('.v-chip').map(chip => chip.text());
+const chipToRemove = (card, name) => card.find(`.v-chip[role="button"][aria-label="Remove ${name}"]`);
 
 async function chooseUser(wrapper, userId) {
     await selectLabelled(wrapper, 'Select User').setValue(userId);
@@ -67,7 +80,7 @@ async function click(target) {
     await flushPromises();
 }
 
-const plusButton = card => card.findAll('.v-btn').find(button => button.find('.mdi-plus').exists());
+const plusButton = card => card.find('.v-btn[aria-label^="Add the "]');
 
 describe('AuthorizationAdmin', () => {
     it('loads the users, roles and applications, with no user selected', async () => {
@@ -137,6 +150,7 @@ describe('AuthorizationAdmin', () => {
             set: 'setUserApplications',
             clear: 'clearUserApplications',
             add: 'addSelectedApplication',
+            plus: 'Add the application',
             ids: ['app-1', 'app-2'],
         },
         {
@@ -150,9 +164,18 @@ describe('AuthorizationAdmin', () => {
             set: 'setUserRoles',
             clear: 'clearUserRoles',
             add: 'addSelectedRole',
+            plus: 'Add the role',
             ids: ['role-1', 'role-2'],
         },
-    ])('managing $kind', ({ card, select, held, other, heldChip, otherChip, set, clear, add, ids }) => {
+    ])('managing $kind', ({ card, select, held, other, heldChip, otherChip, set, clear, add, plus, ids }) => {
+        it('names the plus button, and each chip by the removal a click makes', async () => {
+            const { wrapper } = await mountPage();
+            await chooseUser(wrapper, 'user-2');
+
+            expect(plusButton(cardTitled(wrapper, card)).attributes('aria-label')).toBe(plus);
+            expect(chipToRemove(cardTitled(wrapper, card), heldChip).exists()).toBe(true);
+        });
+
         it('cannot add before one is chosen', async () => {
             const { wrapper } = await mountPage();
             await chooseUser(wrapper, 'user-2');
@@ -196,12 +219,12 @@ describe('AuthorizationAdmin', () => {
             const { wrapper } = await mountPage();
             await chooseUser(wrapper, 'user-2');
 
-            await click(cardTitled(wrapper, card).find('.v-chip'));
+            await click(chipToRemove(cardTitled(wrapper, card), heldChip));
 
             expect(chips(cardTitled(wrapper, card))).toEqual([]);
         });
 
-        it('saves the chips, reloads and deselects the user', async () => {
+        it('saves the chips, and reloads the user, keeping them chosen', async () => {
             const { wrapper, usersStore } = await mountPage();
             await chooseUser(wrapper, 'user-2');
             await choose(wrapper, select, other);
@@ -210,15 +233,47 @@ describe('AuthorizationAdmin', () => {
             await click(buttonLabelled(cardTitled(wrapper, card), 'Save'));
 
             expect(usersStore[set]).toHaveBeenCalledWith('user-2', ids);
-            expect(usersStore.fetchUsers).toHaveBeenCalledTimes(2);
-            expect(cardTitled(wrapper, card)).toBeUndefined();
-            expect(selectLabelled(wrapper, 'Select User').props('modelValue')).toBeNull();
+            expect(usersStore.selectUser.mock.calls).toEqual([['user-2'], ['user-2']]);
+            expect(usersStore.fetchUsers).toHaveBeenCalledTimes(1);
+            expect(chips(cardTitled(wrapper, card))).toEqual([heldChip, otherChip]);
+            expect(selectLabelled(wrapper, 'Select User').props('modelValue')).toBe('user-2');
+        });
+
+        it("keeps the chips, and doesn't reload, when the save fails", async () => {
+            const { wrapper, usersStore } = await mountPage();
+            usersStore[set].mockResolvedValue(false);
+            await chooseUser(wrapper, 'user-2');
+            await choose(wrapper, select, other);
+            await click(plusButton(cardTitled(wrapper, card)));
+
+            await click(buttonLabelled(cardTitled(wrapper, card), 'Save'));
+
+            expect(usersStore.selectUser).toHaveBeenCalledTimes(1);
+            expect(chips(cardTitled(wrapper, card))).toEqual([heldChip, otherChip]);
+        });
+
+        it('leaves alone a user chosen while it saves', async () => {
+            const { wrapper, usersStore } = await mountPage();
+            let finishSaving;
+            usersStore[set].mockReturnValue(new Promise(resolve => { finishSaving = resolve; }));
+            await chooseUser(wrapper, 'user-2');
+            await choose(wrapper, select, other);
+            await click(plusButton(cardTitled(wrapper, card)));
+
+            await click(buttonLabelled(cardTitled(wrapper, card), 'Save'));
+            await chooseUser(wrapper, 'user-1');
+            finishSaving(true);
+            await flushPromises();
+
+            expect(usersStore.selectUser.mock.calls).toEqual([['user-2'], ['user-1']]);
+            expect(usersStore.selectedUser.details).toEqual(alice);
+            expect(selectLabelled(wrapper, 'Select User').props('modelValue')).toBe('user-1');
         });
 
         it('clears them when no chips are left', async () => {
             const { wrapper, usersStore } = await mountPage();
             await chooseUser(wrapper, 'user-2');
-            await click(cardTitled(wrapper, card).find('.v-chip'));
+            await click(chipToRemove(cardTitled(wrapper, card), heldChip));
 
             await click(buttonLabelled(cardTitled(wrapper, card), 'Save'));
 
@@ -229,7 +284,7 @@ describe('AuthorizationAdmin', () => {
         it('saves nothing and puts back the saved ones when cancelled, keeping the user', async () => {
             const { wrapper, usersStore } = await mountPage();
             await chooseUser(wrapper, 'user-2');
-            await click(cardTitled(wrapper, card).find('.v-chip'));
+            await click(chipToRemove(cardTitled(wrapper, card), heldChip));
             await choose(wrapper, select, other);
             await click(plusButton(cardTitled(wrapper, card)));
             await choose(wrapper, select, held);
@@ -262,6 +317,21 @@ describe('AuthorizationAdmin', () => {
 
         await click(buttonLabelled(cardTitled(wrapper, 'Manage Applications'), 'Cancel'));
 
+        expect(chips(cardTitled(wrapper, 'Manage Roles'))).toEqual(['feral/admin', 'harvest/user']);
+        expect(usersStore.setUserRoles).not.toHaveBeenCalled();
+    });
+
+    it("saving one card keeps the other card's changes", async () => {
+        const { wrapper, usersStore } = await mountPage();
+        await chooseUser(wrapper, 'user-2');
+        await choose(wrapper, 'Select Role To Add', harvestUser);
+        await click(plusButton(cardTitled(wrapper, 'Manage Roles')));
+        await choose(wrapper, 'Select Application To Add', harvest);
+        await click(plusButton(cardTitled(wrapper, 'Manage Applications')));
+
+        await click(buttonLabelled(cardTitled(wrapper, 'Manage Applications'), 'Save'));
+
+        expect(chips(cardTitled(wrapper, 'Manage Applications'))).toEqual(['Feral', 'Harvest']);
         expect(chips(cardTitled(wrapper, 'Manage Roles'))).toEqual(['feral/admin', 'harvest/user']);
         expect(usersStore.setUserRoles).not.toHaveBeenCalled();
     });

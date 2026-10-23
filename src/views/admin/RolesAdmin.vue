@@ -18,7 +18,7 @@
                 class="elevation-1"
             >
               <template #item.actions="{ item }">
-                <v-icon small @click="openDeleteDialog(item)">mdi-delete</v-icon>
+                <v-icon small :aria-label="`Delete ${item.scope}/${item.title}`" @click="openDeleteDialog(item)">mdi-delete</v-icon>
               </template>
             </v-data-table>
           </v-card-text>

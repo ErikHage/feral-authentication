@@ -1,16 +1,8 @@
-import { adminComponents, routedPageSteps } from './routed-page';
+import { adminComponents } from './routed-page';
 
-/*
- * The admin pages, in words, while all they have is the shared steps:
- * `open`, `checkIsShown`, and the `appBar` and `adminNav` components. A page
- * moves to its own file once it has steps of its own, as every admin page
- * now has.
+/**
+ * The admin area, on whichever of its pages, in words: its app bar and
+ * navigation. `/admin` itself opens the roles page, so the area has no page
+ * of its own to open or check.
  */
-
-const adminPage = (world, driver) => ({
-    ...adminComponents(world),
-    ...routedPageSteps(driver),
-});
-
-/** The admin area before one of its pages is chosen: only its navigation. */
-export const createAdminPage = adminPage;
+export const createAdminPage = world => adminComponents(world);

@@ -7,14 +7,23 @@ test.describe('Navigation', () => {
         await applicationPickerPage.checkIsShown();
     });
 
-    test('the app bar reaches the admin area and the dashboard', async ({
-        applicationPickerPage, adminPage, dashboardPage,
+    test('the app bar reaches the admin area and the dashboard, at their first pages', async ({
+        applicationPickerPage, rolesAdminPage,
     }) => {
         await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.checkIsShown();
+        await rolesAdminPage.checkIsShown();
 
-        await adminPage.appBar.goToDashboard();
-        await dashboardPage.checkIsShown();
+        await rolesAdminPage.appBar.goToDashboard();
+        await applicationPickerPage.checkIsShown();
+    });
+
+    test('shows that an unknown URL has no page, with a way home', async ({ notFoundPage, publicPage }) => {
+        await notFoundPage.open();
+        await notFoundPage.checkIsShown();
+
+        await notFoundPage.goHome();
+
+        await publicPage.checkIsShown();
     });
 
     test('the dashboard navigation reaches each dashboard page', async ({

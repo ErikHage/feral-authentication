@@ -128,6 +128,15 @@ describe('useUsersStore', () => {
         });
     });
 
+    // So the authorization page knows whether to reload the user, or keep its changes
+    it.each(['setUserRoles', 'clearUserRoles', 'setUserApplications', 'clearUserApplications'])(
+        '%s resolves to whether it saved', async action => {
+            usersApi[action].mockResolvedValueOnce({}).mockRejectedValueOnce(httpError(500));
+
+            await expect(store[action]('user-1', ['an-id'])).resolves.toBe(true);
+            await expect(store[action]('user-1', ['an-id'])).resolves.toBe(false);
+        });
+
     describe('selectUser', () => {
         beforeEach(() => {
             store.$patch({ users: [alice, bob] });
@@ -184,6 +193,49 @@ describe('useUsersStore', () => {
             expect(store.selectedUser).toBeNull();
             expect(store.alertType).toBe('error');
             expect(store.alertMessage).toBe("Couldn't load the user: you don't have permission");
+        });
+
+        // Choosing users in quick succession: alice's roles answer after bob's
+        it('keeps the later choice when an earlier one answers last', async () => {
+            let answerForAlice;
+            usersApi.fetchUserRoles
+                .mockReturnValueOnce(new Promise(resolve => { answerForAlice = resolve; }))
+                .mockResolvedValueOnce({ roles: [feralAdmin] });
+
+            const choosingAlice = store.selectUser('user-1');
+            await store.selectUser('user-2');
+            answerForAlice({ roles: [harvestUser] });
+            await choosingAlice;
+
+            expect(store.selectedUser.details).toEqual(bob);
+            expect(store.selectedUser.roles).toEqual([feralAdmin]);
+        });
+
+        it('says nothing of an earlier choice that fails after a later one', async () => {
+            let failForAlice;
+            usersApi.fetchUserRoles
+                .mockReturnValueOnce(new Promise((resolve, reject) => { failForAlice = reject; }));
+
+            const choosingAlice = store.selectUser('user-1');
+            await store.selectUser('user-2');
+            failForAlice(httpError(500));
+            await choosingAlice;
+
+            expect(store.selectedUser.details).toEqual(bob);
+            expect(store.alertVisible).toBe(false);
+        });
+
+        it('drops a choice still loading when the user is deselected', async () => {
+            let answerForAlice;
+            usersApi.fetchUserRoles
+                .mockReturnValueOnce(new Promise(resolve => { answerForAlice = resolve; }));
+
+            const choosingAlice = store.selectUser('user-1');
+            store.clearSelectedUser();
+            answerForAlice({ roles: [] });
+            await choosingAlice;
+
+            expect(store.selectedUser).toBeNull();
         });
     });
 

@@ -18,6 +18,8 @@
           <v-col cols="6" v-for="session in sessions" v-bind:key="session.sessionId">
             <v-card
                 class="ma-2 text-left"
+                role="region"
+                :aria-label="`Session ${session.sessionId}`"
                 :title="session.sessionId"
                 :subtitle="isCurrentSession(session.sessionId) ? 'current session' : 'remote session'"
             >
@@ -30,8 +32,8 @@
               </template>
               <v-card-text class="ma-3">
                 <v-text-field
-                    v-model="session.scope"
-                    label="Scope"
+                    :model-value="applicationNameOf(session.applicationId)"
+                    label="Application"
                     disabled
                     density="compact"
                 ></v-text-field>
@@ -72,7 +74,7 @@
 
 import { mapActions, mapState } from "pinia";
 
-import { useAuthenticationStore, useSessionsStore } from "@/store";
+import { useApplicationsStore, useAuthenticationStore, useSessionsStore } from "@/store";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
@@ -88,6 +90,10 @@ export default {
     ...mapState(useSessionsStore, [
       'sessions', 'alertType', 'alertMessage', 'alertVisible',
     ]),
+
+    ...mapState(useApplicationsStore, [
+      'userAllowedApplications',
+    ]),
   },
 
   methods: {
@@ -95,6 +101,18 @@ export default {
       'fetchUserSessions',
       'deleteSessionById',
     ]),
+
+    ...mapActions(useApplicationsStore, [
+      'fetchApplicationsForCurrentUser',
+    ]),
+
+    // A session names only its application's id. The user's own applications
+    // name most; any other shows as its id
+    applicationNameOf(applicationId) {
+      return this.userAllowedApplications
+          .find(application => application.applicationId === applicationId)
+          ?.applicationName ?? applicationId;
+    },
 
     async refreshData() {
       await this.fetchUserSessions();
@@ -112,6 +130,7 @@ export default {
 
   mounted() {
     this.refreshData();
+    this.fetchApplicationsForCurrentUser();
   },
 }
 </script>

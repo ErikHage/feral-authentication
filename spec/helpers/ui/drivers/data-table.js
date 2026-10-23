@@ -21,9 +21,8 @@ export function createDataTable(page) {
         /** Every cell but Actions, the one with buttons in it. */
         detailsIn: key => row(key).getByRole('cell').filter({ hasNot: page.getByRole('button') }),
 
-        // The Actions icons' only accessible name is their glyph, so they're
-        // found by their icon class
-        icon: (key, name) => row(key).locator(`.mdi-${name}`),
+        /** An Actions icon, by its name: "Edit alice", "Delete feral/admin". */
+        action: (key, name) => row(key).getByRole('button', { name, exact: true }),
 
         /** Shows every row on one page, so no row is out of sight on another. */
         async showAllRows() {

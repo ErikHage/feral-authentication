@@ -13,8 +13,7 @@ export function createSessionsPageDriver(page) {
     const main = page.getByRole('main');
     const alertSaying = message => main.getByRole('alert').filter({ hasText: message });
 
-    // The cards have no role, and the star no name, so these go by class
-    const cards = subtitle => main.locator('.v-card').filter({ hasText: subtitle });
+    const cards = subtitle => main.getByRole('region', { name: /^Session / }).filter({ hasText: subtitle });
     const currentSession = cards('current session');
     const remoteSessions = cards('remote session');
     const revoke = card => card.getByRole('button', { name: 'Revoke' });
@@ -30,6 +29,8 @@ export function createSessionsPageDriver(page) {
             const what = 'marking the current session';
 
             await expectCount(currentSession, 1, what);
+            // The star is decoration, hidden from a screen reader, which hears
+            // the subtitle instead. So it goes by class
             await expectVisible(currentSession.locator('.mdi-star'), what);
             await expectDisabled(revoke(currentSession), what);
         },
@@ -45,15 +46,11 @@ export function createSessionsPageDriver(page) {
             await expectCount(remoteSessions, 0, 'revoking the session from another device');
         },
 
-        /**
-         * Today's behaviour: the Scope field is empty. The service lists a
-         * session's application id, and no scope.
-         */
-        async showsAnEmptyScope() {
-            const what = "showing the current session's scope";
+        async showsTheApplication(applicationName) {
+            const what = "naming the current session's application";
 
             await expectCount(currentSession, 1, what);
-            await expectValue(currentSession.getByLabel('Scope', { exact: true }), '', what);
+            await expectValue(currentSession.getByLabel('Application', { exact: true }), applicationName, what);
         },
 
         /**

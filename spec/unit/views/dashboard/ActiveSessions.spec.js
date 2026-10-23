@@ -3,24 +3,33 @@ import { createTestingPinia } from '@pinia/testing';
 import { mountWithPlugins } from '../../../helpers/mount';
 import { buttonLabelled } from '../../../helpers/fields';
 import ActiveSessions from '@/views/dashboard/ActiveSessions.vue';
-import { useAuthenticationStore, useSessionsStore } from '@/store';
+import { useApplicationsStore, useAuthenticationStore, useSessionsStore } from '@/store';
 
-const current = { sessionId: 'session-1', scope: 'feral', roles: 'feral/admin', expiration: '2026-10-19T13:00:00Z' };
-const remote = { sessionId: 'session-2', scope: 'harvest', roles: 'harvest/user', expiration: '2026-10-19T14:00:00Z' };
+const current = { sessionId: 'session-1', applicationId: 'app-1', roles: 'feral/admin', expiration: '2026-10-19T13:00:00Z' };
+const remote = { sessionId: 'session-2', applicationId: 'app-2', roles: 'harvest/user', expiration: '2026-10-19T14:00:00Z' };
 
-async function mountSessions({ state = {} } = {}) {
-    const pinia = createTestingPinia({ initialState: { session: { sessions: [current, remote], ...state } } });
+// The user's own applications, which name their sessions'
+const feral = { applicationId: 'app-1', applicationName: 'Feral' };
+const harvest = { applicationId: 'app-2', applicationName: 'Harvest' };
+
+async function mountSessions({ state = {}, userAllowedApplications = [feral, harvest] } = {}) {
+    const pinia = createTestingPinia({
+        initialState: {
+            session: { sessions: [current, remote], ...state },
+            application: { userAllowedApplications },
+        },
+    });
     useAuthenticationStore(pinia).actor = { userId: 'user-1', sessionId: 'session-1' };
     const sessionsStore = useSessionsStore(pinia);
 
     const wrapper = mountWithPlugins(ActiveSessions, { global: { plugins: [pinia] } });
     await flushPromises();
 
-    return { wrapper, sessionsStore };
+    return { wrapper, sessionsStore, applicationsStore: useApplicationsStore(pinia) };
 }
 
-const cardFor = (wrapper, sessionId) => wrapper.findAll('.v-card')
-    .find(card => card.find('.v-card-title').text() === sessionId);
+const cardFor = (wrapper, sessionId) => wrapper.find(`[role="region"][aria-label="Session ${sessionId}"]`);
+const valuesIn = card => card.findAll('input').map(input => input.element.value);
 
 describe('ActiveSessions', () => {
     it('loads the sessions', async () => {
@@ -38,11 +47,26 @@ describe('ActiveSessions', () => {
         expect(wrapper.findAll('.v-card-title').map(title => title.text())).toEqual(['session-1', 'session-2']);
     });
 
-    it("shows each session's scope, roles and expiration", async () => {
+    it("loads the user's applications once, to name the sessions'", async () => {
+        const { wrapper, applicationsStore } = await mountSessions();
+
+        await buttonLabelled(wrapper, 'Refresh').trigger('click');
+        await flushPromises();
+
+        expect(applicationsStore.fetchApplicationsForCurrentUser).toHaveBeenCalledTimes(1);
+    });
+
+    it("shows each session's application, roles and expiration", async () => {
         const { wrapper } = await mountSessions();
 
-        const values = cardFor(wrapper, 'session-2').findAll('input').map(input => input.element.value);
-        expect(values).toEqual(['harvest', 'harvest/user', '2026-10-19T14:00:00Z']);
+        expect(valuesIn(cardFor(wrapper, 'session-2'))).toEqual(['Harvest', 'harvest/user', '2026-10-19T14:00:00Z']);
+    });
+
+    it("shows the application's id when it isn't one of the user's", async () => {
+        const { wrapper } = await mountSessions({ userAllowedApplications: [feral] });
+
+        expect(valuesIn(cardFor(wrapper, 'session-1'))[0]).toBe('Feral');
+        expect(valuesIn(cardFor(wrapper, 'session-2'))[0]).toBe('app-2');
     });
 
     it('marks the current session with a star', async () => {

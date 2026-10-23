@@ -17,6 +17,7 @@ import KeysAdmin from "@/views/admin/KeysAdmin.vue";
 import ApplicationsAdmin from "@/views/admin/ApplicationsAdmin.vue";
 import ApplicationDetails from "@/views/admin/ApplicationDetails.vue";
 import PublicPage from "@/views/PublicPage.vue";
+import NotFoundPage from "@/views/NotFoundPage.vue";
 
 const routes = [
     {
@@ -39,6 +40,8 @@ const routes = [
         path: views.dashboard.path,
         name: views.dashboard.name,
         component: DashboardPage,
+        // On its own the dashboard is only its navigation, so open its first page
+        redirect: { name: 'ApplicationPicker' },
         meta: {
             requiresAuthenticated: true,
         },
@@ -73,6 +76,8 @@ const routes = [
         path: views.admin.path,
         name: views.admin.name,
         component: AdminPage,
+        // As the dashboard does
+        redirect: { name: 'RolesAdmin' },
         meta: {
             requiresAuthenticated: true,
         },
@@ -126,6 +131,14 @@ const routes = [
                 },
             },
         ],
+    },
+    {
+        path: views.notFound.path,
+        name: views.notFound.name,
+        component: NotFoundPage,
+        meta: {
+            requiresAuthenticated: false,
+        },
     },
 ];
 

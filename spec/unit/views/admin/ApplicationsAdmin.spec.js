@@ -77,7 +77,7 @@ describe('ApplicationsAdmin', () => {
     it("opens an application's details from its pencil", async () => {
         const { wrapper, router } = await mountPage();
 
-        await click(rowWith(wrapper, 'Harvest').find('.mdi-pencil'));
+        await click(rowWith(wrapper, 'Harvest').find('[aria-label="Edit Harvest"]'));
 
         expect(router.push).toHaveBeenCalledWith('/admin/applications/app-2');
     });

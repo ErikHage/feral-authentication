@@ -56,7 +56,7 @@ export function createUsersAdminPageDriver(page) {
 
         async renameUser(username, firstName) {
             await table.showAllRows();
-            await table.icon(username, 'pencil').click();
+            await table.action(username, `Edit ${username}`).click();
             await userDialog.getByLabel('First Name').fill(firstName);
             await userDialog.getByRole('button', { name: 'Save' }).click();
         },
@@ -70,7 +70,7 @@ export function createUsersAdminPageDriver(page) {
 
         async deleteUser(username) {
             await table.showAllRows();
-            await table.icon(username, 'delete').click();
+            await table.action(username, `Delete ${username}`).click();
             await expectText(deleteDialog.getByRole('cell'), username, `confirming the deletion of ${username}`);
             await deleteDialog.getByRole('button', { name: 'Delete' }).click();
         },

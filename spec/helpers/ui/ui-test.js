@@ -7,9 +7,9 @@ import { createApplicationDetailsPage } from './pages/application-details-page';
 import { createApplicationPickerPage } from './pages/application-picker-page';
 import { createApplicationsAdminPage } from './pages/applications-admin-page';
 import { createAuthorizationAdminPage } from './pages/authorization-admin-page';
-import { createDashboardPage } from './pages/dashboard-pages';
 import { createKeysAdminPage } from './pages/keys-admin-page';
 import { createLoginPage } from './pages/login-page';
+import { createNotFoundPage } from './pages/not-found-page';
 import { createProfilePage } from './pages/profile-page';
 import { createPublicPage } from './pages/public-page';
 import { createRolesAdminPage } from './pages/roles-admin-page';
@@ -50,8 +50,8 @@ export const test = base.extend({
 
     publicPage: pageFixture('publicPage', createPublicPage),
     loginPage: pageFixture('loginPage', createLoginPage),
+    notFoundPage: pageFixture('notFoundPage', createNotFoundPage),
 
-    dashboardPage: pageFixture('dashboardPage', createDashboardPage),
     applicationPickerPage: pageFixture('applicationPickerPage', createApplicationPickerPage),
     profilePage: pageFixture('profilePage', createProfilePage),
     sessionsPage: pageFixture('sessionsPage', createSessionsPage),

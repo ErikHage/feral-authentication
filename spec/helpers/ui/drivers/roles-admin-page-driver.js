@@ -61,7 +61,7 @@ export function createRolesAdminPageDriver(page) {
 
         async deleteRole({ scope, title }) {
             await table.showAllRows();
-            await table.icon(scope, 'delete').click();
+            await table.action(scope, `Delete ${scope}/${title}`).click();
             await expectText(deleteDialog.getByRole('cell'), [scope, title], `confirming the deletion of ${scope}/${title}`);
             await deleteDialog.getByRole('button', { name: 'Delete' }).click();
         },

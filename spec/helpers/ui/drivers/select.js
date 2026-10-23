@@ -5,8 +5,7 @@
  * A long list renders only the options in view, so this scrolls the
  * select's own menu until the option is there. Typing would bring it into
  * view too, but a select chooses every option that matches on the way, and
- * on the authorization page choosing a user loads their grants: a slower
- * load for an earlier match can land last (backlog B17).
+ * on the authorization page each choice loads that user's grants.
  */
 export async function chooseOption(page, select, option) {
     await select.click();

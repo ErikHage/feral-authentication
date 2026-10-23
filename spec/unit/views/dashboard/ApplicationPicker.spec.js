@@ -85,4 +85,18 @@ describe('ApplicationPicker', () => {
 
         expect(wrapper.find('.v-alert').text()).toContain("Couldn't load your applications: you don't have permission");
     });
+
+    it("says so when an application can't be opened", async () => {
+        const { wrapper, authenticationStore } = await mountPicker([feral]);
+        authenticationStore.loginToApplication.mockImplementation(async () => {
+            authenticationStore.$patch({
+                alertVisible: true, alertType: 'error', alertMessage: "Couldn't open the application: the service failed (500)",
+            });
+        });
+
+        await wrapper.findComponent({ name: 'VImg' }).trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't open the application: the service failed (500)");
+    });
 });

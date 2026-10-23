@@ -2,7 +2,8 @@ import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Sessions page', () => {
     // As bob, granted feral/admin: a new user's sessions are only the test's
-    // own, and only an admin can use the dashboard (backlog A30)
+    // own, and only an admin can use the dashboard (backlog A30). Granted
+    // this application too, so the page can name it on bob's sessions
     test.beforeEach(async ({
         loginPage, applicationPickerPage, adminPage, usersAdminPage, authorizationAdminPage,
     }) => {
@@ -15,6 +16,7 @@ test.describe('Sessions page', () => {
         await usersAdminPage.checkUserIsListed('user: bob');
         await usersAdminPage.adminNav.goToAuthorization();
         await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
+        await authorizationAdminPage.grantApplication('user: bob', 'application: Feral Authentication');
         await authorizationAdminPage.appBar.logOut();
         await loginPage.checkIsShown();
         await loginPage.logIn('user: bob');
@@ -40,11 +42,9 @@ test.describe('Sessions page', () => {
         await sessionsPage.checkMarksCurrentSession();
     });
 
-    // DocumentsCurrentBehavior: the Scope field is empty. The service lists a
-    // session's applicationId, not its scope (backlog A32). Should show feral.
-    test('shows the scope of a session', async ({ applicationPickerPage, sessionsPage }) => {
+    test('names the application of a session', async ({ applicationPickerPage, sessionsPage }) => {
         await applicationPickerPage.dashboardNav.goToSessions();
 
-        await sessionsPage.checkShowsScope();
+        await sessionsPage.checkShowsApplication('application: Feral Authentication');
     });
 });

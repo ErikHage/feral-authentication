@@ -21,9 +21,9 @@
 
         <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
 
-        <v-card class="mt-3" v-if="selectedUser">
+        <v-card class="mt-3" v-if="selectedUser" role="region" aria-labelledby="manage-applications">
           <v-card-title>
-            <span class="headline">Manage Applications</span>
+            <span id="manage-applications" class="headline">Manage Applications</span>
           </v-card-title>
           <v-card-text>
             <v-row align="center">
@@ -44,13 +44,16 @@
                     color="error"
                     @click="addSelectedApplication"
                     :disabled="!selectedApplication || isApplicationAlreadySelected(selectedApplication)"
+                    aria-label="Add the application"
                 >
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>
               </v-col>
             </v-row>
             <v-chip-group v-if="selectedApplications">
-              <v-chip v-for="application in selectedApplications" :key="application.applicationId" @click="removeApplicationFromSelected(application.applicationId)">
+              <v-chip v-for="application in selectedApplications" :key="application.applicationId"
+                      role="button" :aria-label="`Remove ${application.applicationName}`"
+                      @click="removeApplicationFromSelected(application.applicationId)">
                 {{ application.applicationName }}
               </v-chip>
               <!-- click on them to remove -->
@@ -63,9 +66,9 @@
           </v-card-actions>
         </v-card>
 
-        <v-card class="mt-3" v-if="selectedUser">
+        <v-card class="mt-3" v-if="selectedUser" role="region" aria-labelledby="manage-roles">
           <v-card-title>
-            <span class="headline">Manage Roles</span>
+            <span id="manage-roles" class="headline">Manage Roles</span>
           </v-card-title>
           <v-card-text>
             <v-row align="center">
@@ -87,13 +90,16 @@
                     color="error"
                     @click="addSelectedRole"
                     :disabled="!selectedRole || isRoleAlreadySelected(selectedRole)"
+                    aria-label="Add the role"
                 >
                   <v-icon>mdi-plus</v-icon>
                 </v-btn>
               </v-col>
             </v-row>
             <v-chip-group v-if="selectedRoles">
-              <v-chip v-for="role in selectedRoles" :key="role.roleId" @click="removeRoleFromSelected(role.roleId)">
+              <v-chip v-for="role in selectedRoles" :key="role.roleId"
+                      role="button" :aria-label="`Remove ${role.scope}/${role.title}`"
+                      @click="removeRoleFromSelected(role.roleId)">
                 {{ role.scope }}/{{ role.title }}
               </v-chip>
               <!-- click on them to remove -->
@@ -165,15 +171,6 @@ export default {
       'fetchApplications',
     ]),
 
-    reset() {
-      this.clearSelectedUser();
-      this.selectedUserId = null;
-      this.selectedRole = null;
-      this.selectedRoles = [];
-      this.selectedApplication = null;
-      this.selectedApplications = [];
-    },
-
     async refreshData() {
       this.clearSelectedUser();
       await Promise.all([
@@ -203,6 +200,20 @@ export default {
       this.selectedApplications = [...this.selectedUser.applications];
     },
 
+    // After a card saves: reloads the user, so the card shows what was saved,
+    // and resets only that card. The other card keeps its changes
+    async reloadUser(userId, resetCard) {
+      // Unless another user was chosen while it saved
+      if (this.selectedUserId !== userId) {
+        return;
+      }
+      await this.selectUser(userId);
+      // Or while it reloaded (the store drops this reload), or the reload failed
+      if (this.selectedUserId === userId && this.selectedUser) {
+        resetCard();
+      }
+    },
+
     // ROLE METHODS
     addSelectedRole() {
       if (!this.isRoleAlreadySelected(this.selectedRole)) {
@@ -223,15 +234,15 @@ export default {
       this.resetRoles();
     },
 
+    // A failed save keeps the card's changes, and the store says why
     async saveRoleUpdates() {
-      if (this.selectedRoles.length === 0) {
-        await this.clearUserRoles(this.selectedUserId);
-      } else {
-        const roleIds = this.selectedRoles.map(role => role.roleId);
-        await this.setUserRoles(this.selectedUserId, roleIds);
+      const userId = this.selectedUserId;
+      const saved = this.selectedRoles.length === 0
+          ? await this.clearUserRoles(userId)
+          : await this.setUserRoles(userId, this.selectedRoles.map(role => role.roleId));
+      if (saved) {
+        await this.reloadUser(userId, this.resetRoles);
       }
-      await this.refreshData();
-      this.reset();
     },
 
     // APPLICATION METHODS
@@ -257,14 +268,14 @@ export default {
     },
 
     async saveApplicationUpdates() {
-      if (this.selectedApplications.length === 0) {
-        await this.clearUserApplications(this.selectedUserId);
-      } else {
-        const applicationIds = this.selectedApplications.map(application => application.applicationId);
-        await this.setUserApplications(this.selectedUserId, applicationIds);
+      const userId = this.selectedUserId;
+      const saved = this.selectedApplications.length === 0
+          ? await this.clearUserApplications(userId)
+          : await this.setUserApplications(userId,
+              this.selectedApplications.map(application => application.applicationId));
+      if (saved) {
+        await this.reloadUser(userId, this.resetApplications);
       }
-      await this.refreshData();
-      this.reset();
     },
   },
 

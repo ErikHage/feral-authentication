@@ -1,5 +1,6 @@
 import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
+import { application } from '../params';
 import { dashboardComponents, routedPageSteps } from './routed-page';
 
 /** The logged-in user's sessions page, in words. */
@@ -32,11 +33,11 @@ export function createSessionsPage(world, driver) {
             await driver.noLongerListsARemoteSession();
         },
 
-        /** The current session shows the scope of the application it's for. No parameters. */
-        async checkShowsScope(...args) {
-            parseDslArgs(args, {});
+        /** The current session names the `application` it's for. */
+        async checkShowsApplication(...args) {
+            const params = parseDslArgs(args, { application: application() });
 
-            await driver.showsAnEmptyScope();
+            await driver.showsTheApplication(world.applicationNameOf(params.application));
         },
 
         /** A user without the admin role is shown the session they're logged in with. No parameters. */

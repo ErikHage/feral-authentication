@@ -19,7 +19,7 @@
                 :loading="loading"
             >
               <template #item.actions="{ item }">
-                <v-icon small @click="goToApplicationDetails(item)">mdi-pencil</v-icon>
+                <v-icon small :aria-label="`Edit ${item.applicationName}`" @click="goToApplicationDetails(item)">mdi-pencil</v-icon>
               </template>
             </v-data-table>
           </v-card-text>

@@ -17,10 +17,18 @@ export function recordServiceCalls(page) {
         });
     });
 
+    const matching = (method, path, status) => answered
+        .filter(call => call.method === method && path.test(call.path) && call.status === status);
+
     return {
         /** Whether a `method` call to a path matching `path` (a RegExp) was answered with `status`. */
         wereAnswered(method, path, status) {
-            return answered.some(call => call.method === method && path.test(call.path) && call.status === status);
+            return matching(method, path, status).length > 0;
+        },
+
+        /** How many such calls were answered so far, to wait for one more. */
+        countAnswered(method, path, status) {
+            return matching(method, path, status).length;
         },
     };
 }

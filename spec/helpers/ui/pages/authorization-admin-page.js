@@ -4,9 +4,9 @@ import { application, role, user } from '../params';
 import { adminComponents, routedPageSteps } from './routed-page';
 
 /**
- * The authorization admin page, in words. Each step that saves chooses the
- * user first: saving deselects them. The steps that add without saving work
- * on the user chosen with `chooseUser`.
+ * The authorization admin page, in words. The grant steps choose the user
+ * first. The steps that add, cancel or save work on the user chosen with
+ * `chooseUser`, who stays chosen after a save.
  */
 export function createAuthorizationAdminPage(world, driver) {
     const usernameOf = alias => world.credentialsFor(alias).username;
@@ -64,6 +64,20 @@ export function createAuthorizationAdminPage(world, driver) {
             parseDslArgs(args, {});
 
             await driver.cancelRoles();
+        },
+
+        /** Presses Save in the Manage Roles card. No parameters. */
+        async saveRoles(...args) {
+            parseDslArgs(args, {});
+
+            await driver.saveRoles();
+        },
+
+        /** After `saveRoles`: the `role` is saved, and the user is still chosen. */
+        async checkRoleIsSaved(...args) {
+            const params = parseDslArgs(args, { role: role() });
+
+            await driver.showsTheSavedRoleKeepingTheUser(roleLabelOf(params.role));
         },
 
         /** The `role` added without saving is gone, and the user is still chosen. */

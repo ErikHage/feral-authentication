@@ -23,4 +23,8 @@ export const views = {
         name: 'Admin',
         path: '/admin',
     },
+    notFound: {
+        name: 'NotFound',
+        path: '/:pathMatch(.*)*',
+    },
 };

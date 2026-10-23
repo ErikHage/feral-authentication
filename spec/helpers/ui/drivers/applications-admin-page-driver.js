@@ -51,7 +51,7 @@ export function createApplicationsAdminPageDriver(page) {
 
         async openDetails(applicationName) {
             await table.showAllRows();
-            await table.icon(applicationName, 'pencil').click();
+            await table.action(applicationName, `Edit ${applicationName}`).click();
         },
     };
 }

@@ -19,8 +19,8 @@
                 :loading="loading"
             >
               <template #item.actions="{ item }">
-                <v-icon small @click="openDialog(item)">mdi-pencil</v-icon>
-                <v-icon small @click="openDeleteDialog(item)">mdi-delete</v-icon>
+                <v-icon small :aria-label="`Edit ${item.username}`" @click="openDialog(item)">mdi-pencil</v-icon>
+                <v-icon small :aria-label="`Delete ${item.username}`" @click="openDeleteDialog(item)">mdi-delete</v-icon>
               </template>
             </v-data-table>
           </v-card-text>

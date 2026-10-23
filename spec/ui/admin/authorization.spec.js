@@ -42,6 +42,20 @@ test.describe('Authorization admin page', () => {
         await authorizationAdminPage.checkApplicationIsStillAdded('application: Feral Authentication');
     });
 
+    test("saves one card's changes, keeping the user and the other card's", async ({
+        usersAdminPage, authorizationAdminPage,
+    }) => {
+        await usersAdminPage.adminNav.goToAuthorization();
+        await authorizationAdminPage.chooseUser('user: bob');
+        await authorizationAdminPage.addApplication('application: Feral Authentication');
+        await authorizationAdminPage.addRole('role: feral/admin');
+
+        await authorizationAdminPage.saveRoles();
+
+        await authorizationAdminPage.checkRoleIsSaved('role: feral/admin');
+        await authorizationAdminPage.checkApplicationIsStillAdded('application: Feral Authentication');
+    });
+
     test('lets a user granted feral/admin into the admin pages', async ({
         usersAdminPage, authorizationAdminPage, loginPage, applicationPickerPage, adminPage,
     }) => {
