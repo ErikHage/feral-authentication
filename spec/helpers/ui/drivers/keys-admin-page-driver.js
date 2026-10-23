@@ -1,4 +1,4 @@
-import { expectEnabled, expectText, expectThat, expectValue, expectVisible } from './assertions';
+import { expectDisabled, expectText, expectThat, expectValue, expectVisible } from './assertions';
 import { createDataTable } from './data-table';
 import { createRoutedPageDriver } from './routed-page-driver';
 
@@ -59,13 +59,12 @@ export function createKeysAdminPageDriver(page) {
             await generateButton.click();
         },
 
-        /** Today's behaviour: Generate can be pressed with nothing filled in. */
-        async canGenerateFromAnEmptyForm() {
+        async cannotGenerateFromAnEmptyForm() {
             const what = 'generating a key from an empty form';
 
             await expectValue(nameField, '', what);
             await expectValue(expirationField, '', what);
-            await expectEnabled(dialog.getByRole('button', { name: 'Generate' }), what);
+            await expectDisabled(dialog.getByRole('button', { name: 'Generate' }), what);
         },
     };
 }

@@ -33,9 +33,6 @@ test.describe('Keys admin page', () => {
         await keysAdminPage.checkExpirationIsAsEntered('key: signing');
     });
 
-    // DocumentsCurrentBehavior: Generate's :disabled reads an async method,
-    // which is always truthy, so it's never disabled and an empty form can be
-    // sent (backlog A16). Should stay disabled until both fields are filled.
     // Nothing is generated: a key can't be deleted afterwards
     test('keeps Generate disabled until the form is filled', async ({ keysAdminPage }) => {
         await keysAdminPage.startGeneratingKey();

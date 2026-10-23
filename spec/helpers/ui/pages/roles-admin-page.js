@@ -20,6 +20,20 @@ export function createRolesAdminPage(world, driver) {
             await driver.addRole(world.newRole(params.role));
         },
 
+        /** Opens the Add dialog, and leaves it empty. No parameters. */
+        async startAddingRole(...args) {
+            parseDslArgs(args, {});
+
+            await driver.openAddDialog();
+        },
+
+        /** Save stays disabled until the dialog is filled in. No parameters. */
+        async checkCannotSaveYet(...args) {
+            parseDslArgs(args, {});
+
+            await driver.cannotSaveAnEmptyRole();
+        },
+
         /** Adds the `role` again, with the same scope and title. */
         async addRoleAgain(...args) {
             const params = parseDslArgs(args, { role: role() });

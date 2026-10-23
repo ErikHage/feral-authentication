@@ -37,4 +37,10 @@ test.describe('Users admin page', () => {
 
         await usersAdminPage.checkUserIsRenamed('user: bob', 'firstName: Robert');
     });
+
+    test('keeps Save disabled until the form is filled', async ({ usersAdminPage }) => {
+        await usersAdminPage.startAddingUser();
+
+        await usersAdminPage.checkCannotSaveYet();
+    });
 });

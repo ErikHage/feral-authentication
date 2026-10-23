@@ -190,14 +190,25 @@ describe('ApplicationDetails', () => {
             expect(findDialog('Choose New Key')).toBeUndefined();
         });
 
-        it('rotates to no key when none is chosen', async () => {
-            // current behavior: the key is marked `required`, but nothing checks it
+        it('keeps Save disabled until a key is chosen', async () => {
+            const { wrapper } = await mountDetails();
+            await click(buttonLabelled(wrapper, 'Rotate Key'));
+            const save = () => buttonLabelled(dialogTitled('Choose New Key'), 'Save');
+            expect(save().attributes('disabled')).toBeDefined();
+
+            await wrapper.findComponent({ name: 'VAutocomplete' }).setValue('key-3');
+            await flushPromises();
+
+            expect(save().attributes('disabled')).toBeUndefined();
+        });
+
+        it('rotates nothing when no key is chosen', async () => {
             const { wrapper, applicationsStore } = await mountDetails();
             await click(buttonLabelled(wrapper, 'Rotate Key'));
 
             await click(buttonLabelled(dialogTitled('Choose New Key'), 'Save'));
 
-            expect(applicationsStore.rotateAuthenticationKey).toHaveBeenCalledWith('app-1', '');
+            expect(applicationsStore.rotateAuthenticationKey).not.toHaveBeenCalled();
         });
 
         it('rotates nothing when cancelled', async () => {

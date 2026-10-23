@@ -77,3 +77,21 @@ test.describe('Applications admin page', () => {
         await applicationDetailsPage.checkNameIsSaved('application: game', 'name: renamed');
     });
 });
+
+test.describe('Applications admin page, adding nothing', () => {
+    // No key: nothing is created, so nothing is left behind
+    test.beforeEach(async ({ loginPage, applicationPickerPage, adminPage, applicationsAdminPage }) => {
+        await loginPage.open();
+        await loginPage.logIn('user: admin');
+        await applicationPickerPage.checkIsShown();
+        await applicationPickerPage.appBar.goToAdmin();
+        await adminPage.adminNav.goToApplications();
+        await applicationsAdminPage.checkIsShown();
+    });
+
+    test('keeps Create disabled until the form is filled', async ({ applicationsAdminPage }) => {
+        await applicationsAdminPage.startAddingApplication();
+
+        await applicationsAdminPage.checkCannotCreateYet();
+    });
+});

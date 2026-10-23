@@ -1,7 +1,7 @@
 import { flushPromises } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { mountWithPlugins } from '../../../helpers/mount';
-import { buttonLabelled, inputLabelled } from '../../../helpers/fields';
+import { buttonLabelled, fieldLabelled, inputLabelled } from '../../../helpers/fields';
 import { dialogTitled, findDialog } from '../../../helpers/dialogs';
 import { rowWith, tableHeaders, tableRows } from '../../../helpers/tables';
 import ApplicationsAdmin from '@/views/admin/ApplicationsAdmin.vue';
@@ -117,6 +117,8 @@ describe('ApplicationsAdmin', () => {
             await inputLabelled(dialog, 'Url').setValue('https://recipes.test');
             await inputLabelled(dialog, 'Scope').setValue('recipes');
             await wrapper.findComponent({ name: 'VAutocomplete' }).setValue('key-2');
+            // Create is enabled once the form has validated
+            await flushPromises();
 
             await click(buttonLabelled(dialogTitled('Add Application'), 'Create'));
 
@@ -127,17 +129,53 @@ describe('ApplicationsAdmin', () => {
             expect(findDialog('Add Application')).toBeUndefined();
         });
 
-        it('creates an empty application', async () => {
-            // current behavior: the fields are marked `required`, but the form has no
-            // rules, so it is always valid
+        it('keeps Create disabled until every field is filled', async () => {
+            const { wrapper } = await mountPage();
+            const dialog = await openAddDialog(wrapper);
+            const create = () => buttonLabelled(dialog, 'Create');
+            expect(create().attributes('disabled')).toBeDefined();
+
+            await inputLabelled(dialog, 'Name').setValue('Recipes');
+            await inputLabelled(dialog, 'Url').setValue('https://recipes.test');
+            await inputLabelled(dialog, 'Scope').setValue('recipes');
+            await flushPromises();
+            expect(create().attributes('disabled')).toBeDefined();
+
+            await wrapper.findComponent({ name: 'VAutocomplete' }).setValue('key-2');
+            await flushPromises();
+            expect(create().attributes('disabled')).toBeUndefined();
+        });
+
+        it('creates nothing from an empty form', async () => {
             const { wrapper, applicationsStore } = await mountPage();
             await openAddDialog(wrapper);
 
             await click(buttonLabelled(dialogTitled('Add Application'), 'Create'));
 
-            expect(applicationsStore.createApplication).toHaveBeenCalledWith({
-                applicationName: '', applicationUrl: '', scope: '', keyPairId: '',
-            });
+            expect(applicationsStore.createApplication).not.toHaveBeenCalled();
+        });
+
+        it.each(['Name', 'Url', 'Scope'])('says the %s is required once it is cleared', async label => {
+            const { wrapper } = await mountPage();
+            const dialog = await openAddDialog(wrapper);
+
+            await inputLabelled(dialog, label).setValue('x');
+            await inputLabelled(dialog, label).setValue('');
+            await flushPromises();
+
+            expect(fieldLabelled(dialog, label).text()).toContain(`${label} is required`);
+        });
+
+        it('opens again without the last form\'s errors', async () => {
+            const { wrapper } = await mountPage();
+            const dialog = await openAddDialog(wrapper);
+            await inputLabelled(dialog, 'Name').setValue('x');
+            await inputLabelled(dialog, 'Name').setValue('');
+            await click(buttonLabelled(dialog, 'Cancel'));
+
+            const reopened = await openAddDialog(wrapper);
+
+            expect(reopened.text()).not.toContain('is required');
         });
 
         it('creates nothing when cancelled', async () => {

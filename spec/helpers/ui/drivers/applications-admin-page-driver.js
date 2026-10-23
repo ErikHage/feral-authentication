@@ -1,4 +1,4 @@
-import { expectText } from './assertions';
+import { expectDisabled, expectText, expectValue } from './assertions';
 import { createDataTable } from './data-table';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { chooseOption } from './select';
@@ -28,6 +28,18 @@ export function createApplicationsAdminPageDriver(page) {
             await dialog.getByLabel('Scope').fill(scope);
             await chooseOption(page, dialog.getByRole('combobox'), keyName);
             await dialog.getByRole('button', { name: 'Create' }).click();
+        },
+
+        async openAddDialog() {
+            await addButton.click();
+        },
+
+        async cannotCreateAnEmptyApplication() {
+            const what = 'creating an application from an empty form';
+
+            await expectValue(dialog.getByLabel('Name', { exact: true }), '', what);
+            await expectValue(dialog.getByLabel('Scope'), '', what);
+            await expectDisabled(dialog.getByRole('button', { name: 'Create' }), what);
         },
 
         /** A new application: a key id, and no previous one. */

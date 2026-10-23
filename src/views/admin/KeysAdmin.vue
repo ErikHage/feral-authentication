@@ -31,7 +31,7 @@
         </v-card-title>
 
         <v-card-text>
-          <v-form ref="generateForm">
+          <v-form ref="generateForm" v-model="formValid">
             <v-text-field
                 v-model="keyName"
                 label="Key Name"
@@ -52,7 +52,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeGenerateDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="generate" :disabled="!isFormValid">Generate</v-btn>
+          <v-btn color="blue darken-1" text @click="generate" :disabled="!formValid">Generate</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -63,6 +63,7 @@
 import { useKeysStore } from "@/store";
 import { mapActions, mapState } from "pinia";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import { required } from "@/utils/rules";
 
 export default {
   name: "KeysAdmin",
@@ -74,13 +75,15 @@ export default {
       keyToDelete: null,
       keyName: '',
       expiration: '',
+      // Vuetify's: null until every field has been checked, then true or false
+      formValid: null,
       headers: [
         { title: 'Key Id', key: 'keyId' },
         { title: 'Key Name', key: 'keyName' },
         { title: 'Expiration', key: 'expiration' },
       ],
-      nameRules: [v => !!v || 'Name is required'],
-      dateRules: [v => !!v || 'Expiration date is required'],
+      nameRules: [required('Name')],
+      dateRules: [required('Expiration date')],
     };
   },
 
@@ -101,22 +104,23 @@ export default {
       this.expiration = '';
     },
 
-    openGenerateDialog() {
+    async openGenerateDialog() {
       this.resetForm();
       this.generateDialog = true;
+      // The dialog keeps its form between openings, so clear the last one's errors
+      await this.$nextTick();
+      this.$refs.generateForm.resetValidation();
     },
 
     closeGenerateDialog() {
       this.generateDialog = false;
     },
 
-    async isFormValid() {
-      const { valid: formValid } = await this.$refs.generateForm.validate();
-
-      return formValid;
-    },
-
     async generate() {
+      const { valid } = await this.$refs.generateForm.validate();
+      if (!valid) {
+        return;
+      }
       console.log('generating');
       console.log('keyName', this.keyName);
       console.log('expiration', this.expiration);

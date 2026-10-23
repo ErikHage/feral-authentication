@@ -90,13 +90,12 @@
               item-value="keyId"
               label="Key"
               variant="solo"
-              required
           ></v-autocomplete>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="performKeyRotation">Save</v-btn>
+          <v-btn color="blue darken-1" text :disabled="!form.newKeyId" @click="performKeyRotation">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -34,6 +34,19 @@ async function click(target) {
 
 const formValues = dialog => formLabels.map(label => inputLabelled(dialog, label).element.value);
 
+// Types each [label, value] in turn
+async function fillIn(dialog, entries) {
+    for (const [label, value] of entries) {
+        await inputLabelled(dialog, label).setValue(value);
+    }
+    await flushPromises();
+}
+
+const carol = [
+    ['First Name', 'Carol'], ['Last Name', 'White'], ['Email', 'carol@example.test'],
+    ['Username', 'carol'], ['Password', 'secret'],
+];
+
 describe('UsersAdmin', () => {
     it('loads the users', async () => {
         const { store } = await mountPage();
@@ -81,12 +94,7 @@ describe('UsersAdmin', () => {
             const { wrapper, store } = await mountPage();
             await click(buttonLabelled(wrapper, 'Add'));
             const dialog = dialogTitled('Add User');
-            for (const [label, value] of [
-                ['First Name', 'Carol'], ['Last Name', 'White'], ['Email', 'carol@example.test'],
-                ['Username', 'carol'], ['Password', 'secret'],
-            ]) {
-                await inputLabelled(dialog, label).setValue(value);
-            }
+            await fillIn(dialog, carol);
 
             await click(buttonLabelled(dialog, 'Save'));
 
@@ -98,17 +106,48 @@ describe('UsersAdmin', () => {
             expect(findDialog('Add User')).toBeUndefined();
         });
 
-        it('adds an empty user', async () => {
-            // current behavior: the form has no rules, and saveUser treats the promise
-            // from validate() as true, so an empty form is always sent
+        it('keeps Save disabled until every field is filled', async () => {
+            const { wrapper } = await mountPage();
+            await click(buttonLabelled(wrapper, 'Add'));
+            const dialog = dialogTitled('Add User');
+            const save = () => buttonLabelled(dialog, 'Save');
+            expect(save().attributes('disabled')).toBeDefined();
+
+            await fillIn(dialog, carol.slice(0, -1));
+            expect(save().attributes('disabled')).toBeDefined();
+
+            await fillIn(dialog, carol.slice(-1));
+            expect(save().attributes('disabled')).toBeUndefined();
+        });
+
+        it('adds nothing from an empty form', async () => {
             const { wrapper, store } = await mountPage();
             await click(buttonLabelled(wrapper, 'Add'));
 
             await click(buttonLabelled(dialogTitled('Add User'), 'Save'));
 
-            expect(store.addUser).toHaveBeenCalledWith({
-                userId: '', firstName: '', lastName: '', email: '', username: '', password: '',
-            });
+            expect(store.addUser).not.toHaveBeenCalled();
+        });
+
+        it.each(formLabels)('says %s is required once it is cleared', async label => {
+            const { wrapper } = await mountPage();
+            await click(buttonLabelled(wrapper, 'Add'));
+            const dialog = dialogTitled('Add User');
+
+            await fillIn(dialog, [[label, 'x'], [label, '']]);
+
+            expect(fieldLabelled(dialog, label).text()).toContain(`${label} is required`);
+        });
+
+        it('opens again without the last form\'s errors', async () => {
+            const { wrapper } = await mountPage();
+            await click(buttonLabelled(wrapper, 'Add'));
+            await fillIn(dialogTitled('Add User'), [['First Name', 'x'], ['First Name', '']]);
+            await click(buttonLabelled(dialogTitled('Add User'), 'Cancel'));
+
+            await click(buttonLabelled(wrapper, 'Add'));
+
+            expect(dialogTitled('Add User').text()).not.toContain('is required');
         });
 
         it('adds nothing when cancelled', async () => {
@@ -140,6 +179,14 @@ describe('UsersAdmin', () => {
             await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
 
             expect(formValues(dialogTitled('Edit User'))).toEqual(['Bob', 'Jones', 'bob@example.test', 'bob', '']);
+        });
+
+        it('can be saved with the password left empty', async () => {
+            const { wrapper } = await mountPage();
+
+            await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
+
+            expect(buttonLabelled(dialogTitled('Edit User'), 'Save').attributes('disabled')).toBeUndefined();
         });
 
         it('adds the edited user as a new one', async () => {

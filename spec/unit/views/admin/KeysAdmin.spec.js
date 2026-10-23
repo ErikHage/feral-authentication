@@ -1,7 +1,7 @@
 import { flushPromises } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { mountWithPlugins } from '../../../helpers/mount';
-import { buttonLabelled, inputLabelled } from '../../../helpers/fields';
+import { buttonLabelled, fieldLabelled, inputLabelled } from '../../../helpers/fields';
 import { dialogTitled, findDialog } from '../../../helpers/dialogs';
 import { tableHeaders, tableRows } from '../../../helpers/tables';
 import KeysAdmin from '@/views/admin/KeysAdmin.vue';
@@ -90,17 +90,56 @@ describe('KeysAdmin', () => {
             expect(findDialog('Generate Key')).toBeUndefined();
         });
 
-        it('can generate a key from an empty form', async () => {
-            // current behavior: :disabled="!isFormValid" negates the method, not its result,
-            // so Generate is never disabled and the rules never block it
+        it('keeps Generate disabled until both fields are filled', async () => {
+            const { wrapper } = await mountPage();
+            await click(buttonLabelled(wrapper, 'Generate'));
+            const dialog = dialogTitled('Generate Key');
+            const generate = () => buttonLabelled(dialog, 'Generate');
+            expect(generate().attributes('disabled')).toBeDefined();
+
+            await inputLabelled(dialog, 'Key Name').setValue('third');
+            await flushPromises();
+            expect(generate().attributes('disabled')).toBeDefined();
+
+            await inputLabelled(dialog, 'Expiration Date').setValue('2027-12-01T10:00');
+            await flushPromises();
+            expect(generate().attributes('disabled')).toBeUndefined();
+        });
+
+        it('generates nothing from an empty form', async () => {
             const { wrapper, store } = await mountPage();
             await click(buttonLabelled(wrapper, 'Generate'));
-            const generate = buttonLabelled(dialogTitled('Generate Key'), 'Generate');
-            expect(generate.attributes('disabled')).toBeUndefined();
 
-            await click(generate);
+            await click(buttonLabelled(dialogTitled('Generate Key'), 'Generate'));
 
-            expect(store.generateKey).toHaveBeenCalledWith('', '');
+            expect(store.generateKey).not.toHaveBeenCalled();
+        });
+
+        it.each([
+            ['Key Name', 'third', 'Name is required'],
+            ['Expiration Date', '2027-12-01T10:00', 'Expiration date is required'],
+        ])('says the %s is required once it is cleared', async (label, value, message) => {
+            const { wrapper } = await mountPage();
+            await click(buttonLabelled(wrapper, 'Generate'));
+            const dialog = dialogTitled('Generate Key');
+
+            await inputLabelled(dialog, label).setValue(value);
+            await inputLabelled(dialog, label).setValue('');
+            await flushPromises();
+
+            expect(fieldLabelled(dialog, label).text()).toContain(message);
+        });
+
+        it('opens again without the last form\'s errors', async () => {
+            const { wrapper } = await mountPage();
+            await click(buttonLabelled(wrapper, 'Generate'));
+            await inputLabelled(dialogTitled('Generate Key'), 'Key Name').setValue('third');
+            await inputLabelled(dialogTitled('Generate Key'), 'Key Name').setValue('');
+            await click(buttonLabelled(dialogTitled('Generate Key'), 'Cancel'));
+
+            await click(buttonLabelled(wrapper, 'Generate'));
+
+            expect(dialogTitled('Generate Key').text()).not.toContain('is required');
         });
 
         it('generates nothing when cancelled', async () => {

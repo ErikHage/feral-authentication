@@ -36,4 +36,10 @@ test.describe('Roles admin page', () => {
 
         await rolesAdminPage.checkDuplicateIsRejected('role: tester');
     });
+
+    test('keeps Save disabled until the form is filled', async ({ rolesAdminPage }) => {
+        await rolesAdminPage.startAddingRole();
+
+        await rolesAdminPage.checkCannotSaveYet();
+    });
 });

@@ -19,6 +19,20 @@ export function createUsersAdminPage(world, driver) {
             await driver.addUser(world.newUser(params.user));
         },
 
+        /** Opens the Add dialog, and leaves it empty. No parameters. */
+        async startAddingUser(...args) {
+            parseDslArgs(args, {});
+
+            await driver.openAddDialog();
+        },
+
+        /** Save stays disabled until the dialog is filled in. No parameters. */
+        async checkCannotSaveYet(...args) {
+            parseDslArgs(args, {});
+
+            await driver.cannotSaveAnEmptyUser();
+        },
+
         /** The `user` is listed with their details. */
         async checkUserIsListed(...args) {
             const params = parseDslArgs(args, { user: user() });

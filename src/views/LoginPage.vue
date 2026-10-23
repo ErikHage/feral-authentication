@@ -69,6 +69,11 @@ export default {
     ...mapState(useAuthenticationStore, [
         'isAuthenticated', 'loading', 'alertType', 'alertMessage', 'alertVisible',
     ]),
+
+    // A spinner in its place while logging in, and once logged in
+    showLoginButton() {
+      return !this.loading && !this.isAuthenticated;
+    },
   },
 
   methods: {
@@ -104,10 +109,6 @@ export default {
           this.delayedRedirect();
         }
       }
-    },
-
-    showLoginButton() {
-      return !this.loading && !this.isAuthenticated
     },
 
     maybeGetApplicationIdQueryParam() {

@@ -32,16 +32,16 @@
           <span class="headline">Add Role</span>
         </v-card-title>
         <v-card-text>
-          <v-form ref="roleForm">
-            <v-text-field v-model="form.scope" label="Scope" required></v-text-field>
-            <v-text-field v-model="form.title" label="Title" required></v-text-field>
-            <v-textarea v-model="form.description" label="Description" required></v-textarea>
+          <v-form ref="roleForm" v-model="formValid">
+            <v-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></v-text-field>
+            <v-text-field v-model="form.title" label="Title" :rules="rules.title"></v-text-field>
+            <v-textarea v-model="form.description" label="Description" :rules="rules.description"></v-textarea>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="saveRole">Save</v-btn>
+          <v-btn color="blue darken-1" text :disabled="!formValid" @click="saveRole">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -81,6 +81,7 @@
 import { useRolesStore } from "@/store";
 import { mapActions, mapState } from "pinia";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import { required } from "@/utils/rules";
 
 export default {
   name: "RolesAdmin",
@@ -91,6 +92,13 @@ export default {
       dialog: false,
       deleteDialog: false,
       roleToDelete: null,
+      // Vuetify's: null until every field has been checked, then true or false
+      formValid: null,
+      rules: {
+        scope: [required('Scope')],
+        title: [required('Title')],
+        description: [required('Description')],
+      },
       form: {
         scope: '',
         title: '',
@@ -116,9 +124,12 @@ export default {
       await this.fetchRoles();
     },
 
-    openDialog() {
+    async openDialog() {
       this.resetForm();
       this.dialog = true;
+      // The dialog keeps its form between openings, so clear the last one's errors
+      await this.$nextTick();
+      this.$refs.roleForm.resetValidation();
     },
     closeDialog() {
       this.dialog = false;

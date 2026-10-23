@@ -44,7 +44,7 @@ export function createKeysAdminPage(world, driver) {
         async checkCannotGenerateYet(...args) {
             parseDslArgs(args, {});
 
-            await driver.canGenerateFromAnEmptyForm();
+            await driver.cannotGenerateFromAnEmptyForm();
         },
     };
 }

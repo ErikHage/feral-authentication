@@ -195,13 +195,24 @@ describe('LoginPage', () => {
         it.each([
             ['loading', { loading: true }],
             ['logged in', { isAuthenticated: true }],
-        ])('is still shown, with no spinner, while %s', async (_, state) => {
-            // current behavior: v-if="showLoginButton" tests the method itself, which is
-            // always truthy, so the spinner never shows and Submit can be pressed again
+        ])('gives way to a spinner while %s', async (_, state) => {
             const { wrapper } = await mountPage({ state });
 
+            expect(wrapper.find('button[type="submit"]').exists()).toBe(false);
+            expect(wrapper.find('.v-progress-circular').exists()).toBe(true);
+        });
+
+        it('comes back when the login fails', async () => {
+            const { wrapper } = await mountPage({
+                arrange: store => store.authenticate.mockImplementation(async () => {
+                    store.loading = false;
+                    store.isAuthenticated = false;
+                }),
+            });
+
+            await submit(wrapper, 'alice', 'wrong');
+
             expect(wrapper.find('button[type="submit"]').exists()).toBe(true);
-            expect(wrapper.find('.v-progress-circular').exists()).toBe(false);
         });
     });
 });

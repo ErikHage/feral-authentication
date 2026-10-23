@@ -1,4 +1,4 @@
-import { expectCount, expectText, expectVisible } from './assertions';
+import { expectCount, expectDisabled, expectText, expectValue, expectVisible } from './assertions';
 import { createDataTable } from './data-table';
 import { createRoutedPageDriver } from './routed-page-driver';
 
@@ -26,6 +26,18 @@ export function createRolesAdminPageDriver(page) {
             await addDialog.getByLabel('Title').fill(title);
             await addDialog.getByLabel('Description').fill(description);
             await addDialog.getByRole('button', { name: 'Save' }).click();
+        },
+
+        async openAddDialog() {
+            await addButton.click();
+        },
+
+        async cannotSaveAnEmptyRole() {
+            const what = 'saving a role from an empty form';
+
+            await expectValue(addDialog.getByLabel('Scope'), '', what);
+            await expectValue(addDialog.getByLabel('Description'), '', what);
+            await expectDisabled(addDialog.getByRole('button', { name: 'Save' }), what);
         },
 
         async listsRole({ scope, title, description }) {

@@ -33,10 +33,10 @@
           <span class="headline">Add Application</span>
         </v-card-title>
         <v-card-text>
-          <v-form ref="applicationForm">
-            <v-text-field v-model="form.applicationName" label="Name" required></v-text-field>
-            <v-text-field v-model="form.applicationUrl" label="Url" required></v-text-field>
-            <v-text-field v-model="form.scope" label="Scope" required></v-text-field>
+          <v-form ref="applicationForm" v-model="formValid">
+            <v-text-field v-model="form.applicationName" label="Name" :rules="rules.applicationName"></v-text-field>
+            <v-text-field v-model="form.applicationUrl" label="Url" :rules="rules.applicationUrl"></v-text-field>
+            <v-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></v-text-field>
             <v-autocomplete
                 v-model="form.keyPairId"
                 :items="availableKeys"
@@ -44,14 +44,14 @@
                 item-value="keyId"
                 label="Key"
                 variant="solo"
-                required
+                :rules="rules.keyPairId"
             ></v-autocomplete>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="saveApplication">Create</v-btn>
+          <v-btn color="blue darken-1" text :disabled="!formValid" @click="saveApplication">Create</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -64,6 +64,7 @@ import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useKeysStore } from "@/store";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import { required } from "@/utils/rules";
 
 export default {
   name: "ApplicationsAdmin",
@@ -73,6 +74,14 @@ export default {
   data() {
     return {
       dialog: false,
+      // Vuetify's: null until every field has been checked, then true or false
+      formValid: null,
+      rules: {
+        applicationName: [required('Name')],
+        applicationUrl: [required('Url')],
+        scope: [required('Scope')],
+        keyPairId: [required('Key')],
+      },
       form: {
         applicationName: '',
         applicationUrl: '',
@@ -125,9 +134,12 @@ export default {
       };
     },
 
-    openDialog() {
+    async openDialog() {
       this.resetForm();
       this.dialog = true;
+      // The dialog keeps its form between openings, so clear the last one's errors
+      await this.$nextTick();
+      this.$refs.applicationForm.resetValidation();
     },
 
     closeDialog() {

@@ -20,6 +20,20 @@ export function createApplicationsAdminPage(world, driver) {
             await driver.addApplication(world.newApplication(params.application), world.keyNamed(params.key).keyName);
         },
 
+        /** Opens the Add dialog, and leaves it empty. No parameters. */
+        async startAddingApplication(...args) {
+            parseDslArgs(args, {});
+
+            await driver.openAddDialog();
+        },
+
+        /** Create stays disabled until the dialog is filled in. No parameters. */
+        async checkCannotCreateYet(...args) {
+            parseDslArgs(args, {});
+
+            await driver.cannotCreateAnEmptyApplication();
+        },
+
         /** The `application` is listed with its details. */
         async checkApplicationIsListed(...args) {
             const params = parseDslArgs(args, { application: application() });

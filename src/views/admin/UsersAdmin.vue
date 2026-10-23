@@ -34,13 +34,15 @@
           <span class="headline">{{ isEditMode ? 'Edit User' : 'Add User' }}</span>
         </v-card-title>
         <v-card-text>
-          <v-form ref="userForm">
-            <v-text-field v-model="form.firstName" label="First Name" required></v-text-field>
-            <v-text-field v-model="form.lastName" label="Last Name" required></v-text-field>
-            <v-text-field v-model="form.email" label="Email" required></v-text-field>
-            <v-text-field v-model="form.username" label="Username" required></v-text-field>
+          <v-form ref="userForm" v-model="formValid">
+            <v-text-field v-model="form.firstName" label="First Name" :rules="rules.firstName"></v-text-field>
+            <v-text-field v-model="form.lastName" label="Last Name" :rules="rules.lastName"></v-text-field>
+            <v-text-field v-model="form.email" label="Email" :rules="rules.email"></v-text-field>
+            <v-text-field v-model="form.username" label="Username" :rules="rules.username"></v-text-field>
+            <!-- Editing a user leaves their password as it is -->
             <v-text-field
                 v-model="form.password"
+                :rules="isEditMode ? [] : rules.password"
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 label="Password"
@@ -52,7 +54,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="saveUser">Save</v-btn>
+          <v-btn color="blue darken-1" text :disabled="!formValid" @click="saveUser">Save</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -88,6 +90,7 @@
 import { mapActions, mapState } from "pinia";
 import { useUsersStore } from "@/store";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import { required } from "@/utils/rules";
 
 export default {
   name: "UsersAdmin",
@@ -101,6 +104,15 @@ export default {
       userToDelete: null,
       showPassword: false,
       isEditMode: false,
+      // Vuetify's: null until every field has been checked, then true or false
+      formValid: null,
+      rules: {
+        firstName: [required('First Name')],
+        lastName: [required('Last Name')],
+        email: [required('Email')],
+        username: [required('Username')],
+        password: [required('Password')],
+      },
       form: {
         userId: '',
         firstName: '',
@@ -137,7 +149,7 @@ export default {
     refreshData() {
       this.fetchUsers();
     },
-    openDialog(user) {
+    async openDialog(user) {
       if (user) {
         this.form = {
           userId: user.userId,
@@ -153,6 +165,9 @@ export default {
         this.isEditMode = false;
       }
       this.dialog = true;
+      // The dialog keeps its form between openings, so clear the last one's errors
+      await this.$nextTick();
+      this.$refs.userForm.resetValidation();
     },
     closeDialog() {
       this.dialog = false;
@@ -176,7 +191,8 @@ export default {
       };
     },
     async saveUser() {
-      if (this.$refs.userForm.validate()) {
+      const { valid } = await this.$refs.userForm.validate();
+      if (valid) {
         await this.addUser(this.form);
         this.closeDialog();
         await this.fetchUsers();

@@ -1,4 +1,4 @@
-import { expectCount, expectText, expectVisible } from './assertions';
+import { expectCount, expectDisabled, expectText, expectValue, expectVisible } from './assertions';
 import { createDataTable } from './data-table';
 import { createRoutedPageDriver } from './routed-page-driver';
 
@@ -32,6 +32,18 @@ export function createUsersAdminPageDriver(page) {
             // By role: the show-password button is labelled "Password…" too
             await userDialog.getByRole('textbox', { name: 'Password' }).fill(password);
             await userDialog.getByRole('button', { name: 'Save' }).click();
+        },
+
+        async openAddDialog() {
+            await addButton.click();
+        },
+
+        async cannotSaveAnEmptyUser() {
+            const what = 'saving a user from an empty form';
+
+            await expectValue(userDialog.getByLabel('First Name'), '', what);
+            await expectValue(userDialog.getByRole('textbox', { name: 'Password' }), '', what);
+            await expectDisabled(userDialog.getByRole('button', { name: 'Save' }), what);
         },
 
         /** A user who isn't suspended, and may or may not have logged in. */
