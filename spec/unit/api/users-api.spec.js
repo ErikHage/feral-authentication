@@ -62,6 +62,25 @@ describe('usersApi', () => {
         });
     });
 
+    describe('fetchUser', () => {
+        it('fetches one user, as fetchUsers shows them', async () => {
+            axios.get.mockResolvedValue({ data: { ...serviceUser, lastLogin: null } });
+
+            const user = await usersApi.fetchUser('a-token', 'user-1');
+
+            expect(axios.get).toHaveBeenCalledWith(`${baseUrl}/users/user-1`, auth);
+            expect(user).toEqual({
+                userId: 'user-1',
+                firstName: 'Alice',
+                lastName: 'Smith',
+                email: 'alice@example.test',
+                username: 'alice',
+                lastLogin: '-',
+                isSuspended: 'N',
+            });
+        });
+    });
+
     describe('addUser', () => {
         const newUser = {
             userId: 'user-1',

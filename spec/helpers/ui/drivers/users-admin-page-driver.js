@@ -61,16 +61,11 @@ export function createUsersAdminPageDriver(page) {
             await userDialog.getByRole('button', { name: 'Save' }).click();
         },
 
-        /**
-         * Today's behaviour when renaming: Save adds the edited user as a new
-         * one, which the service refuses (the username is taken, and the
-         * password empty), so the user keeps their name.
-         */
-        async rejectsTheRenameAsANewUser({ username, firstName }, newFirstName) {
+        async listsTheUserRenamed(username, newFirstName) {
             const what = `renaming ${username} to ${newFirstName}`;
 
-            await expectVisible(alertSaying('error adding user'), what);
-            await expectText(table.detailsIn(username).first(), firstName, what);
+            await expectVisible(alertSaying('User updated successfully!'), what);
+            await expectText(table.detailsIn(username).first(), newFirstName, what);
         },
 
         async deleteUser(username) {

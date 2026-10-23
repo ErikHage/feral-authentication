@@ -27,6 +27,8 @@ describe('ActiveSessions', () => {
         const { sessionsStore } = await mountSessions();
 
         expect(sessionsStore.fetchUserSessions).toHaveBeenCalledTimes(1);
+        // The service knows whose sessions from the token
+        expect(sessionsStore.fetchUserSessions).toHaveBeenCalledWith();
     });
 
     it('shows a card per session', async () => {
@@ -87,8 +89,7 @@ describe('ActiveSessions', () => {
         expect(wrapper.find('.v-alert').text()).toContain('Session session-2 revoked');
     });
 
-    it('is named UserProfile', () => {
-        // current behavior: a copy-paste leftover; Vue devtools and warnings call it UserProfile
-        expect(ActiveSessions.name).toBe('UserProfile');
+    it('is named ActiveSessions', () => {
+        expect(ActiveSessions.name).toBe('ActiveSessions');
     });
 });

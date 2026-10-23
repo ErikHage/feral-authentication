@@ -95,15 +95,13 @@ describe('useKeysStore', () => {
             expect(store.alertVisible).toBe(false);
         });
 
-        it('keeps the new key apart from the listed keys', async () => {
-            // current behavior: the result goes to store.keys, which nothing reads;
-            // the page refetches the list instead
+        it('keeps nothing, leaving the page to fetch the list again', async () => {
             store.$patch({ availableKeys: [key2] });
             keysApi.generateKey.mockResolvedValue(key1);
 
             await store.generateKey('first', '2027-01-01T00:00');
 
-            expect(store.keys).toEqual(key1);
+            expect(store.keys).toBeUndefined();
             expect(store.availableKeys).toEqual([key2]);
         });
 

@@ -5,6 +5,7 @@ import usersApi from '@/api/users-api';
 vi.mock('@/api/users-api', () => ({
     default: {
         fetchUsers: vi.fn(),
+        fetchUser: vi.fn(),
         addUser: vi.fn(),
         updateUser: vi.fn(),
         deleteUser: vi.fn(),
@@ -158,11 +159,20 @@ describe('useUsersStore', () => {
             expect(store.selectedUser.rolesByScope).toEqual({});
         });
 
-        it('selects a user it has not loaded, without details', async () => {
-            // current behavior: the details come from the loaded list only
+        it('takes the details of a loaded user from the list', async () => {
+            await store.selectUser('user-2');
+
+            expect(usersApi.fetchUser).not.toHaveBeenCalled();
+        });
+
+        it('fetches the details of a user it has not loaded', async () => {
+            const carol = { userId: 'user-9', username: 'carol', firstName: 'Carol', lastName: 'White' };
+            usersApi.fetchUser.mockResolvedValue(carol);
+
             await store.selectUser('user-9');
 
-            expect(store.selectedUser.details).toBeUndefined();
+            expect(usersApi.fetchUser).toHaveBeenCalledWith('a-token', 'user-9');
+            expect(store.selectedUser.details).toEqual(carol);
         });
 
         it('fails outright when the roles cannot be fetched', async () => {
@@ -181,30 +191,5 @@ describe('useUsersStore', () => {
         store.clearSelectedUser();
 
         expect(store.selectedUser).toBeNull();
-    });
-
-    describe.each([
-        ['fetchUserRoles', 'error loading user roles'],
-        ['fetchUserApplications', 'error loading user applications'],
-    ])('%s', (action, errorMessage) => {
-        it('fetches with the stored token, but keeps nothing', async () => {
-            // current behavior: the result is discarded; selectUser fetches its own
-            usersApi[action].mockResolvedValue({ roles: [feralAdmin] });
-
-            const result = await store[action]('user-1');
-
-            expect(usersApi[action]).toHaveBeenCalledWith('a-token', 'user-1');
-            expect(result).toBeUndefined();
-            expect(store.selectedUser).toBeNull();
-        });
-
-        it('says it failed', async () => {
-            usersApi[action].mockRejectedValue(new Error('Request failed with status code 500'));
-
-            await store[action]('user-1');
-
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe(errorMessage);
-        });
     });
 });

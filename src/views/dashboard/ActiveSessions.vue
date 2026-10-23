@@ -76,7 +76,7 @@ import { useAuthenticationStore, useSessionsStore } from "@/store";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
-  name: 'UserProfile',
+  name: 'ActiveSessions',
 
   components: { FadeOutAlert },
 
@@ -97,7 +97,7 @@ export default {
     ]),
 
     async refreshData() {
-      await this.fetchUserSessions(this.actor.userId);
+      await this.fetchUserSessions();
     },
 
     isCurrentSession(sessionId) {

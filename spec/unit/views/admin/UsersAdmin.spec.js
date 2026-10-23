@@ -173,15 +173,24 @@ describe('UsersAdmin', () => {
     });
 
     describe('editing a user', () => {
-        it("opens the form with the user's details and no password", async () => {
+        it("opens the form with the user's details, only the name editable, and no password", async () => {
             const { wrapper } = await mountPage();
 
             await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
 
-            expect(formValues(dialogTitled('Edit User'))).toEqual(['Bob', 'Jones', 'bob@example.test', 'bob', '']);
+            const dialog = dialogTitled('Edit User');
+            const details = ['First Name', 'Last Name', 'Email', 'Username']
+                .map(label => [label, inputLabelled(dialog, label).element.value, inputLabelled(dialog, label).element.disabled]);
+            expect(details).toEqual([
+                ['First Name', 'Bob', false],
+                ['Last Name', 'Jones', false],
+                ['Email', 'bob@example.test', true],
+                ['Username', 'bob', true],
+            ]);
+            expect(() => fieldLabelled(dialog, 'Password')).toThrow('no field labelled "Password"');
         });
 
-        it('can be saved with the password left empty', async () => {
+        it('can be saved without a password', async () => {
             const { wrapper } = await mountPage();
 
             await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
@@ -189,20 +198,19 @@ describe('UsersAdmin', () => {
             expect(buttonLabelled(dialogTitled('Edit User'), 'Save').attributes('disabled')).toBeUndefined();
         });
 
-        it('adds the edited user as a new one', async () => {
-            // current behavior: saveUser always calls addUser, so an edit POSTs a new user
-            // with the existing id and username, and updateUser is never used
+        it("updates the user's name, closes and reloads", async () => {
             const { wrapper, store } = await mountPage();
             await click(rowWith(wrapper, 'bob').find('.mdi-pencil'));
             await inputLabelled(dialogTitled('Edit User'), 'First Name').setValue('Robert');
 
             await click(buttonLabelled(dialogTitled('Edit User'), 'Save'));
 
-            expect(store.addUser).toHaveBeenCalledWith({
+            expect(store.updateUser).toHaveBeenCalledWith(expect.objectContaining({
                 userId: 'user-2', firstName: 'Robert', lastName: 'Jones',
-                email: 'bob@example.test', username: 'bob', password: '',
-            });
-            expect(store.updateUser).not.toHaveBeenCalled();
+            }));
+            expect(store.addUser).not.toHaveBeenCalled();
+            expect(store.fetchUsers).toHaveBeenCalledTimes(2);
+            expect(findDialog('Edit User')).toBeUndefined();
         });
 
         it('opens an empty Add form after an edit', async () => {

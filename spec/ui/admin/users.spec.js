@@ -25,10 +25,6 @@ test.describe('Users admin page', () => {
         await usersAdminPage.checkUserIsDeleted('user: bob');
     });
 
-    // DocumentsCurrentBehavior: Save in the Edit dialog adds the user again, as
-    // a new one (backlog A13). The service refuses (the username is taken, and
-    // the password empty), so the page shows "error adding user" and the name
-    // stays. Should update the user's name.
     test('renames a user', async ({ usersAdminPage }) => {
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');

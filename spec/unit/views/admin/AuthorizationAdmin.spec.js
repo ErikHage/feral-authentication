@@ -123,6 +123,7 @@ describe('AuthorizationAdmin', () => {
             otherChip: 'Harvest',
             set: 'setUserApplications',
             clear: 'clearUserApplications',
+            add: 'addSelectedApplication',
             ids: ['app-1', 'app-2'],
         },
         {
@@ -135,9 +136,10 @@ describe('AuthorizationAdmin', () => {
             otherChip: 'harvest/user',
             set: 'setUserRoles',
             clear: 'clearUserRoles',
+            add: 'addSelectedRole',
             ids: ['role-1', 'role-2'],
         },
-    ])('managing $kind', ({ card, select, held, other, heldChip, otherChip, set, clear, ids }) => {
+    ])('managing $kind', ({ card, select, held, other, heldChip, otherChip, set, clear, add, ids }) => {
         it('cannot add before one is chosen', async () => {
             const { wrapper } = await mountPage();
             await chooseUser(wrapper, 'user-2');
@@ -152,6 +154,18 @@ describe('AuthorizationAdmin', () => {
             await choose(wrapper, select, held);
 
             expect(plusButton(cardTitled(wrapper, card)).attributes('disabled')).toBeDefined();
+        });
+
+        it('adds no second chip for one the user already has, past the disabled button', async () => {
+            const { wrapper } = await mountPage();
+            await chooseUser(wrapper, 'user-2');
+            await choose(wrapper, select, held);
+
+            // The button can't be clicked, so call its handler as a click would
+            wrapper.vm[add](new MouseEvent('click'));
+            await flushPromises();
+
+            expect(chips(cardTitled(wrapper, card))).toEqual([heldChip]);
         });
 
         it('adds the chosen one as a chip, and clears the choice', async () => {

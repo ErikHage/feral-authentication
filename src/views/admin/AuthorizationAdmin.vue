@@ -151,10 +151,8 @@ export default {
       'fetchUsers',
       'selectUser',
       'clearSelectedUser',
-      'fetchUserRoles',
       'setUserRoles',
       'clearUserRoles',
-      'fetchUserApplications',
       'setUserApplications',
       'clearUserApplications',
     ]),
@@ -176,11 +174,13 @@ export default {
       this.selectedApplications = [];
     },
 
-    refreshData() {
-      this.fetchUsers();
-      this.fetchRoles();
-      this.fetchApplications();
+    async refreshData() {
       this.clearSelectedUser();
+      await Promise.all([
+        this.fetchUsers(),
+        this.fetchRoles(),
+        this.fetchApplications(),
+      ]);
     },
 
     async onSelectUserChange(userId) {
@@ -201,8 +201,8 @@ export default {
     },
 
     // ROLE METHODS
-    addSelectedRole(role) {
-      if (!this.isRoleAlreadySelected(role)) {
+    addSelectedRole() {
+      if (!this.isRoleAlreadySelected(this.selectedRole)) {
         this.selectedRoles.push(this.selectedRole);
       }
       this.selectedRole = null;
@@ -232,8 +232,8 @@ export default {
     },
 
     // APPLICATION METHODS
-    addSelectedApplication(application) {
-      if (!this.isApplicationAlreadySelected(application)) {
+    addSelectedApplication() {
+      if (!this.isApplicationAlreadySelected(this.selectedApplication)) {
         this.selectedApplications.push(this.selectedApplication);
       }
       this.selectedApplication = null;

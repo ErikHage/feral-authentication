@@ -51,7 +51,7 @@ export function createUsersAdminPage(world, driver) {
         async checkUserIsRenamed(...args) {
             const params = parseDslArgs(args, { user: user(), firstName: required() });
 
-            await driver.rejectsTheRenameAsANewUser(world.userNamed(params.user), params.firstName);
+            await driver.listsTheUserRenamed(world.userNamed(params.user).username, params.firstName);
         },
 
         /** Deletes the `user`, confirming in the Delete dialog. */

@@ -2,14 +2,9 @@ import axios from "axios";
 
 import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
-async function fetchUsers(token) {
-    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users`, {
-        headers: {
-            'x-feral-auth-token': token,
-        },
-    });
-
-    return response.data.map(user => ({
+// The fields the UI shows, as it shows them
+function toUser(user) {
+    return {
         userId: user.userId,
         firstName: user.firstName,
         lastName: user.lastName,
@@ -17,7 +12,27 @@ async function fetchUsers(token) {
         username: user.username,
         lastLogin: user.lastLogin || '-', // TODO display in local time
         isSuspended: user.isSuspended ? "Y" : "N",
-    }));
+    };
+}
+
+async function fetchUsers(token) {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users`, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+
+    return response.data.map(toUser);
+}
+
+async function fetchUser(token, userId) {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users/${userId}`, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+
+    return toUser(response.data);
 }
 
 async function addUser(token, user) {
@@ -131,6 +146,7 @@ async function clearUserApplications(token, userId) {
 
 export default {
     fetchUsers,
+    fetchUser,
     addUser,
     updateUser,
     deleteUser,

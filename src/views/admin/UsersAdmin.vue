@@ -37,12 +37,13 @@
           <v-form ref="userForm" v-model="formValid">
             <v-text-field v-model="form.firstName" label="First Name" :rules="rules.firstName"></v-text-field>
             <v-text-field v-model="form.lastName" label="Last Name" :rules="rules.lastName"></v-text-field>
-            <v-text-field v-model="form.email" label="Email" :rules="rules.email"></v-text-field>
-            <v-text-field v-model="form.username" label="Username" :rules="rules.username"></v-text-field>
-            <!-- Editing a user leaves their password as it is -->
+            <!-- Editing changes only the name: the service updates nothing else -->
+            <v-text-field v-model="form.email" label="Email" :rules="rules.email" :disabled="isEditMode"></v-text-field>
+            <v-text-field v-model="form.username" label="Username" :rules="rules.username" :disabled="isEditMode"></v-text-field>
             <v-text-field
+                v-if="!isEditMode"
                 v-model="form.password"
-                :rules="isEditMode ? [] : rules.password"
+                :rules="rules.password"
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 :type="showPassword ? 'text' : 'password'"
                 label="Password"
@@ -143,6 +144,7 @@ export default {
     ...mapActions(useUsersStore, [
       'fetchUsers',
       'addUser',
+      'updateUser',
       'deleteUser'
     ]),
 
@@ -193,7 +195,11 @@ export default {
     async saveUser() {
       const { valid } = await this.$refs.userForm.validate();
       if (valid) {
-        await this.addUser(this.form);
+        if (this.isEditMode) {
+          await this.updateUser(this.form);
+        } else {
+          await this.addUser(this.form);
+        }
         this.closeDialog();
         await this.fetchUsers();
       }

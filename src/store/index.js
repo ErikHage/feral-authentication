@@ -206,7 +206,8 @@ export const useUsersStore = defineStore('user', {
         },
         async selectUser(userId) {
             const token = storageUtils.tryToLoadTokenFromStorage();
-            const userDetails = this.users.find(user => user.userId === userId);
+            const userDetails = this.users.find(user => user.userId === userId)
+                ?? await usersApi.fetchUser(token, userId);
             const userRoles = await usersApi.fetchUserRoles(token, userId);
             const userApplications = await usersApi.fetchUserApplications(token, userId);
             const rolesByScope = userRoles.roles.reduce((acc, role) => {
@@ -227,14 +228,6 @@ export const useUsersStore = defineStore('user', {
         clearSelectedUser() {
             this.selectedUser = null;
         },
-        async fetchUserRoles(userId) {
-            try {
-                await usersApi.fetchUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId);
-            } catch (err) {
-                console.log(err);
-                this.setAlertMessage('error', 'error loading user roles');
-            }
-        },
         async setUserRoles(userId, roleIds) {
             try {
                 await usersApi.setUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId, roleIds);
@@ -251,14 +244,6 @@ export const useUsersStore = defineStore('user', {
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', 'error clearing user roles');
-            }
-        },
-        async fetchUserApplications(userId) {
-            try {
-                await usersApi.fetchUserApplications(storageUtils.tryToLoadTokenFromStorage(), userId);
-            } catch (err) {
-                console.log(err);
-                this.setAlertMessage('error', 'error loading user applications');
             }
         },
         async setUserApplications(userId, applicationIds) {
@@ -356,7 +341,7 @@ export const useKeysStore = defineStore('key', {
         async generateKey(keyName, expiration) {
             try {
                 this.loading = true;
-                this.keys = await keysApi.generateKey(storageUtils.tryToLoadTokenFromStorage(), keyName, expiration);
+                await keysApi.generateKey(storageUtils.tryToLoadTokenFromStorage(), keyName, expiration);
             } catch (err) {
                 console.log(err);
                 this.setAlertMessage('error', err.message);
@@ -364,21 +349,14 @@ export const useKeysStore = defineStore('key', {
             this.loading = false;
         },
         async selectKey(keyId) {
-            try {
-                console.log('selecting key with id', keyId);
-                this.loading = true;
-                console.log('this.availableKeys', this.availableKeys);
-                const keyDetails = this.availableKeys.find(key => key.keyId === keyId);
-                console.log('found key', keyDetails);
+            console.log('selecting key with id', keyId);
+            console.log('this.availableKeys', this.availableKeys);
+            const keyDetails = this.availableKeys.find(key => key.keyId === keyId);
+            console.log('found key', keyDetails);
 
-                this.selectedKey = {
-                    keyDetails,
-                };
-            } catch (err) {
-                console.log(err);
-                this.setAlertMessage('error', err.message);
-            }
-            this.loading = false;
+            this.selectedKey = {
+                keyDetails,
+            };
         },
         setAlertMessage(type, message) {
             this.alertVisible = true;
@@ -413,22 +391,14 @@ export const useApplicationsStore = defineStore('application', {
             this.loading = false;
         },
         async selectApplication(applicationId) {
-            try {
-                this.loading = true;
-                console.log(this.applications);
-                const applicationDetails = this.applications.find(
-                    application => application.applicationId === applicationId);
-                console.log(this.applicationDetails);
+            console.log(this.applications);
+            const applicationDetails = this.applications.find(
+                application => application.applicationId === applicationId);
 
-                this.selectedApplication = {
-                    applicationDetails,
-                    // TODO key details
-                };
-            } catch (err) {
-                console.log(err);
-                this.setAlertMessage('error', err.message);
-            }
-            this.loading = false;
+            this.selectedApplication = {
+                applicationDetails,
+                // TODO key details
+            };
         },
         async createApplication(application) {
             try {
