@@ -1,4 +1,4 @@
-import { expectEventually, expectThat, expectUrl } from './assertions';
+import { expectCount, expectEventually, expectThat, expectUrl } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { urlOf } from './urls';
 
@@ -32,17 +32,16 @@ export function createApplicationPickerPageDriver(page, serviceCalls) {
         },
 
         /**
-         * Today's behaviour when a user without the admin role logs in after
-         * someone else logged out, without a reload: their list is refused,
-         * and the page still shows the previous user's applications.
+         * Offers no applications, for a user without the admin role who logs
+         * in after someone else logged out, without a reload: their list is
+         * refused, and nothing is left of the previous user's.
          */
-        async showsThePreviousUsersApplications() {
+        async offersNoApplications() {
             const what = 'offering no applications to a user who has none';
 
             await expectEventually(listRefused, 'the service to refuse the list of applications (403)', what);
             await expectUrl(page, urlOf('dashboard/applications'), what);
-            const shown = await logos.count();
-            expectThat(shown > 0, "the previous user's applications", 'no applications', what);
+            await expectCount(logos, 0, what);
         },
     };
 }

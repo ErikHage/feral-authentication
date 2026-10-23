@@ -59,15 +59,10 @@ export function createProfilePageDriver(page, serviceCalls) {
             await expectText(heading, `${typed} ${lastName}`, what);
         },
 
-        /**
-         * Today's behaviour after one user logs out and another logs in,
-         * without a reload: the page still shows the user who was logged in
-         * when it was first opened.
-         */
-        async showsThePreviousUser(username, previousUsername) {
+        async showsTheNextUser(username, previousUsername) {
             const what = `showing ${username} their profile, after ${previousUsername} logged out`;
 
-            await expectValue(field('Username'), previousUsername, what);
+            await expectValue(field('Username'), username, what);
         },
 
         /**

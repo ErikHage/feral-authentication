@@ -77,7 +77,7 @@ SELECT application_id, application_name, date_created FROM applications WHERE ap
 
 Steps that only use a role or an application can name existing ones: `'role: feral/admin'` (scope/title), and `'application: Feral Authentication'` (its listed name).
 
-**Switching users: load the app afresh, unless that's the point.** Logging out clears nothing from the app's stores, so the next user to log in sees what the last one loaded wherever their own request is refused. After `appBar.logOut()`, check `loginPage.checkIsShown()` (logging out has finished once the login page shows), then call `loginPage.open()` before logging in as someone else. Only a test that pins the leftovers skips the reload. Without the check, the reload can beat the logout: the fresh login page then finds the old token, and redirects to the applications page half a second later, wherever the test has got to.
+**Switching users: wait for the logout.** After `appBar.logOut()`, check `loginPage.checkIsShown()` before logging in as someone else: logging out has finished once the login page shows. Logging out clears the app's stores, so the next user starts from nothing, without a reload.
 
 **Another device.** A test that needs the same user logged in twice asks for `anotherDevice`: a second browser context with its own `loginPage` and `applicationPickerPage`. It shares the test's names, so `anotherDevice.loginPage.logIn('user: bob')` logs in as the same bob.
 

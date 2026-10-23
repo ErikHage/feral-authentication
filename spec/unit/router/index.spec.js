@@ -14,6 +14,11 @@ import AuthorizationAdmin from '@/views/admin/AuthorizationAdmin.vue';
 import KeysAdmin from '@/views/admin/KeysAdmin.vue';
 import ApplicationsAdmin from '@/views/admin/ApplicationsAdmin.vue';
 import ApplicationDetails from '@/views/admin/ApplicationDetails.vue';
+import authenticationApi from '@/api/authentication-api';
+
+vi.mock('@/api/authentication-api', () => ({
+    default: { verifyToken: vi.fn() },
+}));
 
 const protectedPaths = [
     '/dashboard',
@@ -80,8 +85,16 @@ describe('router', () => {
         });
 
         afterEach(() => {
+            localStorage.clear();
+            vi.clearAllMocks();
             vi.restoreAllMocks();
         });
+
+        // A token from an earlier visit, in a store created after it, as on a reload
+        function reloadWithStoredToken() {
+            localStorage.setItem('feral-token', 'a-token');
+            setActivePinia(createPinia());
+        }
 
         it.each(['/', '/login'])('lets anyone open %s', async path => {
             await router.push(path);
@@ -95,12 +108,11 @@ describe('router', () => {
             expect(router.currentRoute.value.name).toBe('Login');
         });
 
-        it('forgets where they were going', async () => {
-            // current behavior: no redirect query, so after logging in they land on the
-            // dashboard rather than the page they asked for
-            await router.push('/admin/users');
+        it('remembers where they were going', async () => {
+            await router.push('/admin/users?tab=2');
 
-            expect(router.currentRoute.value.fullPath).toBe('/login');
+            expect(router.currentRoute.value.name).toBe('Login');
+            expect(router.currentRoute.value.query).toEqual({ redirect: '/admin/users?tab=2' });
         });
 
         it.each(protectedPaths)('lets someone logged in open %s', async path => {
@@ -111,15 +123,34 @@ describe('router', () => {
             expect(router.currentRoute.value.path).toBe(path);
         });
 
-        it('checks the store, not the stored token', async () => {
-            // current behavior: a token from an earlier visit doesn't count until the
-            // login page has verified it
-            localStorage.setItem('feral-token', 'a-token');
+        it('lets someone with a stored token the service accepts open the page they reload', async () => {
+            reloadWithStoredToken();
+            authenticationApi.verifyToken.mockResolvedValue(true);
+
+            await router.push('/dashboard/profile');
+
+            expect(authenticationApi.verifyToken).toHaveBeenCalledWith('a-token');
+            expect(router.currentRoute.value.path).toBe('/dashboard/profile');
+        });
+
+        it('sends someone whose stored token the service rejects to the login page', async () => {
+            reloadWithStoredToken();
+            authenticationApi.verifyToken.mockResolvedValue(false);
 
             await router.push('/dashboard/profile');
 
             expect(router.currentRoute.value.name).toBe('Login');
-            localStorage.clear();
+            expect(localStorage.getItem('feral-token')).toBeNull();
+        });
+
+        it('checks a stored token only once', async () => {
+            reloadWithStoredToken();
+            authenticationApi.verifyToken.mockResolvedValue(true);
+
+            await router.push('/dashboard/profile');
+            await router.push('/admin/users');
+
+            expect(authenticationApi.verifyToken).toHaveBeenCalledTimes(1);
         });
     });
 });

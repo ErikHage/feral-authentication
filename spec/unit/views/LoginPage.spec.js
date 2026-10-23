@@ -4,16 +4,16 @@ import { mountWithPlugins } from '../../helpers/mount';
 import LoginPage from '@/views/LoginPage.vue';
 import { useAuthenticationStore } from '@/store';
 
-// The store's actions are stubs. authenticate and verifyToken are given
+// The store's actions are stubs. authenticate and restoreSession are given
 // implementations that log in, where a test needs that
-async function mountPage({ state = {}, arrange = () => {} } = {}) {
+async function mountPage({ state = {}, query = {}, arrange = () => {} } = {}) {
     const router = { push: vi.fn() };
     const pinia = createTestingPinia({ initialState: { authentication: state } });
     const store = useAuthenticationStore(pinia);
     arrange(store);
 
     const wrapper = mountWithPlugins(LoginPage, {
-        global: { plugins: [pinia], mocks: { $router: router } },
+        global: { plugins: [pinia], mocks: { $router: router, $route: { query } } },
     });
     await flushPromises();
 
@@ -86,6 +86,32 @@ describe('LoginPage', () => {
             expect(router.push).toHaveBeenCalledWith('/dashboard/applications');
         });
 
+        it('goes back to the page the guard sent them from', async () => {
+            const { wrapper, router } = await mountPage({
+                query: { redirect: '/admin/users?tab=2' },
+                arrange: store => store.authenticate.mockImplementation(logsIn(store)),
+            });
+
+            await submit(wrapper, 'alice', 'secret');
+            vi.advanceTimersByTime(500);
+
+            expect(router.push).toHaveBeenCalledWith('/admin/users?tab=2');
+        });
+
+        it.each(['//evil.test/page', 'https://evil.test/page', 'admin/users'])(
+            'goes to the applications page instead of a redirect to %s',
+            async redirect => {
+                const { wrapper, router } = await mountPage({
+                    query: { redirect },
+                    arrange: store => store.authenticate.mockImplementation(logsIn(store)),
+                });
+
+                await submit(wrapper, 'alice', 'secret');
+                vi.advanceTimersByTime(500);
+
+                expect(router.push).toHaveBeenCalledWith('/dashboard/applications');
+            });
+
         it('stays on the page when the login fails', async () => {
             const { wrapper, router, store } = await mountPage();
 
@@ -110,62 +136,50 @@ describe('LoginPage', () => {
         });
     });
 
-    describe('opening the page with a stored token', () => {
-        it('checks nothing when no token is stored', async () => {
+    // What counts as a session that still holds is the store's restoreSession; see its spec
+    describe('opening the page', () => {
+        it('restores a session from an earlier visit', async () => {
             const { store } = await mountPage();
 
-            expect(store.verifyToken).not.toHaveBeenCalled();
+            expect(store.restoreSession).toHaveBeenCalledTimes(1);
         });
 
-        it('goes to the applications page when the token is still valid', async () => {
-            const { router, store } = await mountPage({
-                arrange: store => {
-                    store.tokenPresent.mockReturnValue(true);
-                    store.verifyToken.mockImplementation(logsIn(store));
-                },
+        it('stays when there is no session to restore', async () => {
+            const { router, store } = await mountPage();
+            vi.advanceTimersByTime(1000);
+
+            expect(router.push).not.toHaveBeenCalled();
+            expect(store.loginToApplication).not.toHaveBeenCalled();
+        });
+
+        it('goes to the applications page when the session is restored', async () => {
+            const { router } = await mountPage({
+                arrange: store => store.restoreSession.mockImplementation(logsIn(store)),
             });
 
-            expect(store.verifyToken).toHaveBeenCalledTimes(1);
             vi.advanceTimersByTime(500);
             expect(router.push).toHaveBeenCalledWith('/dashboard/applications');
-            expect(store.clearToken).not.toHaveBeenCalled();
         });
 
-        it('logs in to the application named by ?app= when the token is still valid', async () => {
+        it('goes back to the page the guard sent them from when the session is restored', async () => {
+            const { router } = await mountPage({
+                query: { redirect: '/dashboard/profile' },
+                arrange: store => store.restoreSession.mockImplementation(logsIn(store)),
+            });
+
+            vi.advanceTimersByTime(500);
+            expect(router.push).toHaveBeenCalledWith('/dashboard/profile');
+        });
+
+        it('logs in to the application named by ?app= when the session is restored', async () => {
             window.history.replaceState(null, '', '/auth/login?app=app-1');
 
             const { router, store } = await mountPage({
-                arrange: store => {
-                    store.tokenPresent.mockReturnValue(true);
-                    store.verifyToken.mockImplementation(logsIn(store));
-                },
+                arrange: store => store.restoreSession.mockImplementation(logsIn(store)),
             });
             vi.advanceTimersByTime(1000);
 
             expect(store.loginToApplication).toHaveBeenCalledWith('app-1', false);
-            expect(router.push).not.toHaveBeenCalled();
-        });
-
-        it('forgets a token the service rejects, and stays', async () => {
-            const { router, store } = await mountPage({
-                arrange: store => store.tokenPresent.mockReturnValue(true),
-            });
-            vi.advanceTimersByTime(1000);
-
-            expect(store.clearToken).toHaveBeenCalledTimes(1);
-            expect(router.push).not.toHaveBeenCalled();
-        });
-
-        it('forgets the token when checking it fails', async () => {
-            const { router, store } = await mountPage({
-                arrange: store => {
-                    store.tokenPresent.mockReturnValue(true);
-                    store.verifyToken.mockRejectedValue(new Error('Network Error'));
-                },
-            });
-            vi.advanceTimersByTime(1000);
-
-            expect(store.clearToken).toHaveBeenCalledTimes(1);
             expect(router.push).not.toHaveBeenCalled();
         });
     });

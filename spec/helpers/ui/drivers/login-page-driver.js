@@ -22,6 +22,14 @@ export function createLoginPageDriver(page) {
             marker: main => main.getByRole('button', { name: 'Submit' }),
         }),
 
+        /** Perhaps with the guard's note of the page to return to after logging in. */
+        async isShown() {
+            const what = 'showing the login page';
+
+            await expectUrl(page, new RegExp(`^${escaped(urlOf('login'))}(\\?redirect=[^&]+)?$`), what);
+            await expectVisible(submitButton, what);
+        },
+
         async logIn(username, password) {
             await usernameField.fill(username);
             await passwordField.fill(password);
@@ -66,15 +74,12 @@ export function createLoginPageDriver(page) {
             await page.goBack();
         },
 
-        /**
-         * Today's behaviour after going Back to the applications page while
-         * logged out: the login form shows, under the applications page's URL.
-         */
-        async isShownUnderTheApplicationsUrl() {
+        /** Shown in place of the applications page, to return there after logging in. */
+        async isShownToReturnToTheApplicationsPage() {
             const what = 'going back to the applications page after logging out';
 
             await expectVisible(submitButton, what);
-            await expectUrl(page, urlOf('dashboard/applications'), what);
+            await expectUrl(page, `${urlOf('login')}?redirect=/dashboard/applications`, what);
         },
     };
 }

@@ -37,8 +37,6 @@ test.describe('Authorization admin page', () => {
         await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
         await authorizationAdminPage.appBar.logOut();
         await loginPage.checkIsShown();
-        // Afresh: the admin's users list would still be in the store (A31)
-        await loginPage.open();
 
         await loginPage.logIn('user: bob');
         await applicationPickerPage.checkIsShown();
@@ -48,10 +46,8 @@ test.describe('Authorization admin page', () => {
         await usersAdminPage.checkUserIsListed('user: bob');
     });
 
-    // DocumentsCurrentBehavior: bob's own list is refused (403, as below), and
-    // logging out cleared nothing from the stores, so bob is offered the
-    // admin's applications (backlog A31). Should offer none. Relies on the
-    // admin account having at least one application.
+    // bob's own list is refused (403, as below). Relies on the admin account
+    // having at least one application, so there is something to leave behind
     test('offers the next user to log in none of the previous user\'s applications', async ({
         usersAdminPage, loginPage, applicationPickerPage,
     }) => {
@@ -65,9 +61,6 @@ test.describe('Authorization admin page', () => {
     });
 
     test.describe('for a user without the admin role', () => {
-        // Each logs out, then loads the app afresh, so nothing is left from
-        // the admin's session (see the test above)
-
         // DocumentsCurrentBehavior: every service endpoint past login, verify,
         // single sign-on and logout needs feral/admin, including the user's own
         // applications (backlog A30). The service refuses (403), and the page
@@ -79,7 +72,6 @@ test.describe('Authorization admin page', () => {
             await authorizationAdminPage.grantApplication('user: bob', 'application: Feral Authentication');
             await authorizationAdminPage.appBar.logOut();
             await loginPage.checkIsShown();
-            await loginPage.open();
 
             await loginPage.logIn('user: bob');
 
@@ -92,7 +84,6 @@ test.describe('Authorization admin page', () => {
         test('shows them their profile', async ({ usersAdminPage, loginPage, applicationPickerPage, profilePage }) => {
             await usersAdminPage.appBar.logOut();
             await loginPage.checkIsShown();
-            await loginPage.open();
             await loginPage.logIn('user: bob');
             await applicationPickerPage.checkIsShown();
 
@@ -107,7 +98,6 @@ test.describe('Authorization admin page', () => {
         test('lists their sessions', async ({ usersAdminPage, loginPage, applicationPickerPage, sessionsPage }) => {
             await usersAdminPage.appBar.logOut();
             await loginPage.checkIsShown();
-            await loginPage.open();
             await loginPage.logIn('user: bob');
             await applicationPickerPage.checkIsShown();
 

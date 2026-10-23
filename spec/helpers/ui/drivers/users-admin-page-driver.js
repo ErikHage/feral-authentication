@@ -1,7 +1,6 @@
-import { expectCount, expectText, expectUrl, expectVisible } from './assertions';
+import { expectCount, expectText, expectVisible } from './assertions';
 import { createDataTable } from './data-table';
 import { createRoutedPageDriver } from './routed-page-driver';
-import { urlOf } from './urls';
 
 // The Last Login column: "-" until the user first logs in
 const neverOrATime = /^(-|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/;
@@ -9,7 +8,6 @@ const neverOrATime = /^(-|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/;
 /** The users admin page, as Playwright sees it. Its table's rows are found by username. */
 export function createUsersAdminPageDriver(page) {
     const main = page.getByRole('main');
-    const applicationsHeading = main.getByRole('heading', { name: 'Available Applications' });
     const addButton = main.getByRole('button', { name: 'Add' });
     const alertSaying = message => main.getByRole('alert').filter({ hasText: message });
     const table = createDataTable(page);
@@ -75,14 +73,6 @@ export function createUsersAdminPageDriver(page) {
             const what = `deleting the user ${username}`;
 
             await expectCount(table.row(username), 0, what);
-        },
-
-        /** Today's behaviour: a reload goes through login, on to the applications page. */
-        async landsOnApplicationsPageAfterReload() {
-            const what = 'reloading the users admin page';
-
-            await expectUrl(page, urlOf('dashboard/applications'), what);
-            await expectVisible(applicationsHeading, what);
         },
     };
 }

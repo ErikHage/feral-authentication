@@ -134,14 +134,18 @@ const router = createRouter({
     routes
 });
 
-router.beforeEach((to /*, from */) => {
+router.beforeEach(async (to /*, from */) => {
     const user = useAuthenticationStore();
     const requiresAuthenticated = to.matched.some(record => record.meta.requiresAuthenticated);
     // todo required roles in meta too
 
-    if (requiresAuthenticated && !user.isAuthenticated && to.name !== views.login.name) { // ❗️ Avoid an infinite redirect
-        console.log('sending you back to Login');
-        return { name: views.login.name };
+    if (requiresAuthenticated && to.name !== views.login.name) { // ❗️ Avoid an infinite redirect
+        await user.restoreSession();
+
+        if (!user.isAuthenticated) {
+            console.log('sending you back to Login');
+            return { name: views.login.name, query: { redirect: to.fullPath } };
+        }
     }
 });
 

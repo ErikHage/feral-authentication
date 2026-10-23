@@ -18,8 +18,8 @@ export function routedPageSteps(driver) {
         },
 
         /**
-         * Reloads the page. The next step checks where that landed: a reload
-         * goes through the login page. No parameters.
+         * Reloads the page. `checkIsShownAfterReload` checks that it stayed. No
+         * parameters.
          */
         async reload(...args) {
             parseDslArgs(args, {});
@@ -32,6 +32,13 @@ export function routedPageSteps(driver) {
             parseDslArgs(args, {});
 
             await driver.isShown();
+        },
+
+        /** After `reload`: the browser stayed on this page, never going via Login. No parameters. */
+        async checkIsShownAfterReload(...args) {
+            parseDslArgs(args, {});
+
+            await driver.isShownAfterReload();
         },
     };
 }

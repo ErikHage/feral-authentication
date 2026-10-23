@@ -67,7 +67,7 @@ export function createLoginPage(world, driver) {
         async checkIsShownAfterGoingBack(...args) {
             parseDslArgs(args, {});
 
-            await driver.isShownUnderTheApplicationsUrl();
+            await driver.isShownToReturnToTheApplicationsPage();
         },
     };
 }

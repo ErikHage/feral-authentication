@@ -69,7 +69,7 @@ export function createProfilePage(world, driver) {
         async checkShowsNextUser(...args) {
             const params = parseDslArgs(args, { user: user(), previous: user() });
 
-            await driver.showsThePreviousUser(
+            await driver.showsTheNextUser(
                 world.credentialsFor(params.user).username,
                 world.credentialsFor(params.previous).username);
         },

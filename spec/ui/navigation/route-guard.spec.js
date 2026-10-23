@@ -18,6 +18,17 @@ test.describe('Route guard and logout', () => {
         await loginPage.checkIsShown();
     });
 
+    test('returns a visitor to the page they asked for once they log in', async ({
+        usersAdminPage, loginPage,
+    }) => {
+        await usersAdminPage.open();
+        await loginPage.checkIsShown();
+
+        await loginPage.logIn('user: admin');
+
+        await usersAdminPage.checkIsShown();
+    });
+
     test('logs the admin out', async ({ loginPage, applicationPickerPage }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
@@ -29,9 +40,6 @@ test.describe('Route guard and logout', () => {
         await loginPage.appBar.checkOffersNothing();
     });
 
-    // DocumentsCurrentBehavior: the guard applies, and the login form shows, but the address
-    // bar keeps /dashboard/applications: a guard's redirect during a Back navigation leaves
-    // the URL behind (the router's own current route is /login). Should show /login.
     test('applies again once the admin logs out', async ({ loginPage, applicationPickerPage }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
@@ -45,10 +53,6 @@ test.describe('Route guard and logout', () => {
         await loginPage.checkIsShownAfterGoingBack();
     });
 
-    // DocumentsCurrentBehavior: a reload lands on /dashboard/applications. "Logged in" lives
-    // only in the store, so a reloaded app is logged out: the guard sends it to Login, which
-    // verifies the stored token and redirects to the applications page, forgetting where it
-    // was (backlog A4, A5). Should stay on the users page.
     test('keeps a logged-in admin on the page they reload', async ({
         loginPage, applicationPickerPage, adminPage, usersAdminPage,
     }) => {

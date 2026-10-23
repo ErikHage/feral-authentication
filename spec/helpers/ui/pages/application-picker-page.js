@@ -20,7 +20,7 @@ export function createApplicationPickerPage(world, driver) {
         async checkOffersNoApplications(...args) {
             parseDslArgs(args, {});
 
-            await driver.showsThePreviousUsersApplications();
+            await driver.offersNoApplications();
         },
     };
 }

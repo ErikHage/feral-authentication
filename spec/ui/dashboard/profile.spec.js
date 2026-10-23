@@ -17,8 +17,6 @@ test.describe('Profile page', () => {
         await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
         await authorizationAdminPage.appBar.logOut();
         await loginPage.checkIsShown();
-        // Afresh, so nothing is left from the admin's session (A31)
-        await loginPage.open();
         await loginPage.logIn('user: bob');
         await applicationPickerPage.checkIsShown();
         await applicationPickerPage.dashboardNav.goToProfile();
@@ -28,15 +26,12 @@ test.describe('Profile page', () => {
         await profilePage.checkShowsUser('user: bob');
     });
 
-    test('saves a new first name', async ({ profilePage, applicationPickerPage }) => {
+    test('saves a new first name', async ({ profilePage }) => {
         await profilePage.changeFirstName('firstName: Robert');
         await profilePage.save();
         await profilePage.checkDetailsAreSaved();
 
-        // A reload always lands on the applications page (A4)
         await profilePage.reload();
-        await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.dashboardNav.goToProfile();
 
         await profilePage.checkShowsUser('user: bob', 'firstName: Robert');
     });
@@ -60,9 +55,6 @@ test.describe('Profile page', () => {
 });
 
 test.describe('Profile page, after switching users', () => {
-    // DocumentsCurrentBehavior: the store's actor is read once per page load
-    // (backlog A2), so after the admin logs out and bob logs in, without a
-    // reload, the profile still shows the admin. Should show bob.
     test('shows the next user to log in their own details', async ({
         loginPage, applicationPickerPage, adminPage, usersAdminPage, authorizationAdminPage, profilePage,
     }) => {

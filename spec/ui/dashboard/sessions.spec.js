@@ -17,8 +17,6 @@ test.describe('Sessions page', () => {
         await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
         await authorizationAdminPage.appBar.logOut();
         await loginPage.checkIsShown();
-        // Afresh, so nothing is left from the admin's session (A31)
-        await loginPage.open();
         await loginPage.logIn('user: bob');
         await applicationPickerPage.checkIsShown();
     });

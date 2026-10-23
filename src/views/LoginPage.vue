@@ -73,16 +73,20 @@ export default {
 
   methods: {
     ...mapActions(useAuthenticationStore, [
-        'tokenPresent',
-        'verifyToken',
+        'restoreSession',
         'authenticate',
         'loginToApplication',
-        'clearToken',
     ]),
 
-    delayedRedirectToDashboard() {
+    // To the page the guard sent them from, if it's one of ours
+    delayedRedirect() {
+      const redirect = this.$route.query.redirect;
+      const destination = typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
+          ? redirect
+          : '/dashboard/applications';
+
       setTimeout(() => {
-        this.$router.push('/dashboard/applications');
+        this.$router.push(destination);
       }, 500);
     },
 
@@ -97,7 +101,7 @@ export default {
         if (this.ssoAppId) {
           await this.loginToApplication(this.ssoAppId, false);
         } else {
-          this.delayedRedirectToDashboard();
+          this.delayedRedirect();
         }
       }
     },
@@ -115,22 +119,13 @@ export default {
   async mounted() {
     this.ssoAppId = this.maybeGetApplicationIdQueryParam();
 
-    if (this.tokenPresent()) {
-      try {
-        await this.verifyToken();
-        if (!this.isAuthenticated) {
-          this.clearToken();
-        }
-      } catch {
-        this.clearToken();
-      }
-    }
+    await this.restoreSession();
 
     if (this.isAuthenticated) {
       if (this.ssoAppId) {
         await this.loginToApplication(this.ssoAppId, false);
       } else {
-        this.delayedRedirectToDashboard();
+        this.delayedRedirect();
       }
     }
   }

@@ -17,6 +17,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 this.loading = true;
                 const token = await authenticationApi.login(username, password);
                 storageUtils.setTokenInLocalStorage(token);
+                this.token = token;
                 this.isAuthenticated = true;
                 this.showAppBar = true;
                 this.loading = false;
@@ -29,7 +30,7 @@ export const useAuthenticationStore = defineStore('authentication', {
         },
         async loginToApplication(applicationId, newTab) {
             try {
-                const redirectUrl = await authenticationApi.loginToApplication(storageUtils.tryToLoadTokenFromStorage(), applicationId);
+                const redirectUrl = await authenticationApi.loginToApplication(this.token, applicationId);
                 console.log('login to application successful');
                 console.log(`redirect to: ${redirectUrl}`);
 
@@ -45,7 +46,7 @@ export const useAuthenticationStore = defineStore('authentication', {
         },
         async logout() {
             try {
-                await authenticationApi.logout(storageUtils.tryToLoadTokenFromStorage());
+                await authenticationApi.logout(this.token);
             } catch (err) {
                 if (err.status === 401) {
                     // token must already be expired, don't worry about it
@@ -58,16 +59,33 @@ export const useAuthenticationStore = defineStore('authentication', {
             this.showAppBar = false;
             this.loading = false;
             this.isAuthenticated = false;
+            // So the next user to log in, without a reload, sees none of this one's data
+            resetDataStores();
         },
         tokenPresent() {
-            const maybeToken = storageUtils.tryToLoadTokenFromStorage();
-            return maybeToken !== null;
+            return this.token !== null;
         },
         async verifyToken() {
-            this.isAuthenticated = await authenticationApi.verifyToken(storageUtils.tryToLoadTokenFromStorage());
+            this.isAuthenticated = await authenticationApi.verifyToken(this.token);
+        },
+        // A token stored by an earlier visit counts once the service accepts it
+        async restoreSession() {
+            if (this.isAuthenticated || !this.tokenPresent()) {
+                return;
+            }
+            try {
+                await this.verifyToken();
+            } catch {
+                this.isAuthenticated = false;
+            }
+            if (!this.isAuthenticated) {
+                this.clearToken();
+                this.showAppBar = false;
+            }
         },
         clearToken() {
             storageUtils.clearTokenFromStorage();
+            this.token = null;
         },
         setAlertMessage(type, message) {
             this.alertVisible = true;
@@ -80,6 +98,8 @@ export const useAuthenticationStore = defineStore('authentication', {
     },
     state: () => {
         return {
+            // Kept in localStorage too, so a reload can restore the session
+            token: storageUtils.tryToLoadTokenFromStorage(),
             isAuthenticated: false,
             loading: false,
             alertVisible: false,
@@ -89,13 +109,8 @@ export const useAuthenticationStore = defineStore('authentication', {
         };
     },
     getters: {
-        actor() {
-            const token = storageUtils.tryToLoadTokenFromStorage();
-
-            if (token !== null) {
-                return jwtUtils.parseActorToken(token);
-            }
-            return null;
+        actor(state) {
+            return jwtUtils.parseActorToken(state.token);
         },
     },
 });
@@ -466,3 +481,9 @@ export const useApplicationsStore = defineStore('application', {
         };
     },
 });
+
+function resetDataStores() {
+    for (const useStore of [useRolesStore, useUsersStore, useSessionsStore, useKeysStore, useApplicationsStore]) {
+        useStore().$reset();
+    }
+}
