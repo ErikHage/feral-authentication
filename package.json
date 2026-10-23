@@ -23,13 +23,13 @@
     "webfontloader": "^1.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@feral-auth/ts-simple-dsl": "0.0.1",
     "@pinia/testing": "^0.1.7",
     "@playwright/test": "^1.64.1",
     "@vitejs/plugin-vue": "^5.2.4",
     "@vitest/coverage-v8": "^5.0.5",
     "@vue/test-utils": "^2.5.1",
-    "@eslint/js": "^10.0.1",
     "eslint": "^10.13.0",
     "eslint-plugin-vue": "^10.11.1",
     "globals": "^17.13.0",
@@ -43,5 +43,9 @@
     "last 2 versions",
     "not dead",
     "not ie 11"
-  ]
+  ],
+  "allowScripts": {
+    "esbuild": false,
+    "vue-demi": false
+  }
 }
