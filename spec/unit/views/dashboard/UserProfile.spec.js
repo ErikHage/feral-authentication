@@ -1,7 +1,7 @@
 import { flushPromises } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { mountWithPlugins } from '../../../helpers/mount';
-import { buttonLabelled, fieldLabelled, inputLabelled } from '../../../helpers/fields';
+import { buttonLabelled, fieldLabelled, inputLabelled, typeInto } from '../../../helpers/fields';
 import UserProfile from '@/views/dashboard/UserProfile.vue';
 import { useAuthenticationStore, useUsersStore } from '@/store';
 
@@ -39,11 +39,6 @@ async function mountProfile({ state = {} } = {}) {
     await flushPromises();
 
     return { wrapper, usersStore };
-}
-
-async function typeInto(wrapper, label, value) {
-    await inputLabelled(wrapper, label).setValue(value);
-    await flushPromises();
 }
 
 describe('UserProfile', () => {
@@ -111,26 +106,13 @@ describe('UserProfile', () => {
             expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeUndefined();
         });
 
-        it('is not possible with an empty last name', async () => {
+        it.each(['First Name', 'Last Name'])('is not possible with an empty %s', async label => {
             const { wrapper } = await mountProfile();
 
-            await typeInto(wrapper, 'Last Name', '');
+            await typeInto(wrapper, label, '');
 
             expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
-            expect(fieldLabelled(wrapper, 'Last Name').text()).toContain('Field is required');
-        });
-
-        it('is still possible with an empty first name', async () => {
-            // current behavior: checkValidity runs on the input event, before Vuetify has
-            // updated the field it came from. It validates First Name first, so it sees the
-            // old value; Last Name is validated after an await and sees the new one. So
-            // clearing the first name shows the error but leaves Save enabled
-            const { wrapper } = await mountProfile();
-
-            await typeInto(wrapper, 'First Name', '');
-
-            expect(fieldLabelled(wrapper, 'First Name').text()).toContain('Field is required');
-            expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeUndefined();
+            expect(fieldLabelled(wrapper, label).text()).toContain('Field is required');
         });
 
         it('saves the new name, then reloads', async () => {

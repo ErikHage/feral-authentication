@@ -1,7 +1,7 @@
 import { flushPromises } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { mountWithPlugins } from '../../../helpers/mount';
-import { buttonLabelled, fieldLabelled, inputLabelled } from '../../../helpers/fields';
+import { buttonLabelled, fieldLabelled, inputLabelled, typeInto } from '../../../helpers/fields';
 import { dialogTitled, findDialog } from '../../../helpers/dialogs';
 import ApplicationDetails from '@/views/admin/ApplicationDetails.vue';
 import { useApplicationsStore, useKeysStore } from '@/store';
@@ -46,11 +46,6 @@ async function mountDetails(applicationId = 'app-1', { state = {} } = {}) {
 
 async function click(target) {
     await target.trigger('click');
-    await flushPromises();
-}
-
-async function typeInto(wrapper, label, value) {
-    await inputLabelled(wrapper, label).setValue(value);
     await flushPromises();
 }
 
@@ -138,6 +133,7 @@ describe('ApplicationDetails', () => {
         });
 
         it.each([
+            ['Application Name', 'applicationName is required'],
             ['Application Landing Page', 'applicationUrl is required'],
             ['Roles Scope', 'scope is required'],
         ])('is not possible with an empty %s', async (label, message) => {
@@ -147,18 +143,6 @@ describe('ApplicationDetails', () => {
 
             expect(fieldLabelled(wrapper, label).text()).toContain(message);
             expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
-        });
-
-        it('is still possible with an empty name', async () => {
-            // current behavior: as on the profile page, checkValidity runs before Vuetify
-            // has updated the field typed in, and validates the name first, so it sees the
-            // old value. The error shows, but Save stays enabled
-            const { wrapper } = await mountDetails();
-
-            await typeInto(wrapper, 'Application Name', '');
-
-            expect(fieldLabelled(wrapper, 'Application Name').text()).toContain('applicationName is required');
-            expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeUndefined();
         });
 
         it('saves nothing, only reloads', async () => {

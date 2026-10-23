@@ -41,8 +41,6 @@ test.describe('Profile page', () => {
         await profilePage.checkShowsUser('user: bob', 'firstName: Robert');
     });
 
-    // The unit suite pins Save as staying enabled here (backlog A9). In a
-    // browser it doesn't: Vuetify has validated by the time the page checks
     test('keeps Save disabled while the first name is empty', async ({ profilePage }) => {
         await profilePage.changeFirstName('firstName: Robert');
 

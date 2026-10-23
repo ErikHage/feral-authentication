@@ -46,8 +46,6 @@ test.describe('Applications admin page', () => {
         await applicationDetailsPage.checkShowsApplication('application: game', 'key: second', 'previousKey: first');
     });
 
-    // The unit suite pins Save as staying enabled here (backlog A21, the same
-    // cause as A9). In a browser it doesn't
     test('keeps Save disabled while the name is empty', async ({
         keysAdminPage, applicationsAdminPage, applicationDetailsPage,
     }) => {
