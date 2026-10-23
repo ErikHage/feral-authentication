@@ -21,7 +21,7 @@ const roles = [
 ];
 
 async function mountProfile({ state = {} } = {}) {
-    // A copy: the form edits the stored user in place (see below)
+    // A copy, so a test that changes the stored user can't change the next one's
     const pinia = createTestingPinia({ initialState: { user: { users: [{ ...alice }], ...state } } });
     const usersStore = useUsersStore(pinia);
     const authenticationStore = useAuthenticationStore(pinia);
@@ -106,6 +106,15 @@ describe('UserProfile', () => {
             expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeUndefined();
         });
 
+        it('is not possible once the name is typed back as it was', async () => {
+            const { wrapper } = await mountProfile();
+            await typeInto(wrapper, 'First Name', 'Alicia');
+
+            await typeInto(wrapper, 'First Name', 'Alice');
+
+            expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
+        });
+
         it.each(['First Name', 'Last Name'])('is not possible with an empty %s', async label => {
             const { wrapper } = await mountProfile();
 
@@ -128,15 +137,13 @@ describe('UserProfile', () => {
             expect(usersStore.fetchUsers).toHaveBeenCalledTimes(2);
         });
 
-        it('changes the stored user as the name is typed, before saving', async () => {
-            // current behavior: the form edits the store's user object directly, so the
-            // heading (and the users list) change before anything is saved
+        it('keeps the stored user, and the heading, as they are until saved', async () => {
             const { wrapper, usersStore } = await mountProfile();
 
             await typeInto(wrapper, 'First Name', 'Alicia');
 
-            expect(wrapper.find('h2').text()).toBe('Alicia Smith');
-            expect(usersStore.users[0].firstName).toBe('Alicia');
+            expect(wrapper.find('h2').text()).toBe('Alice Smith');
+            expect(usersStore.users[0].firstName).toBe('Alice');
             expect(usersStore.updateUser).not.toHaveBeenCalled();
         });
     });

@@ -1,6 +1,6 @@
 <template>
   <v-container v-if="userDetails">
-    <h2 class="headline">{{ userDetails.firstName }} {{ userDetails.lastName }}</h2>
+    <h2 class="headline">{{ savedDetails.firstName }} {{ savedDetails.lastName }}</h2>
     <v-row class="mt-3">
       <v-col cols="2">
       </v-col>
@@ -13,47 +13,45 @@
                 Personal Details
               </v-card-title>
               <v-card-text class="ma-3">
-                <v-text-field
-                    :rules="[rules.firstName]"
-                    v-model="userDetails.firstName"
-                    label="First Name"
-                    ref="firstNameField"
-                    @input="checkValidity"
-                ></v-text-field>
-                <v-text-field
-                    :rules="[rules.lastName]"
-                    v-model="userDetails.lastName"
-                    label="Last Name"
-                    ref="lastNameField"
-                    @input="checkValidity"
-                ></v-text-field>
-                <v-text-field
-                    disabled
-                    v-model="userDetails.username"
-                    label="Username"
-                ></v-text-field>
-                <v-text-field
-                    disabled
-                    v-model="userDetails.email"
-                    label="Email"
-                ></v-text-field>
-                <v-text-field
-                    disabled
-                    v-model="userDetails.lastLogin"
-                    label="Last Login"
-                ></v-text-field>
-                <v-text-field
-                    disabled
-                    v-model="userDetails.isSuspended"
-                    label="Suspended"
-                ></v-text-field>
+                <v-form v-model="formValid">
+                  <v-text-field
+                      :rules="[rules.firstName]"
+                      v-model="userDetails.firstName"
+                      label="First Name"
+                  ></v-text-field>
+                  <v-text-field
+                      :rules="[rules.lastName]"
+                      v-model="userDetails.lastName"
+                      label="Last Name"
+                  ></v-text-field>
+                  <v-text-field
+                      disabled
+                      v-model="userDetails.username"
+                      label="Username"
+                  ></v-text-field>
+                  <v-text-field
+                      disabled
+                      v-model="userDetails.email"
+                      label="Email"
+                  ></v-text-field>
+                  <v-text-field
+                      disabled
+                      v-model="userDetails.lastLogin"
+                      label="Last Login"
+                  ></v-text-field>
+                  <v-text-field
+                      disabled
+                      v-model="userDetails.isSuspended"
+                      label="Suspended"
+                  ></v-text-field>
+                </v-form>
 
                 <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
-                    :disabled="!isInputValid"
+                    :disabled="!formValid || !isChanged"
                     @click="updateUserDetails">
                   Save
                 </v-btn>
@@ -117,6 +115,8 @@ export default {
 
   data() {
     return {
+      // The stored user, and the copy the form edits until Save
+      savedDetails: null,
       userDetails: null,
       userRoles: [],
       userRolesMap: {},
@@ -124,11 +124,17 @@ export default {
         firstName: (v) => !!v || 'Field is required',
         lastName: (v) => !!v || 'Field is required',
       },
-      isInputValid: false,
+      // Vuetify's: null until every field has been checked, then true or false
+      formValid: null,
     };
   },
 
   computed: {
+    isChanged() {
+      return ['firstName', 'lastName']
+          .some(field => this.userDetails[field] !== this.savedDetails[field]);
+    },
+
     ...mapState(useAuthenticationStore, [
       'actor',
     ]),
@@ -151,14 +157,8 @@ export default {
       await this.selectUser(this.actor.userId);
       this.userRoles = this.selectedUser.roles;
       this.userRolesMap = this.selectedUser.rolesByScope;
-      this.userDetails = this.selectedUser.details;
-    },
-
-    async checkValidity() {
-      const v1 = await this.$refs.firstNameField.validate();
-      const v2 = await this.$refs.lastNameField.validate();
-      console.log('setting isInputValid to', v1.length + v2.length === 0);
-      this.isInputValid = v1.length + v2.length === 0;
+      this.savedDetails = this.selectedUser.details;
+      this.userDetails = { ...this.savedDetails };
     },
 
     async updateUserDetails() {

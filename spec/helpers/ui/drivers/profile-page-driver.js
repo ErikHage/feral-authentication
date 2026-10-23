@@ -1,5 +1,5 @@
 import {
-    expectDisabled, expectEventually, expectText, expectThat, expectUrl, expectValue, expectVisible,
+    expectDisabled, expectEnabled, expectEventually, expectText, expectThat, expectUrl, expectValue, expectVisible,
 } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { urlOf } from './urls';
@@ -51,12 +51,12 @@ export function createProfilePageDriver(page, serviceCalls) {
             await expectDisabled(saveButton, what);
         },
 
-        /** Today's behaviour while editing: the heading follows the First Name field, unsaved. */
-        async headingFollowsTheFirstNameField(lastName) {
+        async headingKeepsTheSavedName(firstName, lastName) {
             const what = 'editing the first name, before saving';
-            const typed = await field('First Name').inputValue();
 
-            await expectText(heading, `${typed} ${lastName}`, what);
+            // Save is enabled by the edit, so the page has re-rendered by then
+            await expectEnabled(saveButton, what);
+            await expectText(heading, `${firstName} ${lastName}`, what);
         },
 
         async showsTheNextUser(username, previousUsername) {

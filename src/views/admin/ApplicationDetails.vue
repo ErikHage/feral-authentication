@@ -7,55 +7,51 @@
         <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
         <v-card class="mt-3">
           <v-card-text>
-            <v-text-field
-                disabled
-                v-model="applicationDetails.applicationId"
-                label="Application Id"
-            ></v-text-field>
-            <v-text-field
-                :rules="[rules.applicationName]"
-                v-model="applicationDetails.applicationName"
-                label="Application Name"
-                ref="applicationNameField"
-                @input="checkValidity"
-            ></v-text-field>
-            <v-text-field
-                :rules="[rules.applicationUrl]"
-                v-model="applicationDetails.applicationUrl"
-                label="Application Landing Page"
-                ref="applicationUrl"
-                @input="checkValidity"
-            ></v-text-field>
-            <v-text-field
-                :rules="[rules.scope]"
-                v-model="applicationDetails.scope"
-                label="Roles Scope"
-                ref="scope"
-                @input="checkValidity"
-            ></v-text-field>
-            <v-text-field
-                disabled
-                v-model="applicationDetails.keyPairId"
-                label="Key Pair Id"
-            ></v-text-field>
-            <v-text-field
-                v-if="currentKeyDetails"
-                disabled
-                v-model="currentKeyDetails.keyName"
-                label="Key Pair Name"
-            ></v-text-field>
-            <v-text-field
-                v-if="applicationDetails.previousKeyPairId"
-                disabled
-                v-model="applicationDetails.previousKeyPairId"
-                label="Previous Key Pair Id"
-            ></v-text-field>
-            <v-text-field
-                v-if="previousKeyDetails"
-                disabled
-                v-model="previousKeyDetails.keyName"
-                label="Previous Key Pair Name"
-            ></v-text-field>
+            <v-form v-model="formValid">
+              <v-text-field
+                  disabled
+                  v-model="applicationDetails.applicationId"
+                  label="Application Id"
+              ></v-text-field>
+              <v-text-field
+                  :rules="[rules.applicationName]"
+                  v-model="applicationDetails.applicationName"
+                  label="Application Name"
+              ></v-text-field>
+              <v-text-field
+                  :rules="[rules.applicationUrl]"
+                  v-model="applicationDetails.applicationUrl"
+                  label="Application Landing Page"
+              ></v-text-field>
+              <v-text-field
+                  :rules="[rules.scope]"
+                  v-model="applicationDetails.scope"
+                  label="Roles Scope"
+              ></v-text-field>
+              <v-text-field
+                  disabled
+                  v-model="applicationDetails.keyPairId"
+                  label="Key Pair Id"
+              ></v-text-field>
+              <v-text-field
+                  v-if="currentKeyDetails"
+                  disabled
+                  v-model="currentKeyDetails.keyName"
+                  label="Key Pair Name"
+              ></v-text-field>
+              <v-text-field
+                  v-if="applicationDetails.previousKeyPairId"
+                  disabled
+                  v-model="applicationDetails.previousKeyPairId"
+                  label="Previous Key Pair Id"
+              ></v-text-field>
+              <v-text-field
+                  v-if="previousKeyDetails"
+                  disabled
+                  v-model="previousKeyDetails.keyName"
+                  label="Previous Key Pair Name"
+              ></v-text-field>
+            </v-form>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -68,7 +64,7 @@
               Reset
             </v-btn>
             <v-btn
-                :disabled="!isInputValid"
+                :disabled="!formValid || !isChanged"
                 @click="updateApplicationDetails">
               Save
             </v-btn>
@@ -117,11 +113,14 @@ export default {
   data() {
     return {
       dialog: false,
+      // The stored application, and the copy the form edits until Save
+      savedDetails: null,
       applicationDetails: null,
       currentKeyDetails: null,
       previousKeyDetails: null,
       rotateKeysSelect: [],
-      isInputValid: false,
+      // Vuetify's: null until every field has been checked, then true or false
+      formValid: null,
       form: {
         newKeyId: '',
       },
@@ -134,6 +133,11 @@ export default {
   },
 
   computed: {
+    isChanged() {
+      return ['applicationName', 'applicationUrl', 'scope']
+          .some(field => this.applicationDetails[field] !== this.savedDetails[field]);
+    },
+
     ...mapState(useApplicationsStore, [
       'selectedApplication', 'loading', 'alertType', 'alertMessage', 'alertVisible',
     ]),
@@ -174,26 +178,19 @@ export default {
       await this.fetchKeys();
       await this.fetchApplications();
       await this.selectApplication(this.$route.params.id);
-      this.applicationDetails = this.selectedApplication.applicationDetails;
+      this.savedDetails = this.selectedApplication.applicationDetails;
+      // An unknown id has nothing to copy, so the page stays hidden
+      this.applicationDetails = this.savedDetails && { ...this.savedDetails };
 
       this.currentKeyDetails = this.availableKeys.find(key => key.keyId === this.applicationDetails.keyPairId);
       this.previousKeyDetails = this.availableKeys.find(key => key.keyId === this.applicationDetails.previousKeyPairId);
       this.rotateKeysSelect = this.availableKeys.filter(key => key.keyId !== this.applicationDetails.keyPairId);
-
-      this.isInputValid = false;
 
       console.log('refreshData', {
         currentKey: this.currentKeyDetails,
         prevKey: this.previousKeyDetails,
         app: this.applicationDetails,
       });
-    },
-
-    async checkValidity() {
-      const nameValidation = await this.$refs.applicationNameField.validate();
-      const urlValidation = await this.$refs.applicationUrl.validate();
-      const scopeValidation = await this.$refs.scope.validate();
-      this.isInputValid = nameValidation.length + urlValidation.length + scopeValidation.length === 0;
     },
 
     async updateApplicationDetails() {

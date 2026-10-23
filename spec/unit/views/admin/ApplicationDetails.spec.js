@@ -21,7 +21,7 @@ const neverRotated = {
 };
 
 async function mountDetails(applicationId = 'app-1', { state = {} } = {}) {
-    // Copies: the form edits the selected application in place
+    // Copies, so a test that changes a stored application can't change the next one's
     const pinia = createTestingPinia({
         initialState: {
             application: { applications: [{ ...rotated }, { ...neverRotated }], ...state },
@@ -117,6 +117,15 @@ describe('ApplicationDetails', () => {
         expect(applicationsStore.selectApplication).toHaveBeenCalledTimes(2);
     });
 
+    it('puts back the saved details when Reset is pressed', async () => {
+        const { wrapper } = await mountDetails();
+        await typeInto(wrapper, 'Roles Scope', 'feral-2');
+
+        await click(buttonLabelled(wrapper, 'Reset'));
+
+        expect(inputLabelled(wrapper, 'Roles Scope').element.value).toBe('feral');
+    });
+
     describe('saving', () => {
         it('is not possible before anything is changed', async () => {
             const { wrapper } = await mountDetails();
@@ -130,6 +139,15 @@ describe('ApplicationDetails', () => {
             await typeInto(wrapper, 'Roles Scope', 'feral-2');
 
             expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeUndefined();
+        });
+
+        it('is not possible once the change is typed back as it was', async () => {
+            const { wrapper } = await mountDetails();
+            await typeInto(wrapper, 'Roles Scope', 'feral-2');
+
+            await typeInto(wrapper, 'Roles Scope', 'feral');
+
+            expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
         });
 
         it.each([
@@ -157,13 +175,12 @@ describe('ApplicationDetails', () => {
             expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
         });
 
-        it('changes the stored application as it is typed, before saving', async () => {
-            // current behavior: the form edits the store's application object directly
+        it('keeps the stored application as it is until saved', async () => {
             const { wrapper, applicationsStore } = await mountDetails();
 
             await typeInto(wrapper, 'Roles Scope', 'feral-2');
 
-            expect(applicationsStore.applications[0].scope).toBe('feral-2');
+            expect(applicationsStore.applications[0].scope).toBe('feral');
         });
     });
 

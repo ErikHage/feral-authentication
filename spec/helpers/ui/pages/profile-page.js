@@ -59,7 +59,9 @@ export function createProfilePage(world, driver) {
         async checkHeadingIsUnchanged(...args) {
             const params = parseDslArgs(args, { user: user() });
 
-            await driver.headingFollowsTheFirstNameField(world.userNamed(params.user).lastName);
+            const { firstName, lastName } = world.userNamed(params.user);
+
+            await driver.headingKeepsTheSavedName(firstName, lastName);
         },
 
         /**

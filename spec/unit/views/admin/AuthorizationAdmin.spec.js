@@ -199,34 +199,35 @@ describe('AuthorizationAdmin', () => {
             expect(usersStore[set]).not.toHaveBeenCalled();
         });
 
-        it('saves nothing and deselects the user when cancelled', async () => {
+        it('saves nothing and puts back the saved ones when cancelled, keeping the user', async () => {
             const { wrapper, usersStore } = await mountPage();
             await chooseUser(wrapper, 'user-2');
+            await click(cardTitled(wrapper, card).find('.v-chip'));
             await choose(wrapper, select, other);
             await click(plusButton(cardTitled(wrapper, card)));
+            await choose(wrapper, select, held);
 
             await click(buttonLabelled(cardTitled(wrapper, card), 'Cancel'));
 
             expect(usersStore[set]).not.toHaveBeenCalled();
             expect(usersStore[clear]).not.toHaveBeenCalled();
-            expect(cardTitled(wrapper, card)).toBeUndefined();
+            expect(chips(cardTitled(wrapper, card))).toEqual([heldChip]);
+            expect(selectLabelled(wrapper, select).props('modelValue')).toBeNull();
+            expect(selectLabelled(wrapper, 'Select User').props('modelValue')).toBe('user-2');
         });
     });
 
-    it('adds to the selected user in the store before saving', async () => {
-        // current behavior: the chips are the store's own arrays, so adding one changes
-        // selectedUser before anything is saved
+    it('keeps the selected user in the store as it is until saved', async () => {
         const { wrapper, usersStore } = await mountPage();
         await chooseUser(wrapper, 'user-2');
         await choose(wrapper, 'Select Role To Add', harvestUser);
 
         await click(plusButton(cardTitled(wrapper, 'Manage Roles')));
 
-        expect(usersStore.selectedUser.roles).toEqual([feralAdmin, harvestUser]);
+        expect(usersStore.selectedUser.roles).toEqual([feralAdmin]);
     });
 
-    it('cancelling either card discards the changes to both', async () => {
-        // current behavior: both Cancel buttons reset the whole page
+    it("cancelling one card keeps the other card's changes", async () => {
         const { wrapper, usersStore } = await mountPage();
         await chooseUser(wrapper, 'user-2');
         await choose(wrapper, 'Select Role To Add', harvestUser);
@@ -234,7 +235,7 @@ describe('AuthorizationAdmin', () => {
 
         await click(buttonLabelled(cardTitled(wrapper, 'Manage Applications'), 'Cancel'));
 
-        expect(cardTitled(wrapper, 'Manage Roles')).toBeUndefined();
+        expect(chips(cardTitled(wrapper, 'Manage Roles'))).toEqual(['feral/admin', 'harvest/user']);
         expect(usersStore.setUserRoles).not.toHaveBeenCalled();
     });
 });

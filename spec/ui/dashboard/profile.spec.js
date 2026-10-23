@@ -44,9 +44,6 @@ test.describe('Profile page', () => {
         await profilePage.checkCannotSave();
     });
 
-    // DocumentsCurrentBehavior: the form edits the stored user itself, so the
-    // heading follows the First Name field as it's typed, before saving
-    // (backlog A10). Should keep the saved name until Save.
     test('keeps the saved name in the heading until Save', async ({ profilePage }) => {
         await profilePage.changeFirstName('firstName: Robert');
 

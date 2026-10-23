@@ -185,8 +185,19 @@ export default {
 
     async onSelectUserChange(userId) {
       await this.selectUser(userId);
-      this.selectedRoles = this.selectedUser.roles;
-      this.selectedApplications = this.selectedUser.applications;
+      this.resetRoles();
+      this.resetApplications();
+    },
+
+    // Each card edits a copy of the user's list, until its Save or Cancel
+    resetRoles() {
+      this.selectedRole = null;
+      this.selectedRoles = [...this.selectedUser.roles];
+    },
+
+    resetApplications() {
+      this.selectedApplication = null;
+      this.selectedApplications = [...this.selectedUser.applications];
     },
 
     // ROLE METHODS
@@ -206,7 +217,7 @@ export default {
     },
 
     cancelUpdatingRoles() {
-      this.reset();
+      this.resetRoles();
     },
 
     async saveRoleUpdates() {
@@ -239,7 +250,7 @@ export default {
     },
 
     cancelUpdatingApplications() {
-      this.reset();
+      this.resetApplications();
     },
 
     async saveApplicationUpdates() {

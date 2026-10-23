@@ -27,10 +27,16 @@ export function createAuthorizationAdminPageDriver(page) {
         await choose(userSelect, username);
     }
 
-    /** Adds `option` in the card as a chip, and saves. */
-    async function grant(cardLocator, option) {
+    /** Adds `option` in the card as a chip, without saving. */
+    async function add(cardLocator, option) {
         await choose(cardLocator.getByRole('combobox'), option);
         await cardLocator.locator('.mdi-plus').click();
+        await expectVisible(chipIn(cardLocator, option), `adding ${option}`);
+    }
+
+    /** Adds `option` in the card as a chip, and saves. */
+    async function grant(cardLocator, option) {
+        await add(cardLocator, option);
         await cardLocator.getByRole('button', { name: 'Save' }).click();
         // Saving deselects the user, and the cards close. Wait for that, so
         // the next step's choice isn't cleared under it
@@ -52,6 +58,34 @@ export function createAuthorizationAdminPageDriver(page) {
         async grantApplication(username, application) {
             await selectUser(username);
             await grant(applicationsCard, application);
+        },
+
+        async chooseUser(username) {
+            await selectUser(username);
+        },
+
+        async addApplication(application) {
+            await add(applicationsCard, application);
+        },
+
+        async addRole(role) {
+            await add(rolesCard, role);
+        },
+
+        async cancelRoles() {
+            await rolesCard.getByRole('button', { name: 'Cancel' }).click();
+        },
+
+        async dropsTheRoleKeepingTheUser(role) {
+            const what = `cancelling the role ${role}`;
+
+            // The chip was on screen, so its going is the sign Cancel is done
+            await expectCount(chipIn(rolesCard, role), 0, what);
+            await expectVisible(rolesCard, what);
+        },
+
+        async stillAddsApplication(application) {
+            await expectVisible(chipIn(applicationsCard, application), `keeping ${application} after the roles were cancelled`);
         },
 
         async showsRole(username, role) {
