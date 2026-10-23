@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useUsersStore } from '@/store';
 import usersApi from '@/api/users-api';
+import { httpError } from '../../helpers/http-errors';
 
 vi.mock('@/api/users-api', () => ({
     default: {
@@ -87,27 +88,26 @@ describe('useUsersStore', () => {
             expect(store.loading).toBe(false);
         });
 
-        it('shows a fixed message when it fails', async () => {
-            usersApi.fetchUsers.mockRejectedValue(new Error('Request failed with status code 403'));
+        it('says why when it fails', async () => {
+            usersApi.fetchUsers.mockRejectedValue(httpError(403));
 
             await store.fetchUsers();
 
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('error loading users');
+            expect(store.alertMessage).toBe("Couldn't load the users: you don't have permission");
         });
     });
 
-    // Each of these shows a fixed message, not the error's
     describe.each([
-        ['addUser', [alice], [alice], 'User added successfully!', 'error adding user'],
-        ['updateUser', [alice], [alice], 'User updated successfully!', 'error updating user'],
-        ['deleteUser', ['user-1'], ['user-1'], 'User deleted successfully.', 'error deleting user'],
-        ['setUserRoles', ['user-1', ['role-1']], ['user-1', ['role-1']], 'User Roles Updated!', 'error setting user roles'],
-        ['clearUserRoles', ['user-1'], ['user-1'], 'User Roles Updated!', 'error clearing user roles'],
-        ['setUserApplications', ['user-1', ['app-1']], ['user-1', ['app-1']], 'User Applications Updated!', 'error setting user applications'],
-        ['clearUserApplications', ['user-1'], ['user-1'], 'User Applications Updated!', 'error clearing user applications'],
-    ])('%s', (action, args, apiArgs, successMessage, errorMessage) => {
+        ['addUser', [alice], [alice], 'User added successfully!', "Couldn't add the user"],
+        ['updateUser', [alice], [alice], 'User updated successfully!', "Couldn't update the user"],
+        ['deleteUser', ['user-1'], ['user-1'], 'User deleted successfully.', "Couldn't delete the user"],
+        ['setUserRoles', ['user-1', ['role-1']], ['user-1', ['role-1']], 'User Roles Updated!', "Couldn't update the user's roles"],
+        ['clearUserRoles', ['user-1'], ['user-1'], 'User Roles Updated!', "Couldn't update the user's roles"],
+        ['setUserApplications', ['user-1', ['app-1']], ['user-1', ['app-1']], 'User Applications Updated!', "Couldn't update the user's applications"],
+        ['clearUserApplications', ['user-1'], ['user-1'], 'User Applications Updated!', "Couldn't update the user's applications"],
+    ])('%s', (action, args, apiArgs, successMessage, whatFailed) => {
         it('calls the service with the stored token and says it succeeded', async () => {
             usersApi[action].mockResolvedValue({});
 
@@ -118,13 +118,13 @@ describe('useUsersStore', () => {
             expect(store.alertMessage).toBe(successMessage);
         });
 
-        it('says it failed', async () => {
-            usersApi[action].mockRejectedValue(new Error('Request failed with status code 500'));
+        it('says what failed, and why', async () => {
+            usersApi[action].mockRejectedValue(httpError(500));
 
             await store[action](...args);
 
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe(errorMessage);
+            expect(store.alertMessage).toBe(`${whatFailed}: the service failed (500)`);
         });
     });
 
@@ -175,13 +175,15 @@ describe('useUsersStore', () => {
             expect(store.selectedUser.details).toEqual(carol);
         });
 
-        it('fails outright when the roles cannot be fetched', async () => {
-            // current behavior: unlike the other actions, there's no catch and no alert
-            usersApi.fetchUserRoles.mockRejectedValue(new Error('Request failed with status code 403'));
+        it('selects nothing, and says why, when the roles cannot be fetched', async () => {
+            store.$patch({ selectedUser: { details: bob } });
+            usersApi.fetchUserRoles.mockRejectedValue(httpError(403));
 
-            await expect(store.selectUser('user-1')).rejects.toThrow('Request failed with status code 403');
+            await store.selectUser('user-1');
+
             expect(store.selectedUser).toBeNull();
-            expect(store.alertVisible).toBe(false);
+            expect(store.alertType).toBe('error');
+            expect(store.alertMessage).toBe("Couldn't load the user: you don't have permission");
         });
     });
 

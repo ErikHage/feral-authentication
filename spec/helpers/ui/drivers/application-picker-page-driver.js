@@ -1,4 +1,4 @@
-import { expectCount, expectEventually, expectThat, expectUrl } from './assertions';
+import { expectCount, expectEventually, expectThat, expectUrl, expectVisible } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { urlOf } from './urls';
 
@@ -9,6 +9,7 @@ export function createApplicationPickerPageDriver(page, serviceCalls) {
     const card = name => main.getByText(name, { exact: true });
     const logos = main.getByRole('img', { name: 'Logo' });
     const listRefused = () => serviceCalls.wereAnswered('GET', /\/users\/current\/applications$/, 403);
+    const refusal = main.getByRole('alert').filter({ hasText: "Couldn't load your applications: you don't have permission" });
 
     return {
         ...createRoutedPageDriver(page, {
@@ -20,13 +21,14 @@ export function createApplicationPickerPageDriver(page, serviceCalls) {
         /**
          * Today's behaviour for a user without the admin role: the service
          * refuses them the list of their applications, and the page shows
-         * none, with no error.
+         * none, and says why.
          */
-        async offersNoneAsTheListIsRefused(name) {
+        async offersNoneAndSaysTheListIsRefused(name) {
             const what = `offering ${name} to a user without the admin role`;
 
             await expectEventually(listRefused, 'the service to refuse the list of applications (403)', what);
             await expectUrl(page, urlOf('dashboard/applications'), what);
+            await expectVisible(refusal, what);
             const shown = await card(name).count();
             expectThat(shown === 0, `no card for ${name}`, `${shown} shown`, what);
         },

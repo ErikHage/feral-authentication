@@ -104,6 +104,19 @@ describe('AuthorizationAdmin', () => {
         expect(chips(cardTitled(wrapper, 'Manage Roles'))).toEqual(['feral/admin']);
     });
 
+    it("shows nothing to manage when the chosen user can't be loaded", async () => {
+        const { wrapper, usersStore } = await mountPage();
+        // As the store leaves it when the load fails
+        usersStore.selectUser.mockImplementation(async () => { usersStore.selectedUser = null; });
+
+        // The select's handler, awaited, so an error in it fails the test
+        await wrapper.vm.onSelectUserChange('user-2');
+        await flushPromises();
+
+        expect(cardTitled(wrapper, 'Manage Applications')).toBeUndefined();
+        expect(cardTitled(wrapper, 'Manage Roles')).toBeUndefined();
+    });
+
     it('names roles by scope and title', async () => {
         const { wrapper } = await mountPage();
         await chooseUser(wrapper, 'user-2');

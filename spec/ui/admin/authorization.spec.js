@@ -76,7 +76,8 @@ test.describe('Authorization admin page', () => {
         // DocumentsCurrentBehavior: every service endpoint past login, verify,
         // single sign-on and logout needs feral/admin, including the user's own
         // applications (backlog A30). The service refuses (403), and the page
-        // shows no applications and no error (A11). Should show the granted one.
+        // shows no applications, and says bob doesn't have permission. Should
+        // show the granted one.
         test('offers the applications granted to them', async ({
             usersAdminPage, authorizationAdminPage, loginPage, applicationPickerPage,
         }) => {
@@ -92,7 +93,8 @@ test.describe('Authorization admin page', () => {
 
         // DocumentsCurrentBehavior: the service refuses the users list and the
         // user's own details (403, A30). The page shows nothing but its
-        // navigation, and no error (A18). Should show bob's details.
+        // navigation and an alert saying bob doesn't have permission. Should
+        // show bob's details.
         test('shows them their profile', async ({ usersAdminPage, loginPage, applicationPickerPage, profilePage }) => {
             await usersAdminPage.appBar.logOut();
             await loginPage.checkIsShown();
@@ -105,8 +107,8 @@ test.describe('Authorization admin page', () => {
         });
 
         // DocumentsCurrentBehavior: the service refuses the list (403, A30), and
-        // the page shows "Request failed with status code 403". Should list the
-        // session bob is logged in with.
+        // the page says bob doesn't have permission. Should list the session
+        // bob is logged in with.
         test('lists their sessions', async ({ usersAdminPage, loginPage, applicationPickerPage, sessionsPage }) => {
             await usersAdminPage.appBar.logOut();
             await loginPage.checkIsShown();

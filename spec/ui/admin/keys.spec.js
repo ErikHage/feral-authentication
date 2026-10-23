@@ -23,9 +23,6 @@ test.describe('Keys admin page', () => {
         await keysAdminPage.checkKeyIsListed('key: signing');
     });
 
-    // DocumentsCurrentBehavior: the expiration is shifted by the UTC offset
-    // twice, so 10:00 in New York is stored and listed as 18:00Z (backlog A1).
-    // Should be 14:00Z.
     test('lists a key\'s expiration as entered', async ({ keysAdminPage }) => {
         await keysAdminPage.generateKey('key: signing');
         await keysAdminPage.checkKeyIsListed('key: signing');

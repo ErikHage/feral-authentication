@@ -35,24 +35,19 @@ export function createKeysAdminPageDriver(page) {
             await expectVisible(table.row(keyName), `listing the key ${keyName}`);
         },
 
-        /**
-         * Today's behaviour: the expiration entered in local time is shifted
-         * by the UTC offset twice, once in the browser's conversion to UTC
-         * and once more by the app's own, and the table lists the result.
-         */
-        async listsTheExpirationShiftedTwice({ keyName, expiration }) {
+        /** The table lists the expiration entered in local time as that moment in UTC. */
+        async listsTheExpirationAsEntered({ keyName, expiration }) {
             const what = `listing the expiration of the key ${keyName}`;
             // The browser's own reading of the local time, and its offset
             const { inUtc, offsetMinutes } = await page.evaluate(local => {
                 const date = new Date(local);
                 return { inUtc: date.toISOString(), offsetMinutes: date.getTimezoneOffset() };
             }, expiration);
-            const shiftedTwice = new Date(Date.parse(inUtc) + offsetMinutes * 60_000).toISOString();
 
-            expectThat(offsetMinutes !== 0, 'a browser timezone off UTC, or a second shift is invisible',
+            expectThat(offsetMinutes !== 0, 'a browser timezone off UTC, or a wrong shift is invisible',
                 'UTC', what);
             await table.showAllRows();
-            await expectText(expirationOf(keyName), shiftedTwice, what);
+            await expectText(expirationOf(keyName), inUtc, what);
         },
 
         async openGenerateDialog() {

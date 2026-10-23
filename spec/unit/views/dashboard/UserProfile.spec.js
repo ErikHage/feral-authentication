@@ -148,6 +148,21 @@ describe('UserProfile', () => {
         });
     });
 
+    it("shows only the alert when the user can't be loaded", async () => {
+        const pinia = createTestingPinia({
+            initialState: {
+                user: { alertVisible: true, alertType: 'error', alertMessage: "Couldn't load the user: you don't have permission" },
+            },
+        });
+        useAuthenticationStore(pinia).actor = { userId: 'user-1', sessionId: 'session-1' };
+
+        const wrapper = mountWithPlugins(UserProfile, { global: { plugins: [pinia] } });
+        await flushPromises();
+
+        expect(wrapper.find('h2').exists()).toBe(false);
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load the user: you don't have permission");
+    });
+
     it('shows the users store alert', async () => {
         const { wrapper } = await mountProfile({
             state: { alertVisible: true, alertType: 'success', alertMessage: 'User updated successfully!' },

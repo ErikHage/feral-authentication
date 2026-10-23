@@ -26,8 +26,8 @@ test.describe('Roles admin page', () => {
     });
 
     // DocumentsCurrentBehavior: the service answers 500 (pinned in its own
-    // acceptance suite), and the page shows the HTTP client's "Request failed
-    // with status code 500". Should say the role already exists.
+    // acceptance suite), so the page says the service failed (backlog A29).
+    // Should say the role already exists.
     test('rejects a second role with the same scope and title', async ({ rolesAdminPage }) => {
         await rolesAdminPage.addRole('role: tester');
         await rolesAdminPage.checkRoleIsListed('role: tester');

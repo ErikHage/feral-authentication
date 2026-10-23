@@ -30,7 +30,7 @@ export function createKeysAdminPage(world, driver) {
         async checkExpirationIsAsEntered(...args) {
             const params = parseDslArgs(args, { key: key() });
 
-            await driver.listsTheExpirationShiftedTwice(world.keyNamed(params.key));
+            await driver.listsTheExpirationAsEntered(world.keyNamed(params.key));
         },
 
         /** Opens the Generate dialog, and leaves it empty. No parameters. */

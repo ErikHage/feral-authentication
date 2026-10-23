@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { tokenFor } from '../../helpers/tokens';
 import { useAuthenticationStore, useUsersStore, useApplicationsStore } from '@/store';
 import authenticationApi from '@/api/authentication-api';
+import { httpError } from '../../helpers/http-errors';
 
 vi.mock('@/api/authentication-api', () => ({
     default: {
@@ -111,7 +112,8 @@ describe('useAuthenticationStore', () => {
         });
 
         it('shows the error and stores nothing when the login fails', async () => {
-            authenticationApi.login.mockRejectedValue(new Error('Error logging in'));
+            // The api wraps the HTTP client's error in its own
+            authenticationApi.login.mockRejectedValue(new Error('Error logging in', { cause: httpError(401) }));
 
             await store.authenticate('alice', 'wrong');
 
@@ -120,7 +122,15 @@ describe('useAuthenticationStore', () => {
             expect(store.showAppBar).toBe(false);
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Error logging in');
+            expect(store.alertMessage).toBe("Couldn't log in: the username or password is wrong");
+        });
+
+        it('says the same of an unknown username, which the service answers with 404', async () => {
+            authenticationApi.login.mockRejectedValue(new Error('Error logging in', { cause: httpError(404) }));
+
+            await store.authenticate('nobody', 'secret');
+
+            expect(store.alertMessage).toBe("Couldn't log in: the username or password is wrong");
         });
     });
 
@@ -150,13 +160,13 @@ describe('useAuthenticationStore', () => {
         });
 
         it('shows the error and opens nothing when it fails', async () => {
-            authenticationApi.loginToApplication.mockRejectedValue(new Error('Error logging in'));
+            authenticationApi.loginToApplication.mockRejectedValue(new Error('Error logging in', { cause: httpError(403) }));
 
             await store.loginToApplication('app-1', false);
 
             expect(window.open).not.toHaveBeenCalled();
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Error logging in');
+            expect(store.alertMessage).toBe("Couldn't open the application: you don't have permission");
         });
     });
 
@@ -194,7 +204,7 @@ describe('useAuthenticationStore', () => {
         });
 
         it('still logs out locally when the token has already expired', async () => {
-            authenticationApi.logout.mockRejectedValue(Object.assign(new Error('expired'), { status: 401 }));
+            authenticationApi.logout.mockRejectedValue(httpError(401));
 
             await store.logout();
 
@@ -203,15 +213,15 @@ describe('useAuthenticationStore', () => {
             expect(store.alertVisible).toBe(false);
         });
 
-        it('logs out locally without saying so when the service fails', async () => {
-            // current behavior: the error branch is an empty "show some error" placeholder
-            authenticationApi.logout.mockRejectedValue(Object.assign(new Error('boom'), { status: 500 }));
+        it('logs out locally, and warns that the session may live on, when the service fails', async () => {
+            authenticationApi.logout.mockRejectedValue(httpError(500));
 
             await store.logout();
 
             expect(localStorage.getItem(tokenKey)).toBeNull();
             expect(store.isAuthenticated).toBe(false);
-            expect(store.alertVisible).toBe(false);
+            expect(store.alertType).toBe('warning');
+            expect(store.alertMessage).toBe("Logged out here, but the service couldn't end the session: the service failed (500)");
         });
     });
 

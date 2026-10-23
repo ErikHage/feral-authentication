@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useKeysStore } from '@/store';
 import keysApi from '@/api/keys-api';
+import { httpError } from '../../helpers/http-errors';
 
 vi.mock('@/api/keys-api', () => ({
     default: {
@@ -74,25 +75,26 @@ describe('useKeysStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            keysApi.fetchKeys.mockRejectedValue(new Error('Request failed with status code 403'));
+            keysApi.fetchKeys.mockRejectedValue(httpError(403));
 
             await store.fetchKeys();
 
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 403');
+            expect(store.alertMessage).toBe("Couldn't load the keys: you don't have permission");
         });
     });
 
     describe('generateKey', () => {
-        it('generates the key with the stored token, without an alert', async () => {
+        it('generates the key with the stored token, and names it in the alert', async () => {
             keysApi.generateKey.mockResolvedValue(key1);
 
             await store.generateKey('first', '2027-01-01T00:00');
 
             expect(keysApi.generateKey).toHaveBeenCalledWith('a-token', 'first', '2027-01-01T00:00');
             expect(store.loading).toBe(false);
-            expect(store.alertVisible).toBe(false);
+            expect(store.alertType).toBe('success');
+            expect(store.alertMessage).toBe('Key first generated');
         });
 
         it('keeps nothing, leaving the page to fetch the list again', async () => {
@@ -118,13 +120,13 @@ describe('useKeysStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            keysApi.generateKey.mockRejectedValue(new Error('Request failed with status code 400'));
+            keysApi.generateKey.mockRejectedValue(httpError(400));
 
             await store.generateKey('first', '2027-01-01T00:00');
 
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 400');
+            expect(store.alertMessage).toBe("Couldn't generate the key first: the service refused it (400)");
         });
     });
 

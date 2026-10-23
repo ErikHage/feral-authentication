@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useSessionsStore } from '@/store';
 import sessionsApi from '@/api/sessions-api';
+import { httpError } from '../../helpers/http-errors';
 
 vi.mock('@/api/sessions-api', () => ({
     default: {
@@ -71,14 +72,14 @@ describe('useSessionsStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            sessionsApi.fetchSessionsForCurrentUser.mockRejectedValue(new Error('Request failed with status code 403'));
+            sessionsApi.fetchSessionsForCurrentUser.mockRejectedValue(httpError(403));
 
             await store.fetchUserSessions();
 
             expect(store.sessions).toEqual([]);
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 403');
+            expect(store.alertMessage).toBe("Couldn't load your sessions: you don't have permission");
         });
     });
 
@@ -94,12 +95,12 @@ describe('useSessionsStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            sessionsApi.deleteSessionById.mockRejectedValue(new Error('Request failed with status code 404'));
+            sessionsApi.deleteSessionById.mockRejectedValue(httpError(404));
 
             await store.deleteSessionById('session-1');
 
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 404');
+            expect(store.alertMessage).toBe("Couldn't revoke the session: it wasn't found");
         });
     });
 });

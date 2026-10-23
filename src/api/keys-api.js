@@ -2,16 +2,9 @@ import axios from "axios";
 
 import { feralAuthenticationServiceUrl } from "@/utils/constants";
 
+// A datetime-local value (e.g. 2026-12-01T10:00) is local time; the service stores UTC
 function convertToUTC(localDatetime) {
-    const localDate = new Date(localDatetime);
-    return new Date(
-        localDate.getUTCFullYear(),
-        localDate.getUTCMonth(),
-        localDate.getUTCDate(),
-        localDate.getUTCHours(),
-        localDate.getUTCMinutes(),
-        localDate.getUTCSeconds()
-    ).toISOString();
+    return new Date(localDatetime).toISOString();
 }
 
 async function fetchKeys(token) {

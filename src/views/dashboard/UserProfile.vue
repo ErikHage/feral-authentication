@@ -100,6 +100,10 @@
 
     </v-row>
   </v-container>
+  <!-- A failed load leaves no form, so its alert shows on its own -->
+  <v-container v-else>
+    <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+  </v-container>
 </template>
 
 <script>
@@ -155,6 +159,9 @@ export default {
     async refreshData() {
       await this.fetchUsers();
       await this.selectUser(this.actor.userId);
+      if (!this.selectedUser) {
+        return;
+      }
       this.userRoles = this.selectedUser.roles;
       this.userRolesMap = this.selectedUser.rolesByScope;
       this.savedDetails = this.selectedUser.details;

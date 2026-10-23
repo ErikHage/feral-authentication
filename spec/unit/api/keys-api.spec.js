@@ -33,23 +33,21 @@ describe('keysApi', () => {
         expect(key).toEqual({ keyId: 'key-1' });
     });
 
-    it('shifts the expiration by the UTC offset twice', async () => {
-        // current behavior: convertToUTC reads the UTC fields of the local time,
-        // then builds a local date from them, so toISOString shifts it again.
-        // 10:00 in New York (UTC-5 in December) is 15:00Z, but 20:00Z is sent
+    it('sends the expiration, entered in local time, as UTC', async () => {
+        // 10:00 in New York (UTC-5 in December) is 15:00Z
         axios.post.mockResolvedValue({ data: {} });
 
         await keysApi.generateKey('a-token', 'my-key', '2026-12-01T10:00');
 
-        expect(axios.post.mock.calls[0][1].expiration).toBe('2026-12-01T20:00:00.000Z');
+        expect(axios.post.mock.calls[0][1].expiration).toBe('2026-12-01T15:00:00.000Z');
     });
 
-    it('shifts a summer expiration by the daylight offset twice', async () => {
-        // current behavior, as above: 10:00 EDT (UTC-4) is 14:00Z, but 18:00Z is sent
+    it('sends a summer expiration as UTC, by the daylight offset', async () => {
+        // 10:00 EDT (UTC-4) is 14:00Z
         axios.post.mockResolvedValue({ data: {} });
 
         await keysApi.generateKey('a-token', 'my-key', '2026-07-01T10:00');
 
-        expect(axios.post.mock.calls[0][1].expiration).toBe('2026-07-01T18:00:00.000Z');
+        expect(axios.post.mock.calls[0][1].expiration).toBe('2026-07-01T14:00:00.000Z');
     });
 });

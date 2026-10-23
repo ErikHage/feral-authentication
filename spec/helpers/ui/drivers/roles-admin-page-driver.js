@@ -49,13 +49,13 @@ export function createRolesAdminPageDriver(page) {
 
         /**
          * Today's behaviour when a role is added twice: the service answers
-         * 500, and the page shows the HTTP client's own message for it. The
-         * role is still listed, once.
+         * 500, so the page says the service failed. The role is still listed,
+         * once.
          */
-        async showsTheFailedRequest({ scope, title }) {
+        async saysTheServiceFailed({ scope, title }) {
             const what = `adding the role ${scope}/${title} a second time`;
 
-            await expectVisible(alertSaying('Request failed with status code 500'), what);
+            await expectVisible(alertSaying(`Couldn't add the role ${scope}/${title}: the service failed (500)`), what);
             await expectCount(table.row(scope), 1, what);
         },
 

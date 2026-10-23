@@ -58,12 +58,12 @@ export function createSessionsPageDriver(page) {
 
         /**
          * Today's behaviour for a user without the admin role: the service
-         * refuses the list, and the page shows the HTTP client's message.
+         * refuses the list, and the page says so.
          */
         async showsTheRefusal() {
             const what = 'listing the sessions of a user without the admin role';
 
-            await expectVisible(alertSaying('Request failed with status code 403'), what);
+            await expectVisible(alertSaying("Couldn't load your sessions: you don't have permission"), what);
             await expectUrl(page, urlOf('dashboard/sessions'), what);
         },
     };

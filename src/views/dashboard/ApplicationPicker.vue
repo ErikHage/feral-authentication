@@ -1,6 +1,7 @@
 <template>
   <v-container v-if="userApplications">
     <h2 class="headline">Available Applications</h2>
+    <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
     <v-row class="mt-3">
       <v-col cols="2"></v-col>
 
@@ -40,9 +41,12 @@ import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useAuthenticationStore, } from "@/store";
 import { getAssetPath } from "@/utils/assets";
+import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: 'ApplicationPicker',
+
+  components: { FadeOutAlert },
 
   data() {
     return {
@@ -52,7 +56,7 @@ export default {
 
   computed: {
     ...mapState(useApplicationsStore, [
-      'userAllowedApplications',
+      'userAllowedApplications', 'alertType', 'alertMessage', 'alertVisible',
     ]),
   },
 

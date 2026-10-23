@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useRolesStore } from '@/store';
 import rolesApi from '@/api/roles-api';
+import { httpError } from '../../helpers/http-errors';
 
 vi.mock('@/api/roles-api', () => ({
     default: {
@@ -75,14 +76,14 @@ describe('useRolesStore', () => {
 
         it('keeps the previous roles and shows the error when it fails', async () => {
             store.$patch({ roles: [{ roleId: 'role-1' }] });
-            rolesApi.fetchRoles.mockRejectedValue(new Error('Request failed with status code 403'));
+            rolesApi.fetchRoles.mockRejectedValue(httpError(403));
 
             await store.fetchRoles();
 
             expect(store.roles).toEqual([{ roleId: 'role-1' }]);
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 403');
+            expect(store.alertMessage).toBe("Couldn't load the roles: you don't have permission");
         });
     });
 
@@ -98,12 +99,12 @@ describe('useRolesStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            rolesApi.addRole.mockRejectedValue(new Error('Request failed with status code 500'));
+            rolesApi.addRole.mockRejectedValue(httpError(500));
 
             await store.addRole(role);
 
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 500');
+            expect(store.alertMessage).toBe("Couldn't add the role feral/admin: the service failed (500)");
         });
     });
 
@@ -119,12 +120,12 @@ describe('useRolesStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            rolesApi.deleteRole.mockRejectedValue(new Error('Request failed with status code 404'));
+            rolesApi.deleteRole.mockRejectedValue(httpError(404));
 
             await store.deleteRole('role-1');
 
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 404');
+            expect(store.alertMessage).toBe("Couldn't delete the role: it wasn't found");
         });
     });
 });

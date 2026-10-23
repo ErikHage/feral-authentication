@@ -68,12 +68,21 @@ describe('ApplicationPicker', () => {
     });
 
     it('shows no cards, and no error, when there are no applications', async () => {
-        // current behavior: the page has no alert, so a failed load (which leaves
-        // the store's list empty) looks the same as having no applications
         const { wrapper } = await mountPicker([]);
 
         expect(wrapper.find('h2').text()).toBe('Available Applications');
         expect(wrapper.findAll('.v-card')).toHaveLength(0);
         expect(wrapper.find('.v-alert').exists()).toBe(false);
+    });
+
+    it("says so when the applications can't be loaded", async () => {
+        const { wrapper, applicationsStore } = await mountPicker([]);
+
+        applicationsStore.$patch({
+            alertVisible: true, alertType: 'error', alertMessage: "Couldn't load your applications: you don't have permission",
+        });
+        await flushPromises();
+
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load your applications: you don't have permission");
     });
 });

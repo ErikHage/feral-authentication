@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { useApplicationsStore } from '@/store';
 import applicationsApi from '@/api/applications-api';
+import { httpError } from '../../helpers/http-errors';
 
 vi.mock('@/api/applications-api', () => ({
     default: {
@@ -55,9 +56,9 @@ describe('useApplicationsStore', () => {
     });
 
     describe.each([
-        ['fetchApplications', 'applications'],
-        ['fetchApplicationsForCurrentUser', 'userAllowedApplications', 'fetchApplicationsForUser'],
-    ])('%s', (action, stateKey, apiFunction = action) => {
+        ['fetchApplications', 'applications', "Couldn't load the applications"],
+        ['fetchApplicationsForCurrentUser', 'userAllowedApplications', "Couldn't load your applications", 'fetchApplicationsForUser'],
+    ])('%s', (action, stateKey, whatFailed, apiFunction = action) => {
         it(`loads ${stateKey} with the stored token`, async () => {
             applicationsApi[apiFunction].mockResolvedValue([feral, harvest]);
 
@@ -81,14 +82,14 @@ describe('useApplicationsStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            applicationsApi[apiFunction].mockRejectedValue(new Error('Request failed with status code 403'));
+            applicationsApi[apiFunction].mockRejectedValue(httpError(403));
 
             await store[action]();
 
             expect(store[stateKey]).toEqual([]);
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 403');
+            expect(store.alertMessage).toBe(`${whatFailed}: you don't have permission`);
         });
     });
 
@@ -114,14 +115,15 @@ describe('useApplicationsStore', () => {
     describe('createApplication', () => {
         const newApplication = { applicationName: 'New', applicationUrl: 'https://new.test', scope: 'new', keyPairId: 'key-1' };
 
-        it('creates the application with the stored token, without an alert', async () => {
+        it('creates the application with the stored token, and names it in the alert', async () => {
             applicationsApi.createApplication.mockResolvedValue({ applicationId: 'app-3' });
 
             await store.createApplication(newApplication);
 
             expect(applicationsApi.createApplication).toHaveBeenCalledWith('a-token', newApplication);
             expect(store.loading).toBe(false);
-            expect(store.alertVisible).toBe(false);
+            expect(store.alertType).toBe('success');
+            expect(store.alertMessage).toBe('Application New created');
         });
 
         it('is loading while the application is created', async () => {
@@ -137,13 +139,13 @@ describe('useApplicationsStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            applicationsApi.createApplication.mockRejectedValue(new Error('Request failed with status code 500'));
+            applicationsApi.createApplication.mockRejectedValue(httpError(500));
 
             await store.createApplication(newApplication);
 
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 500');
+            expect(store.alertMessage).toBe("Couldn't create the application New: the service failed (500)");
         });
     });
 
@@ -159,12 +161,12 @@ describe('useApplicationsStore', () => {
         });
 
         it('shows the error when it fails', async () => {
-            applicationsApi.rotateAuthenticationKey.mockRejectedValue(new Error('Request failed with status code 400'));
+            applicationsApi.rotateAuthenticationKey.mockRejectedValue(httpError(400));
 
             await store.rotateAuthenticationKey('app-1', 'key-2');
 
             expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe('Request failed with status code 400');
+            expect(store.alertMessage).toBe("Couldn't rotate the key: the service refused it (400)");
         });
     });
 });

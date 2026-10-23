@@ -185,8 +185,11 @@ export default {
 
     async onSelectUserChange(userId) {
       await this.selectUser(userId);
-      this.resetRoles();
-      this.resetApplications();
+      // A user that fails to load stays unselected, and the store says why
+      if (this.selectedUser) {
+        this.resetRoles();
+        this.resetApplications();
+      }
     },
 
     // Each card edits a copy of the user's list, until its Save or Cancel

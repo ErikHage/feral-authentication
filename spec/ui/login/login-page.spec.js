@@ -9,6 +9,9 @@ test.describe('Login page', () => {
         await applicationPickerPage.checkIsShown();
     });
 
+    // DocumentsCurrentBehavior: the service answers 500 for a wrong password
+    // (backlog A33), so the page says the service failed. Should say the
+    // username or password is wrong.
     test('rejects a wrong password', async ({ loginPage }) => {
         await loginPage.open();
 
