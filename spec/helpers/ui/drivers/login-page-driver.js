@@ -13,7 +13,8 @@ export function createLoginPageDriver(page) {
     // Each Vuetify field's message area is an (empty) alert too, so match the
     // text. The page's alert fades out after 3s, well inside the assertion
     // timeout
-    const serviceFailed = page.getByRole('alert').filter({ hasText: "Couldn't log in: the service failed (500)" });
+    const credentialsWrong = page.getByRole('alert')
+        .filter({ hasText: "Couldn't log in: the username or password is wrong" });
 
     return {
         ...createRoutedPageDriver(page, {
@@ -36,14 +37,10 @@ export function createLoginPageDriver(page) {
             await submitButton.click();
         },
 
-        /**
-         * Today's behaviour for a wrong password: the service answers 500,
-         * so the page says the service failed.
-         */
-        async saysTheServiceFailed() {
+        async saysTheUsernameOrPasswordIsWrong() {
             const what = 'logging in with the wrong password';
 
-            await expectVisible(serviceFailed, what);
+            await expectVisible(credentialsWrong, what);
             await expectUrl(page, urlOf('login'), what);
         },
 

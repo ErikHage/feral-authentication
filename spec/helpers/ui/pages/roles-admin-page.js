@@ -52,7 +52,7 @@ export function createRolesAdminPage(world, driver) {
         async checkDuplicateIsRejected(...args) {
             const params = parseDslArgs(args, { role: role() });
 
-            await driver.saysTheServiceFailed(world.roleNamed(params.role));
+            await driver.saysItAlreadyExists(world.roleNamed(params.role));
         },
 
         /** Deletes the `role`, confirming in the Delete dialog. */

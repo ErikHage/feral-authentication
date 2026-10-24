@@ -47,15 +47,11 @@ export function createRolesAdminPageDriver(page) {
             await expectText(table.detailsIn(scope), [scope, title, description], what);
         },
 
-        /**
-         * Today's behaviour when a role is added twice: the service answers
-         * 500, so the page says the service failed. The role is still listed,
-         * once.
-         */
-        async saysTheServiceFailed({ scope, title }) {
+        /** The role is still listed, once. */
+        async saysItAlreadyExists({ scope, title }) {
             const what = `adding the role ${scope}/${title} a second time`;
 
-            await expectVisible(alertSaying(`Couldn't add the role ${scope}/${title}: the service failed (500)`), what);
+            await expectVisible(alertSaying(`Couldn't add the role ${scope}/${title}: it already exists`), what);
             await expectCount(table.row(scope), 1, what);
         },
 

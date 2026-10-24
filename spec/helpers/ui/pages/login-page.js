@@ -27,7 +27,7 @@ export function createLoginPage(world, driver) {
         async checkLoginIsRejected(...args) {
             parseDslArgs(args, {});
 
-            await driver.saysTheServiceFailed();
+            await driver.saysTheUsernameOrPasswordIsWrong();
         },
 
         /**
