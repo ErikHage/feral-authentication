@@ -7,6 +7,7 @@ vi.mock('@/api/applications-api', () => ({
     default: {
         fetchApplications: vi.fn(),
         createApplication: vi.fn(),
+        updateApplication: vi.fn(),
         rotateAuthenticationKey: vi.fn(),
         fetchApplicationsForUser: vi.fn(),
     },
@@ -146,6 +147,41 @@ describe('useApplicationsStore', () => {
             expect(store.loading).toBe(false);
             expect(store.alertType).toBe('error');
             expect(store.alertMessage).toBe("Couldn't create the application New: the service failed (500)");
+        });
+    });
+
+    describe('updateApplication', () => {
+        const changed = { ...feral, applicationName: 'Feral 2' };
+
+        it('saves the application with the stored token, names it in the alert, and says it saved', async () => {
+            applicationsApi.updateApplication.mockResolvedValue(changed);
+
+            const saved = await store.updateApplication(changed);
+
+            expect(applicationsApi.updateApplication).toHaveBeenCalledWith('a-token', changed);
+            expect(saved).toBe(true);
+            expect(store.alertType).toBe('success');
+            expect(store.alertMessage).toBe('Application Feral 2 saved');
+        });
+
+        it('says another application has the name or scope, when the service finds one (409)', async () => {
+            applicationsApi.updateApplication.mockRejectedValue(httpError(409));
+
+            const saved = await store.updateApplication(changed);
+
+            expect(saved).toBe(false);
+            expect(store.alertType).toBe('error');
+            expect(store.alertMessage)
+                .toBe("Couldn't save the application Feral 2: another application has that name or scope");
+        });
+
+        it('shows the error when it fails', async () => {
+            applicationsApi.updateApplication.mockRejectedValue(httpError(500));
+
+            const saved = await store.updateApplication(changed);
+
+            expect(saved).toBe(false);
+            expect(store.alertMessage).toBe("Couldn't save the application Feral 2: the service failed (500)");
         });
     });
 

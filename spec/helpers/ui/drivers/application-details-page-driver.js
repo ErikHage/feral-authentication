@@ -58,11 +58,16 @@ export function createApplicationDetailsPageDriver(page) {
         },
 
         /**
-         * Today's behaviour on Save: nothing is sent, the page reloads the
-         * application, and the name goes back to the saved one.
+         * The page says so, then shows the name as reloaded from the service.
+         * Save is enabled until the reload, so it being disabled is the sign
+         * the field now shows the saved name, not the typed one.
          */
-        async discardsTheChange({ applicationName }, newName) {
-            await expectValue(field('Application Name'), applicationName, `renaming ${applicationName} to ${newName}`);
+        async savesTheName({ applicationName }, newName) {
+            const what = `renaming ${applicationName} to ${newName}`;
+
+            await expectVisible(alertSaying(`Application ${newName} saved`), what);
+            await expectDisabled(saveButton, what);
+            await expectValue(field('Application Name'), newName, what);
         },
     };
 }

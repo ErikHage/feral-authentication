@@ -428,6 +428,20 @@ export const useApplicationsStore = defineStore('application', {
             }
             this.loading = false;
         },
+        // Resolves to whether it saved
+        async updateApplication(application) {
+            try {
+                await applicationsApi.updateApplication(storageUtils.tryToLoadTokenFromStorage(), application);
+                this.setAlertMessage('success', `Application ${application.applicationName} saved`);
+                return true;
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', failureMessage(err,
+                    `Couldn't save the application ${application.applicationName}`,
+                    { 409: 'another application has that name or scope' }));
+                return false;
+            }
+        },
         async rotateAuthenticationKey(applicationId, newKeyId) {
             try {
                 await applicationsApi.rotateAuthenticationKey(

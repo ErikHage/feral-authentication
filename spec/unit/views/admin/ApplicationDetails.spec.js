@@ -163,16 +163,27 @@ describe('ApplicationDetails', () => {
             expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
         });
 
-        it('saves nothing, only reloads', async () => {
-            // current behavior: updateApplicationDetails is a TODO; there is no update
-            // action in the store or the api
+        it('saves the changes, then reloads', async () => {
             const { wrapper, applicationsStore } = await mountDetails();
+            applicationsStore.updateApplication.mockResolvedValue(true);
             await typeInto(wrapper, 'Roles Scope', 'feral-2');
 
             await click(buttonLabelled(wrapper, 'Save'));
 
+            expect(applicationsStore.updateApplication).toHaveBeenCalledWith({ ...rotated, scope: 'feral-2' });
             expect(applicationsStore.selectApplication).toHaveBeenCalledTimes(2);
-            expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeDefined();
+        });
+
+        it('keeps the change when the save fails', async () => {
+            const { wrapper, applicationsStore } = await mountDetails();
+            applicationsStore.updateApplication.mockResolvedValue(false);
+            await typeInto(wrapper, 'Roles Scope', 'feral-2');
+
+            await click(buttonLabelled(wrapper, 'Save'));
+
+            expect(applicationsStore.selectApplication).toHaveBeenCalledTimes(1);
+            expect(inputLabelled(wrapper, 'Roles Scope').element.value).toBe('feral-2');
+            expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeUndefined();
         });
 
         it('keeps the stored application as it is until saved', async () => {

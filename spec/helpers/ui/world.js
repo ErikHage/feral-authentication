@@ -90,11 +90,12 @@ export function createWorld(page, names = {
     rolesByAlias: new Map(),
     keysByAlias: new Map(),
     applicationsByAlias: new Map(),
+    applicationNamesByAlias: new Map(),
     // Newest first, the order cleanup deletes in
     added: [],
 }) {
     const {
-        usersByAlias, rolesByAlias, keysByAlias, applicationsByAlias, added,
+        usersByAlias, rolesByAlias, keysByAlias, applicationsByAlias, applicationNamesByAlias, added,
     } = names;
 
     function named(known, alias, what, step) {
@@ -204,6 +205,19 @@ export function createWorld(page, names = {
         },
 
         applicationNamed,
+
+        /**
+         * A new name for an application, called `alias`, unique to this run
+         * as `newApplication`'s are, since application names are unique.
+         */
+        newApplicationName(alias) {
+            return rememberForever('application name', applicationNamesByAlias, alias, {
+                applicationName: `ui-${alias}-${suffix()}`,
+            }).applicationName;
+        },
+
+        applicationNameCalled: alias => named(
+            applicationNamesByAlias, alias, 'application name', 'applicationDetailsPage.changeName').applicationName,
 
         /** An application the test added, by alias, or else an existing one by its listed name. */
         applicationNameOf(nameOrAlias) {

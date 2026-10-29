@@ -30,6 +30,21 @@ describe('applicationsApi', () => {
         expect(created).toEqual({ applicationId: 'app-1' });
     });
 
+    it("updates an application's name, landing page and scope, and nothing else", async () => {
+        const application = {
+            applicationId: 'app-1', applicationName: 'app', applicationUrl: 'https://app.test', scope: 'app',
+            keyPairId: 'key-1', previousKeyPairId: 'key-0',
+        };
+        axios.put.mockResolvedValue({ data: { applicationId: 'app-1' } });
+
+        const updated = await applicationsApi.updateApplication('a-token', application);
+
+        expect(axios.put).toHaveBeenCalledWith(`${baseUrl}/applications/app-1`, {
+            applicationName: 'app', applicationUrl: 'https://app.test', scope: 'app',
+        }, auth);
+        expect(updated).toEqual({ applicationId: 'app-1' });
+    });
+
     it('rotates an application to a new key', async () => {
         axios.post.mockResolvedValue({ data: {} });
 

@@ -31,11 +31,11 @@ export function createApplicationDetailsPage(world, driver) {
             await driver.rotateKey(world.keyNamed(params.key).keyName);
         },
 
-        /** Types a new `name`, without saving. */
+        /** Types a new name, called `name`, without saving. */
         async changeName(...args) {
             const params = parseDslArgs(args, { name: required() });
 
-            await driver.changeName(params.name);
+            await driver.changeName(world.newApplicationName(params.name));
         },
 
         /** Empties the name, without saving. No parameters. */
@@ -59,11 +59,11 @@ export function createApplicationDetailsPage(world, driver) {
             await driver.cannotSaveAnEmptyName();
         },
 
-        /** After `save`: the `application` now has the new `name`. */
+        /** After `save`: the `application` now has the new name called `name`. */
         async checkNameIsSaved(...args) {
             const params = parseDslArgs(args, { application: application(), name: required() });
 
-            await driver.discardsTheChange(world.applicationNamed(params.application), params.name);
+            await driver.savesTheName(world.applicationNamed(params.application), world.applicationNameCalled(params.name));
         },
     };
 }

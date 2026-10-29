@@ -151,6 +151,7 @@ export default {
     ...mapActions(useApplicationsStore, [
       'fetchApplications',
       'selectApplication',
+      'updateApplication',
       'rotateAuthenticationKey',
     ]),
 
@@ -193,10 +194,11 @@ export default {
       });
     },
 
+    // A failed save keeps the change, to correct or Reset
     async updateApplicationDetails() {
-      console.log('updateApplicationDetails');
-      // TODO
-      await this.refreshData();
+      if (await this.updateApplication(this.applicationDetails)) {
+        await this.refreshData();
+      }
     },
 
     async performKeyRotation() {

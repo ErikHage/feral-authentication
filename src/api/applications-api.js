@@ -21,6 +21,19 @@ async function createApplication(token, application) {
     return response.data;
 }
 
+// Only the fields an application's details page edits: its key pair changes
+// by rotation
+async function updateApplication(token, { applicationId, applicationName, applicationUrl, scope }) {
+    const response = await axios.put(`${feralAuthenticationServiceUrl.v0}/applications/${applicationId}`, {
+        applicationName, applicationUrl, scope,
+    }, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+    return response.data;
+}
+
 async function rotateAuthenticationKey(token, applicationId, newKeyId) {
     await axios.post(`${feralAuthenticationServiceUrl.v0}/applications/${applicationId}/rotate-key`, {
         newKeyId,
@@ -44,6 +57,7 @@ async function fetchApplicationsForUser(token) {
 export default {
     fetchApplications,
     createApplication,
+    updateApplication,
     rotateAuthenticationKey,
 
     fetchApplicationsForUser,

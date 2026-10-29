@@ -61,9 +61,6 @@ test.describe('Applications admin page', () => {
         await applicationDetailsPage.checkCannotSave();
     });
 
-    // DocumentsCurrentBehavior: Save sends nothing (updateApplicationDetails is
-    // a TODO); it reloads the application, and the name goes back to the saved
-    // one (backlog A22). Should save the new name.
     test('saves a new name', async ({ keysAdminPage, applicationsAdminPage, applicationDetailsPage }) => {
         await keysAdminPage.adminNav.goToApplications();
         await applicationsAdminPage.addApplication('application: game', 'key: first');
