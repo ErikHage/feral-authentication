@@ -1,8 +1,5 @@
 import { test } from '../../helpers/ui/ui-test';
 
-// Keys can't be deleted, so each one generated here stays in the database,
-// named ui-<alias>-<random>
-
 test.describe('Keys admin page', () => {
     // Off UTC, so a second shift of the expiration shows (backlog A1); New
     // York is UTC-4 on the expiration's date
@@ -30,7 +27,6 @@ test.describe('Keys admin page', () => {
         await keysAdminPage.checkExpirationIsAsEntered('key: signing');
     });
 
-    // Nothing is generated: a key can't be deleted afterwards
     test('keeps Generate disabled until the form is filled', async ({ keysAdminPage }) => {
         await keysAdminPage.startGeneratingKey();
 

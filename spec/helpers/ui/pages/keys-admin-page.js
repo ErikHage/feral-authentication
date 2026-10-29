@@ -5,7 +5,7 @@ import { adminComponents, routedPageSteps } from './routed-page';
 
 /**
  * The keys admin page, in words. A key generated here gets a made-up name,
- * unique to the run, and stays in the database: keys can't be deleted.
+ * unique to the run, and is deleted when the test ends.
  */
 export function createKeysAdminPage(world, driver) {
     return {

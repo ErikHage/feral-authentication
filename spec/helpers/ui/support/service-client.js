@@ -63,6 +63,13 @@ export const deleteRole = (token, roleId) => call('DELETE', `/roles/${roleId}`, 
 
 export const listApplications = token => call('GET', '/applications', { token });
 
+export const deleteApplication = (token, applicationId) => call('DELETE', `/applications/${applicationId}`, { token });
+
+export const listKeys = token => call('GET', '/keys', { token });
+
+/** Refused with 409 while an application signs with the key, or was rotated off it. */
+export const deleteKey = (token, keyId) => call('DELETE', `/keys/${keyId}`, { token });
+
 /** The app's own address, outside the service; any status. */
 export async function probeApp(url) {
     try {

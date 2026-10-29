@@ -1,5 +1,5 @@
 import {
-    expectCount, expectDisabled, expectUrl, expectValue, expectVisible,
+    expectCount, expectDisabled, expectEnabled, expectUrl, expectValue, expectVisible,
 } from './assertions';
 import { chooseOption } from './select';
 import { urlOf } from './urls';
@@ -17,6 +17,10 @@ export function createApplicationDetailsPageDriver(page) {
 
     // Dialogs open outside main
     const rotateDialog = page.getByRole('dialog').filter({ hasText: 'Choose New Key' });
+    const rotateSaveButton = rotateDialog.getByRole('button', { name: 'Save' });
+
+    const openRotateDialog = () => main.getByRole('button', { name: 'Rotate Key' }).click();
+    const chooseNewKey = keyName => chooseOption(page, rotateDialog.getByRole('combobox'), keyName);
 
     return {
         /** The previous key's fields show only after a rotation. */
@@ -37,9 +41,24 @@ export function createApplicationDetailsPageDriver(page) {
         },
 
         async rotateKey(keyName) {
-            await main.getByRole('button', { name: 'Rotate Key' }).click();
-            await chooseOption(page, rotateDialog.getByRole('combobox'), keyName);
-            await rotateDialog.getByRole('button', { name: 'Save' }).click();
+            await openRotateDialog();
+            await chooseNewKey(keyName);
+            await rotateSaveButton.click();
+        },
+
+        openRotateDialog,
+
+        chooseNewKey,
+
+        async cannotRotateWithoutAKey() {
+            const what = 'rotating to no key';
+
+            await expectVisible(rotateDialog, what);
+            await expectDisabled(rotateSaveButton, what);
+        },
+
+        async canRotate(keyName) {
+            await expectEnabled(rotateSaveButton, `rotating to ${keyName}`);
         },
 
         async changeName(applicationName) {

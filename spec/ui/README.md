@@ -62,13 +62,15 @@ helpers/ui/drivers/assertions.js the only importer of expect
 
 **Logging in is a step.** `loginPage.logIn('user: admin')` logs in as the account in `.env.ui`. `admin` is a reserved name; any other is a user the test added. Add `'password: wrong'` to log in with a wrong password. Nothing is restored from a saved session: the app keeps "logged in" only in memory, so any page load goes through the login page. Each test logs in for itself.
 
-**Users and roles a test adds are made up, and deleted afterwards.**
+**What a test adds is made up, and deleted afterwards.**
 - `usersAdminPage.addUser('user: bob')` adds a user through the page, with details unique to the run (the username is `ui-bob-<random>`).
 - `rolesAdminPage.addRole('role: tester')` adds a role titled `tester`, under the scope `ui-<random>`.
+- `keysAdminPage.generateKey('key: signing')` generates a key pair named `ui-signing-<random>`.
+- `applicationsAdminPage.addApplication('application: game', 'key: signing')` adds an application named `ui-game-<random>`, under the scope `ui-<random>`. Its URL is made up (`https://ui-game-<random>.example.test/`). The single sign-on driver answers for it, so the browser can land there.
 
-The world remembers each one under its alias, so later steps can name it. When the test ends, pass or fail, the world deletes everything it named, newest first, over the API, as the admin. It clears a user's roles and applications first, since the service's tables don't cascade. A spec never cleans up for itself.
+The world remembers each one under its alias, so later steps can name it. When the test ends, pass or fail, the world deletes everything it named, newest first, over the API, as the admin. It clears a user's roles and applications first, since the service's tables don't cascade. It finds an application by its scope, which no test changes, so one a test renamed is still found. Key pairs go last: the service refuses to delete one an application still uses. A spec never cleans up for itself.
 
-**Keys and applications a test adds stay in the database.** The service can't delete them: it has no endpoint for keys, and `DELETE /applications` never replies. So `keysAdminPage.generateKey('key: signing')` and `applicationsAdminPage.addApplication('application: game', 'key: signing')` give them `ui-` names, and cleanup only forgets them. An application's URL is made up (`https://ui-game-<random>.example.test/`). The single sign-on driver answers for it, so the browser can land there. To find what the suite left behind:
+Anything a failed cleanup leaves behind has a `ui-` name:
 
 ```sql
 SELECT key_id, key_name, date_created FROM key_pairs WHERE key_name LIKE 'ui-%';

@@ -31,6 +31,34 @@ export function createApplicationDetailsPage(world, driver) {
             await driver.rotateKey(world.keyNamed(params.key).keyName);
         },
 
+        /** Opens the Rotate Key dialog, choosing nothing. No parameters. */
+        async startRotatingKey(...args) {
+            parseDslArgs(args, {});
+
+            await driver.openRotateDialog();
+        },
+
+        /** Chooses the `key` in the open Rotate Key dialog, without saving. */
+        async chooseNewKey(...args) {
+            const params = parseDslArgs(args, { key: key() });
+
+            await driver.chooseNewKey(world.keyNamed(params.key).keyName);
+        },
+
+        /** The Rotate Key dialog's Save stays disabled until a key is chosen. No parameters. */
+        async checkCannotRotateYet(...args) {
+            parseDslArgs(args, {});
+
+            await driver.cannotRotateWithoutAKey();
+        },
+
+        /** Once the `key` is chosen, the Rotate Key dialog's Save is enabled. */
+        async checkCanRotateTo(...args) {
+            const params = parseDslArgs(args, { key: key() });
+
+            await driver.canRotate(world.keyNamed(params.key).keyName);
+        },
+
         /** Types a new name, called `name`, without saving. */
         async changeName(...args) {
             const params = parseDslArgs(args, { name: required() });

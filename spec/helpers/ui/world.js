@@ -3,8 +3,8 @@ import { randomUUID } from 'node:crypto';
 import { admin } from './setup/config';
 import { createDrivers } from './drivers/drivers';
 import {
-    clearUserApplications, clearUserRoles, deleteRole, deleteUser, listApplications, listRoles, listUsers, login,
-    logout,
+    clearUserApplications, clearUserRoles, deleteApplication, deleteKey, deleteRole, deleteUser, listApplications,
+    listKeys, listRoles, listUsers, login, logout,
 } from './support/service-client';
 
 const suffix = () => randomUUID().slice(0, 8);
@@ -39,7 +39,27 @@ const kinds = {
         remove: (token, listed) => deleteRole(token, listed.roleId),
         describe: role => `the role ${role.scope}/${role.title}`,
     },
+    application: {
+        list: listApplications,
+        // By scope, which no test changes, so a renamed application is found too
+        matches: (application, listed) => listed.scope === application.scope,
+        remove: (token, listed) => deleteApplication(token, listed.applicationId),
+        describe: application => `the application ${application.applicationName}`,
+    },
+    key: {
+        list: listKeys,
+        matches: (key, listed) => listed.keyName === key.keyName,
+        remove: (token, listed) => deleteKey(token, listed.keyId),
+        describe: key => `the key ${key.keyName}`,
+    },
 };
+
+// Key pairs go last: the service refuses to delete one an application still
+// uses, and a key generated to rotate onto is newer than the application
+const keysLast = added => [
+    ...added.filter(({ kind }) => kind !== 'key'),
+    ...added.filter(({ kind }) => kind === 'key'),
+];
 
 /**
  * Deletes what a test added, in the order given, over the API, as the
@@ -121,19 +141,6 @@ export function createWorld(page, names = {
     const applicationNamed = alias => named(
         applicationsByAlias, alias, 'application', 'applicationsAdminPage.addApplication');
 
-    /**
-     * Keys and applications can't be deleted: the service has no endpoint
-     * for keys, and DELETE /applications never replies. So they're named
-     * `ui-...` and left in the database, and cleanup only forgets them.
-     */
-    function rememberForever(kind, known, alias, details) {
-        if (known.has(alias)) {
-            throw new Error(`there is already a ${kind} called "${alias}" in this test`);
-        }
-        known.set(alias, details);
-        return { ...details };
-    }
-
     return {
         /** So a page object can be handed the driver it drives. */
         drivers: createDrivers(page),
@@ -180,12 +187,11 @@ export function createWorld(page, names = {
         roleNamed,
 
         /**
-         * As `newUser`, for a key pair, which stays in the database. Its
-         * expiration is fixed, in the browser's local time, as typed into
-         * the page.
+         * As `newUser`, for a key pair. Its expiration is fixed, in the
+         * browser's local time, as typed into the page.
          */
         newKey(alias) {
-            return rememberForever('key', keysByAlias, alias, {
+            return remember('key', keysByAlias, alias, {
                 keyName: `ui-${alias}-${suffix()}`,
                 expiration: '2030-06-01T10:00',
             });
@@ -193,10 +199,10 @@ export function createWorld(page, names = {
 
         keyNamed,
 
-        /** As `newUser`, for an application, which stays in the database. */
+        /** As `newUser`, for an application. */
         newApplication(alias) {
             const applicationName = `ui-${alias}-${suffix()}`;
-            return rememberForever('application', applicationsByAlias, alias, {
+            return remember('application', applicationsByAlias, alias, {
                 applicationName,
                 // Made up: a driver answers for it, when the browser goes there
                 applicationUrl: `https://${applicationName}.example.test/`,
@@ -211,9 +217,12 @@ export function createWorld(page, names = {
          * as `newApplication`'s are, since application names are unique.
          */
         newApplicationName(alias) {
-            return rememberForever('application name', applicationNamesByAlias, alias, {
-                applicationName: `ui-${alias}-${suffix()}`,
-            }).applicationName;
+            if (applicationNamesByAlias.has(alias)) {
+                throw new Error(`there is already an application name called "${alias}" in this test`);
+            }
+            const applicationName = `ui-${alias}-${suffix()}`;
+            applicationNamesByAlias.set(alias, { applicationName });
+            return applicationName;
         },
 
         applicationNameCalled: alias => named(
@@ -257,13 +266,14 @@ export function createWorld(page, names = {
             return { username, password };
         },
 
-        /** Deletes what this test named, newest first, and forgets it. */
+        /** Deletes what this test named, newest first but key pairs last, and forgets it. */
         async cleanup() {
-            const toDelete = added.splice(0, added.length);
+            const toDelete = keysLast(added.splice(0, added.length));
             usersByAlias.clear();
             rolesByAlias.clear();
             keysByAlias.clear();
             applicationsByAlias.clear();
+            applicationNamesByAlias.clear();
 
             if (toDelete.length > 0) {
                 await deleteAll(toDelete);

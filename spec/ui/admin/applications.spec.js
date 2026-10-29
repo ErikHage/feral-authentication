@@ -1,8 +1,5 @@
 import { test } from '../../helpers/ui/ui-test';
 
-// Keys and applications can't be deleted, so each one added here stays in
-// the database, named ui-<alias>-<random>
-
 test.describe('Applications admin page', () => {
     test.beforeEach(async ({ loginPage, applicationPickerPage, adminPage, keysAdminPage }) => {
         await loginPage.open();
@@ -46,6 +43,23 @@ test.describe('Applications admin page', () => {
         await applicationDetailsPage.checkShowsApplication('application: game', 'key: second', 'previousKey: first');
     });
 
+    test('keeps the Rotate Key dialog\'s Save disabled until a key is chosen', async ({
+        keysAdminPage, applicationsAdminPage, applicationDetailsPage,
+    }) => {
+        await keysAdminPage.generateKey('key: second');
+        await keysAdminPage.checkKeyIsListed('key: second');
+        await keysAdminPage.adminNav.goToApplications();
+        await applicationsAdminPage.addApplication('application: game', 'key: first');
+        await applicationsAdminPage.checkApplicationIsListed('application: game');
+        await applicationsAdminPage.openDetails('application: game');
+        await applicationDetailsPage.checkShowsApplication('application: game', 'key: first');
+        await applicationDetailsPage.startRotatingKey();
+
+        await applicationDetailsPage.checkCannotRotateYet();
+        await applicationDetailsPage.chooseNewKey('key: second');
+        await applicationDetailsPage.checkCanRotateTo('key: second');
+    });
+
     test('keeps Save disabled while the name is empty', async ({
         keysAdminPage, applicationsAdminPage, applicationDetailsPage,
     }) => {
@@ -76,7 +90,7 @@ test.describe('Applications admin page', () => {
 });
 
 test.describe('Applications admin page, adding nothing', () => {
-    // No key: nothing is created, so nothing is left behind
+    // No key, and nothing is created
     test.beforeEach(async ({ loginPage, applicationPickerPage, adminPage, applicationsAdminPage }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');

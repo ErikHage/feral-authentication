@@ -5,8 +5,7 @@ import { adminComponents, routedPageSteps } from './routed-page';
 
 /**
  * The applications admin page, in words. An application added here gets
- * made-up details, unique to the run, and stays in the database:
- * applications can't be deleted.
+ * made-up details, unique to the run, and is deleted when the test ends.
  */
 export function createApplicationsAdminPage(world, driver) {
     return {

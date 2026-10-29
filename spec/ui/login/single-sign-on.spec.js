@@ -1,7 +1,7 @@
 import { test } from '../../helpers/ui/ui-test';
 
-// The application is made up, and stays in the database: applications can't
-// be deleted. Its URL is answered by the driver, not a real site.
+// The application is made up: its URL is answered by the driver, not a real
+// site.
 //
 // Signing on to an application needs a grant to it, so bob is granted the
 // application and signs on, rather than the admin, whose grants would pile up
