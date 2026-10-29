@@ -1,8 +1,7 @@
 import {
-    expectCount, expectDisabled, expectUrl, expectValue, expectVisible,
+    expectCount, expectDisabled, expectValue, expectVisible,
 } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
-import { urlOf } from './urls';
 
 /**
  * The logged-in user's sessions page, as Playwright sees it: a card per
@@ -11,8 +10,6 @@ import { urlOf } from './urls';
  */
 export function createSessionsPageDriver(page) {
     const main = page.getByRole('main');
-    const alertSaying = message => main.getByRole('alert').filter({ hasText: message });
-
     const cards = subtitle => main.getByRole('region', { name: /^Session / }).filter({ hasText: subtitle });
     const currentSession = cards('current session');
     const remoteSessions = cards('remote session');
@@ -51,17 +48,6 @@ export function createSessionsPageDriver(page) {
 
             await expectCount(currentSession, 1, what);
             await expectValue(currentSession.getByLabel('Application', { exact: true }), applicationName, what);
-        },
-
-        /**
-         * Today's behaviour for a user without the admin role: the service
-         * refuses the list, and the page says so.
-         */
-        async showsTheRefusal() {
-            const what = 'listing the sessions of a user without the admin role';
-
-            await expectVisible(alertSaying("Couldn't load your sessions: you don't have permission"), what);
-            await expectUrl(page, urlOf('dashboard/sessions'), what);
         },
     };
 }

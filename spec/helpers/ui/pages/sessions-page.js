@@ -44,7 +44,7 @@ export function createSessionsPage(world, driver) {
         async checkListsCurrentSession(...args) {
             parseDslArgs(args, {});
 
-            await driver.showsTheRefusal();
+            await driver.marksTheCurrentSession();
         },
     };
 }

@@ -72,8 +72,8 @@ test.describe('Authorization admin page', () => {
         await usersAdminPage.checkUserIsListed('user: bob');
     });
 
-    // bob's own list is refused (403, as below). Relies on the admin account
-    // having at least one application, so there is something to leave behind
+    // bob's own list comes back empty. Relies on the admin account having at
+    // least one application, so there is something to leave behind
     test('offers the next user to log in none of the previous user\'s applications', async ({
         usersAdminPage, loginPage, applicationPickerPage,
     }) => {
@@ -87,11 +87,6 @@ test.describe('Authorization admin page', () => {
     });
 
     test.describe('for a user without the admin role', () => {
-        // DocumentsCurrentBehavior: every service endpoint past login, verify,
-        // single sign-on and logout needs feral/admin, including the user's own
-        // applications (backlog A30). The service refuses (403), and the page
-        // shows no applications, and says bob doesn't have permission. Should
-        // show the granted one.
         test('offers the applications granted to them', async ({
             usersAdminPage, authorizationAdminPage, loginPage, applicationPickerPage,
         }) => {
@@ -120,9 +115,6 @@ test.describe('Authorization admin page', () => {
             await profilePage.checkShowsUserWithoutAdminRole('user: bob');
         });
 
-        // DocumentsCurrentBehavior: the service refuses the list (403, A30), and
-        // the page says bob doesn't have permission. Should list the session
-        // bob is logged in with.
         test('lists their sessions', async ({ usersAdminPage, loginPage, applicationPickerPage, sessionsPage }) => {
             await usersAdminPage.appBar.logOut();
             await loginPage.checkIsShown();
