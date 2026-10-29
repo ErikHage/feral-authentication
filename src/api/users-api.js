@@ -35,6 +35,40 @@ async function fetchUser(token, userId) {
     return toUser(response.data);
 }
 
+// The logged-in user's own details, which any user may read
+async function fetchCurrentUser(token) {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users/current`, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+
+    return toUser(response.data);
+}
+
+async function fetchCurrentUserRoles(token) {
+    const response = await axios.get(`${feralAuthenticationServiceUrl.v0}/users/current/roles`, {
+        headers: {
+            'x-feral-auth-token': token,
+        },
+    });
+
+    return response.data;
+}
+
+// Only the names: the rest of a user's details aren't theirs to change
+async function updateCurrentUser(token, { firstName, lastName }) {
+    const response = await axios.put(`${feralAuthenticationServiceUrl.v0}/users/current`,
+        { firstName, lastName },
+        {
+            headers: {
+                'x-feral-auth-token': token,
+            },
+        });
+
+    return response.data;
+}
+
 async function addUser(token, user) {
     const requestData = {
         userId: user.userId !== '' ? user.userId : undefined,
@@ -147,6 +181,9 @@ async function clearUserApplications(token, userId) {
 export default {
     fetchUsers,
     fetchUser,
+    fetchCurrentUser,
+    fetchCurrentUserRoles,
+    updateCurrentUser,
     addUser,
     updateUser,
     deleteUser,

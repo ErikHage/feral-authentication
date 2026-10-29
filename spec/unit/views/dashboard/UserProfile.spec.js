@@ -3,7 +3,7 @@ import { createTestingPinia } from '@pinia/testing';
 import { mountWithPlugins } from '../../../helpers/mount';
 import { buttonLabelled, fieldLabelled, inputLabelled, typeInto } from '../../../helpers/fields';
 import UserProfile from '@/views/dashboard/UserProfile.vue';
-import { useAuthenticationStore, useUsersStore } from '@/store';
+import { useUsersStore } from '@/store';
 
 const alice = {
     userId: 'user-1',
@@ -21,17 +21,14 @@ const roles = [
 ];
 
 async function mountProfile({ state = {} } = {}) {
-    // A copy, so a test that changes the stored user can't change the next one's
-    const pinia = createTestingPinia({ initialState: { user: { users: [{ ...alice }], ...state } } });
+    const pinia = createTestingPinia({ initialState: { user: state } });
     const usersStore = useUsersStore(pinia);
-    const authenticationStore = useAuthenticationStore(pinia);
-    authenticationStore.actor = { userId: 'user-1', sessionId: 'session-1' };
-    usersStore.selectUser.mockImplementation(async userId => {
-        usersStore.selectedUser = {
-            details: usersStore.users.find(user => user.userId === userId),
+    usersStore.loadCurrentUser.mockImplementation(async () => {
+        usersStore.currentUser = {
+            // A copy, so a test that changes the stored user can't change the next one's
+            details: { ...alice },
             roles,
             rolesByScope: { feral: roles.slice(0, 2), harvest: roles.slice(2) },
-            applications: [],
         };
     });
 
@@ -50,11 +47,10 @@ describe('UserProfile', () => {
         vi.restoreAllMocks();
     });
 
-    it('loads the users and selects the one logged in', async () => {
+    it('loads the logged-in user', async () => {
         const { usersStore } = await mountProfile();
 
-        expect(usersStore.fetchUsers).toHaveBeenCalledTimes(1);
-        expect(usersStore.selectUser).toHaveBeenCalledWith('user-1');
+        expect(usersStore.loadCurrentUser).toHaveBeenCalledTimes(1);
     });
 
     it("is headed with the user's name", async () => {
@@ -126,15 +122,27 @@ describe('UserProfile', () => {
 
         it('saves the new name, then reloads', async () => {
             const { wrapper, usersStore } = await mountProfile();
+            usersStore.updateCurrentUser.mockResolvedValue(true);
             await typeInto(wrapper, 'First Name', 'Alicia');
 
             await buttonLabelled(wrapper, 'Save').trigger('click');
             await flushPromises();
 
-            expect(usersStore.updateUser).toHaveBeenCalledWith(expect.objectContaining({
-                userId: 'user-1', firstName: 'Alicia', lastName: 'Smith',
-            }));
-            expect(usersStore.fetchUsers).toHaveBeenCalledTimes(2);
+            expect(usersStore.updateCurrentUser).toHaveBeenCalledWith({ firstName: 'Alicia', lastName: 'Smith' });
+            expect(usersStore.loadCurrentUser).toHaveBeenCalledTimes(2);
+        });
+
+        it('keeps the change when the save fails', async () => {
+            const { wrapper, usersStore } = await mountProfile();
+            usersStore.updateCurrentUser.mockResolvedValue(false);
+            await typeInto(wrapper, 'First Name', 'Alicia');
+
+            await buttonLabelled(wrapper, 'Save').trigger('click');
+            await flushPromises();
+
+            expect(usersStore.loadCurrentUser).toHaveBeenCalledTimes(1);
+            expect(inputLabelled(wrapper, 'First Name').element.value).toBe('Alicia');
+            expect(buttonLabelled(wrapper, 'Save').attributes('disabled')).toBeUndefined();
         });
 
         it('keeps the stored user, and the heading, as they are until saved', async () => {
@@ -143,24 +151,23 @@ describe('UserProfile', () => {
             await typeInto(wrapper, 'First Name', 'Alicia');
 
             expect(wrapper.find('h2').text()).toBe('Alice Smith');
-            expect(usersStore.users[0].firstName).toBe('Alice');
-            expect(usersStore.updateUser).not.toHaveBeenCalled();
+            expect(usersStore.currentUser.details.firstName).toBe('Alice');
+            expect(usersStore.updateCurrentUser).not.toHaveBeenCalled();
         });
     });
 
     it("shows only the alert when the user can't be loaded", async () => {
         const pinia = createTestingPinia({
             initialState: {
-                user: { alertVisible: true, alertType: 'error', alertMessage: "Couldn't load the user: you don't have permission" },
+                user: { alertVisible: true, alertType: 'error', alertMessage: "Couldn't load your profile: the service failed (500)" },
             },
         });
-        useAuthenticationStore(pinia).actor = { userId: 'user-1', sessionId: 'session-1' };
 
         const wrapper = mountWithPlugins(UserProfile, { global: { plugins: [pinia] } });
         await flushPromises();
 
         expect(wrapper.find('h2').exists()).toBe(false);
-        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load the user: you don't have permission");
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load your profile: the service failed (500)");
     });
 
     it('shows the users store alert', async () => {

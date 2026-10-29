@@ -11,8 +11,9 @@ async function fetchSessionsForCurrentUser(token) {
     return response.data;
 }
 
+// One of the logged-in user's own sessions; another user's isn't found
 async function deleteSessionById(token, sessionId) {
-    await axios.delete(`${feralAuthenticationServiceUrl.v0}/sessions/${sessionId}`, {
+    await axios.delete(`${feralAuthenticationServiceUrl.v0}/sessions/current/${sessionId}`, {
         headers: {
             'x-feral-auth-token': token,
         },

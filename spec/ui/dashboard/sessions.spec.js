@@ -1,9 +1,9 @@
 import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Sessions page', () => {
-    // As bob, granted feral/admin: a new user's sessions are only the test's
-    // own, and only an admin can use the dashboard (backlog A30). Granted
-    // this application too, so the page can name it on bob's sessions
+    // As bob, a user without the admin role: a new user's sessions are only the
+    // test's own. Granted this application, so the page can name it on bob's
+    // sessions
     test.beforeEach(async ({
         loginPage, applicationPickerPage, adminPage, usersAdminPage, authorizationAdminPage,
     }) => {
@@ -15,7 +15,6 @@ test.describe('Sessions page', () => {
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');
         await usersAdminPage.adminNav.goToAuthorization();
-        await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
         await authorizationAdminPage.grantApplication('user: bob', 'application: Feral Authentication');
         await authorizationAdminPage.appBar.logOut();
         await loginPage.checkIsShown();

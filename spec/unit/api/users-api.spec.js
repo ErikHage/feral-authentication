@@ -81,6 +81,46 @@ describe('usersApi', () => {
         });
     });
 
+    describe('the current user', () => {
+        it('fetches the logged-in user, as fetchUsers shows them', async () => {
+            axios.get.mockResolvedValue({ data: serviceUser });
+
+            const user = await usersApi.fetchCurrentUser('a-token');
+
+            expect(axios.get).toHaveBeenCalledWith(`${baseUrl}/users/current`, auth);
+            expect(user).toEqual({
+                userId: 'user-1',
+                firstName: 'Alice',
+                lastName: 'Smith',
+                email: 'alice@example.test',
+                username: 'alice',
+                lastLogin: '2026-10-01T12:00:00Z',
+                isSuspended: 'N',
+            });
+        });
+
+        it("fetches the logged-in user's roles", async () => {
+            axios.get.mockResolvedValue({ data: { userId: 'user-1', roles: [{ roleId: 'role-1' }] } });
+
+            const roles = await usersApi.fetchCurrentUserRoles('a-token');
+
+            expect(axios.get).toHaveBeenCalledWith(`${baseUrl}/users/current/roles`, auth);
+            expect(roles).toEqual({ userId: 'user-1', roles: [{ roleId: 'role-1' }] });
+        });
+
+        it("updates only the logged-in user's first and last name", async () => {
+            axios.put.mockResolvedValue({ data: { userId: 'user-1' } });
+
+            const updated = await usersApi.updateCurrentUser('a-token', {
+                userId: 'user-1', firstName: 'Alicia', lastName: 'Smyth', email: 'changed@example.test',
+            });
+
+            expect(axios.put).toHaveBeenCalledWith(
+                `${baseUrl}/users/current`, { firstName: 'Alicia', lastName: 'Smyth' }, auth);
+            expect(updated).toEqual({ userId: 'user-1' });
+        });
+    });
+
     describe('addUser', () => {
         const newUser = {
             userId: 'user-1',

@@ -7,6 +7,9 @@ vi.mock('@/api/users-api', () => ({
     default: {
         fetchUsers: vi.fn(),
         fetchUser: vi.fn(),
+        fetchCurrentUser: vi.fn(),
+        fetchCurrentUserRoles: vi.fn(),
+        updateCurrentUser: vi.fn(),
         addUser: vi.fn(),
         updateUser: vi.fn(),
         deleteUser: vi.fn(),
@@ -44,10 +47,11 @@ describe('useUsersStore', () => {
         vi.restoreAllMocks();
     });
 
-    it('starts with no users, none selected and no alert', () => {
+    it('starts with no users, none selected or current, and no alert', () => {
         expect(store.$state).toEqual({
             users: [],
             selectedUser: null,
+            currentUser: null,
             loading: false,
             alertVisible: false,
             alertType: 'success',
@@ -236,6 +240,61 @@ describe('useUsersStore', () => {
             await choosingAlice;
 
             expect(store.selectedUser).toBeNull();
+        });
+    });
+
+    describe('loadCurrentUser', () => {
+        it('loads the logged-in user with their roles, grouped by scope', async () => {
+            usersApi.fetchCurrentUser.mockResolvedValue(alice);
+            usersApi.fetchCurrentUserRoles.mockResolvedValue({ userId: 'user-1', roles: [feralAdmin, harvestUser, feralUser] });
+
+            await store.loadCurrentUser();
+
+            expect(usersApi.fetchCurrentUser).toHaveBeenCalledWith('a-token');
+            expect(usersApi.fetchCurrentUserRoles).toHaveBeenCalledWith('a-token');
+            expect(store.currentUser).toEqual({
+                details: alice,
+                roles: [feralAdmin, harvestUser, feralUser],
+                rolesByScope: {
+                    feral: [feralAdmin, feralUser],
+                    harvest: [harvestUser],
+                },
+            });
+        });
+
+        it('loads nothing, and says why, when it fails', async () => {
+            store.$patch({ currentUser: { details: bob } });
+            usersApi.fetchCurrentUser.mockResolvedValue(alice);
+            usersApi.fetchCurrentUserRoles.mockRejectedValue(httpError(500));
+
+            await store.loadCurrentUser();
+
+            expect(store.currentUser).toBeNull();
+            expect(store.alertType).toBe('error');
+            expect(store.alertMessage).toBe("Couldn't load your profile: the service failed (500)");
+        });
+    });
+
+    describe('updateCurrentUser', () => {
+        const names = { firstName: 'Alicia', lastName: 'Smith' };
+
+        it('saves the names with the stored token, says so, and resolves to true', async () => {
+            usersApi.updateCurrentUser.mockResolvedValue({});
+
+            await expect(store.updateCurrentUser(names)).resolves.toBe(true);
+
+            expect(usersApi.updateCurrentUser).toHaveBeenCalledWith('a-token', names);
+            expect(store.alertType).toBe('success');
+            expect(store.alertMessage).toBe('User updated successfully!');
+        });
+
+        it('says what failed, and why, and resolves to false', async () => {
+            usersApi.updateCurrentUser.mockRejectedValue(httpError(500));
+
+            await expect(store.updateCurrentUser(names)).resolves.toBe(false);
+
+            expect(store.alertType).toBe('error');
+            expect(store.alertMessage).toBe("Couldn't save your details: the service failed (500)");
         });
     });
 

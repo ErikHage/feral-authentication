@@ -109,7 +109,7 @@
 <script>
 
 import { mapActions, mapState } from "pinia";
-import { useAuthenticationStore, useUsersStore } from "@/store";
+import { useUsersStore } from "@/store";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
@@ -139,39 +139,34 @@ export default {
           .some(field => this.userDetails[field] !== this.savedDetails[field]);
     },
 
-    ...mapState(useAuthenticationStore, [
-      'actor',
-    ]),
-
     ...mapState(useUsersStore, [
-      'selectedUser', 'alertType', 'alertMessage', 'alertVisible',
+      'currentUser', 'alertType', 'alertMessage', 'alertVisible',
     ]),
   },
 
   methods: {
     ...mapActions(useUsersStore, [
-      'fetchUsers',
-      'selectUser',
-      'updateUser',
-      'setAlertMessage',
+      'loadCurrentUser',
+      'updateCurrentUser',
     ]),
 
     async refreshData() {
-      await this.fetchUsers();
-      await this.selectUser(this.actor.userId);
-      if (!this.selectedUser) {
+      await this.loadCurrentUser();
+      if (!this.currentUser) {
         return;
       }
-      this.userRoles = this.selectedUser.roles;
-      this.userRolesMap = this.selectedUser.rolesByScope;
-      this.savedDetails = this.selectedUser.details;
+      this.userRoles = this.currentUser.roles;
+      this.userRolesMap = this.currentUser.rolesByScope;
+      this.savedDetails = this.currentUser.details;
       this.userDetails = { ...this.savedDetails };
     },
 
+    // A failed save keeps the change, to correct
     async updateUserDetails() {
-      console.log('update name called', this.userDetails.firstName, this.userDetails.lastName);
-      await this.updateUser(this.userDetails)
-      await this.refreshData();
+      const { firstName, lastName } = this.userDetails;
+      if (await this.updateCurrentUser({ firstName, lastName })) {
+        await this.refreshData();
+      }
     }
   },
 

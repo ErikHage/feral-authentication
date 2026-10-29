@@ -80,7 +80,7 @@ export function createProfilePage(world, driver) {
         async checkShowsUserWithoutAdminRole(...args) {
             const params = parseDslArgs(args, { user: user() });
 
-            await driver.showsOnlyTheRefusal(world.credentialsFor(params.user).username);
+            await driver.showsUser(world.userNamed(params.user));
         },
     };
 }

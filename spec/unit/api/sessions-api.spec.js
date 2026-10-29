@@ -20,11 +20,11 @@ describe('sessionsApi', () => {
         expect(sessions).toEqual([{ sessionId: 'session-1' }]);
     });
 
-    it('deletes a session', async () => {
+    it("deletes one of the current user's sessions", async () => {
         axios.delete.mockResolvedValue({ data: {} });
 
         await sessionsApi.deleteSessionById('a-token', 'session-1');
 
-        expect(axios.delete).toHaveBeenCalledWith(`${baseUrl}/sessions/session-1`, auth);
+        expect(axios.delete).toHaveBeenCalledWith(`${baseUrl}/sessions/current/session-1`, auth);
     });
 });

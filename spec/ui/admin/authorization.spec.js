@@ -100,10 +100,6 @@ test.describe('Authorization admin page', () => {
             await applicationPickerPage.checkOffersApplication('application: Feral Authentication');
         });
 
-        // DocumentsCurrentBehavior: the service refuses the users list and the
-        // user's own details (403, A30). The page shows nothing but its
-        // navigation and an alert saying bob doesn't have permission. Should
-        // show bob's details.
         test('shows them their profile', async ({ usersAdminPage, loginPage, applicationPickerPage, profilePage }) => {
             await usersAdminPage.appBar.logOut();
             await loginPage.checkIsShown();

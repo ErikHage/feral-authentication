@@ -1,10 +1,10 @@
 import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Profile page', () => {
-    // As bob, granted feral/admin, so the admin's own name is never edited.
-    // Only an admin can use the dashboard (backlog A30)
+    // As bob, a user without the admin role, so the admin's own name is never
+    // edited
     test.beforeEach(async ({
-        loginPage, applicationPickerPage, adminPage, usersAdminPage, authorizationAdminPage,
+        loginPage, applicationPickerPage, adminPage, usersAdminPage,
     }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
@@ -13,9 +13,7 @@ test.describe('Profile page', () => {
         await adminPage.adminNav.goToUsers();
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');
-        await usersAdminPage.adminNav.goToAuthorization();
-        await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
-        await authorizationAdminPage.appBar.logOut();
+        await usersAdminPage.appBar.logOut();
         await loginPage.checkIsShown();
         await loginPage.logIn('user: bob');
         await applicationPickerPage.checkIsShown();
@@ -53,7 +51,7 @@ test.describe('Profile page', () => {
 
 test.describe('Profile page, after switching users', () => {
     test('shows the next user to log in their own details', async ({
-        loginPage, applicationPickerPage, adminPage, usersAdminPage, authorizationAdminPage, profilePage,
+        loginPage, applicationPickerPage, adminPage, usersAdminPage, profilePage,
     }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
@@ -62,9 +60,7 @@ test.describe('Profile page, after switching users', () => {
         await adminPage.adminNav.goToUsers();
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');
-        await usersAdminPage.adminNav.goToAuthorization();
-        await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
-        await authorizationAdminPage.appBar.goToDashboard();
+        await usersAdminPage.appBar.goToDashboard();
         await applicationPickerPage.dashboardNav.goToProfile();
         await profilePage.checkIsShown();
         await profilePage.appBar.logOut();

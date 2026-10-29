@@ -172,6 +172,16 @@ function startSelection(store) {
 
 const isLatestSelection = (store, selection) => latestSelections.get(store) === selection;
 
+function groupedByScope(roles) {
+    return roles.reduce((acc, role) => {
+        if (!acc[role.scope]) {
+            acc[role.scope] = [];
+        }
+        acc[role.scope].push(role);
+        return acc;
+    }, {});
+}
+
 export const useUsersStore = defineStore('user', {
     actions: {
         async fetchUsers() {
@@ -222,18 +232,10 @@ export const useUsersStore = defineStore('user', {
                 if (!isLatestSelection(this, selection)) {
                     return;
                 }
-                const rolesByScope = userRoles.roles.reduce((acc, role) => {
-                    if (!acc[role.scope]) {
-                        acc[role.scope] = [];
-                    }
-                    acc[role.scope].push(role);
-                    return acc;
-                }, {});
-
                 this.selectedUser = {
                     details: userDetails,
                     roles: userRoles.roles,
-                    rolesByScope,
+                    rolesByScope: groupedByScope(userRoles.roles),
                     applications: userApplications,
                 };
             } catch (err) {
@@ -243,6 +245,31 @@ export const useUsersStore = defineStore('user', {
                 }
                 this.selectedUser = null;
                 this.setAlertMessage('error', failureMessage(err, "Couldn't load the user"));
+            }
+        },
+        // The logged-in user, for their profile: no admin role needed
+        async loadCurrentUser() {
+            try {
+                const token = storageUtils.tryToLoadTokenFromStorage();
+                const details = await usersApi.fetchCurrentUser(token);
+                const { roles } = await usersApi.fetchCurrentUserRoles(token);
+                this.currentUser = { details, roles, rolesByScope: groupedByScope(roles) };
+            } catch (err) {
+                console.log(err);
+                this.currentUser = null;
+                this.setAlertMessage('error', failureMessage(err, "Couldn't load your profile"));
+            }
+        },
+        // Resolves to whether it saved
+        async updateCurrentUser(names) {
+            try {
+                await usersApi.updateCurrentUser(storageUtils.tryToLoadTokenFromStorage(), names);
+                this.setAlertMessage('success', 'User updated successfully!');
+                return true;
+            } catch (err) {
+                console.log(err);
+                this.setAlertMessage('error', failureMessage(err, "Couldn't save your details"));
+                return false;
             }
         },
         clearSelectedUser() {
@@ -303,6 +330,7 @@ export const useUsersStore = defineStore('user', {
         return {
             users: [],
             selectedUser: null,
+            currentUser: null,
             loading: false,
             alertVisible: false,
             alertType: 'success',

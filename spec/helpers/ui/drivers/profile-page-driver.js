@@ -1,11 +1,10 @@
 import {
-    expectDisabled, expectEnabled, expectEventually, expectText, expectThat, expectUrl, expectValue, expectVisible,
+    expectDisabled, expectEnabled, expectText, expectValue, expectVisible,
 } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
-import { urlOf } from './urls';
 
 /** The logged-in user's profile page, as Playwright sees it. */
-export function createProfilePageDriver(page, serviceCalls) {
+export function createProfilePageDriver(page) {
     const main = page.getByRole('main');
     const personalDetails = main.getByText('Personal Details', { exact: true });
     // The user's full name
@@ -63,23 +62,6 @@ export function createProfilePageDriver(page, serviceCalls) {
             const what = `showing ${username} their profile, after ${previousUsername} logged out`;
 
             await expectValue(field('Username'), username, what);
-        },
-
-        /**
-         * Today's behaviour for a user without the admin role: the service
-         * refuses the page's calls, the last being the user's own details, and
-         * the page shows nothing but its navigation and an alert saying why.
-         */
-        async showsOnlyTheRefusal(username) {
-            const what = `showing ${username} their profile`;
-
-            await expectEventually(
-                () => serviceCalls.wereAnswered('GET', /\/users\/[^/]+$/, 403),
-                "the service to refuse the user's details (403)", what);
-            await expectUrl(page, urlOf('dashboard/profile'), what);
-            await expectVisible(alertSaying("Couldn't load the user: you don't have permission"), what);
-            const shown = await personalDetails.count();
-            expectThat(shown === 0, 'no Personal Details', `${shown} shown`, what);
         },
     };
 }

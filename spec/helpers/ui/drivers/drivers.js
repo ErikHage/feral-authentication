@@ -33,7 +33,7 @@ export function createDrivers(page) {
         notFoundPage: createNotFoundPageDriver(page),
 
         applicationPickerPage: createApplicationPickerPageDriver(page, serviceCalls),
-        profilePage: createProfilePageDriver(page, serviceCalls),
+        profilePage: createProfilePageDriver(page),
         sessionsPage: createSessionsPageDriver(page),
 
         rolesAdminPage: createRolesAdminPageDriver(page),
