@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+# Install exactly what package-lock.json names, as npm ci does locally
+RUN npm ci
 
 COPY . .
 
