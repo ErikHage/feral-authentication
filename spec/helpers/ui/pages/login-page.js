@@ -30,6 +30,13 @@ export function createLoginPage(world, driver) {
             await driver.saysTheUsernameOrPasswordIsWrong();
         },
 
+        /** The password was cleared, and the `user`'s username is left to try again. */
+        async checkIsReadyToTryAgain(...args) {
+            const params = parseDslArgs(args, { user: user() });
+
+            await driver.isReadyToTryAgainAs(world.credentialsFor(params.user).username);
+        },
+
         /**
          * Opens the login page to sign on to the `application`, one the test
          * added. A logged-in user is sent straight on; anyone else logs in

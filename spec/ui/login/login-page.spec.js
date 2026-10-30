@@ -16,4 +16,13 @@ test.describe('Login page', () => {
 
         await loginPage.checkLoginIsRejected();
     });
+
+    test('clears the password after a refused login', async ({ loginPage }) => {
+        await loginPage.open();
+
+        await loginPage.logIn('user: admin', 'password: wrong');
+
+        await loginPage.checkLoginIsRejected();
+        await loginPage.checkIsReadyToTryAgain('user: admin');
+    });
 });

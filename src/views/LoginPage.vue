@@ -102,6 +102,9 @@ export default {
     async login() {
       await this.authenticate(this.username, this.password);
 
+      // It's no use on the page now, and a single sign-on can still fail below
+      this.password = '';
+
       if (this.isAuthenticated) {
         if (this.ssoAppId) {
           await this.loginToApplication(this.ssoAppId, false);

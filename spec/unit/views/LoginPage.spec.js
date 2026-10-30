@@ -1,6 +1,7 @@
 import { flushPromises } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { mountWithPlugins } from '../../helpers/mount';
+import { inputLabelled } from '../../helpers/fields';
 import LoginPage from '@/views/LoginPage.vue';
 import { useAuthenticationStore } from '@/store';
 
@@ -120,6 +121,26 @@ describe('LoginPage', () => {
 
             expect(router.push).not.toHaveBeenCalled();
             expect(store.loginToApplication).not.toHaveBeenCalled();
+        });
+
+        it('clears the password and keeps the username when the login fails', async () => {
+            const { wrapper } = await mountPage();
+
+            await submit(wrapper, 'alice', 'wrong');
+
+            expect(inputLabelled(wrapper, 'Username').element.value).toBe('alice');
+            expect(inputLabelled(wrapper, 'Password').element.value).toBe('');
+        });
+
+        it('clears the password when the login to the application named by ?app= fails', async () => {
+            window.history.replaceState(null, '', '/auth/login?app=app-1');
+            const { wrapper } = await mountPage({
+                arrange: store => store.authenticate.mockImplementation(logsIn(store)),
+            });
+
+            await submit(wrapper, 'alice', 'secret');
+
+            expect(inputLabelled(wrapper, 'Password').element.value).toBe('');
         });
 
         it('logs in to the application named by ?app= instead', async () => {

@@ -1,4 +1,4 @@
-import { expectUrl, expectVisible } from './assertions';
+import { expectUrl, expectValue, expectVisible } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { openPath, urlOf } from './urls';
 
@@ -42,6 +42,14 @@ export function createLoginPageDriver(page) {
 
             await expectVisible(credentialsWrong, what);
             await expectUrl(page, urlOf('login'), what);
+        },
+
+        /** Ready to try again: the password is gone, and the username is still there. */
+        async isReadyToTryAgainAs(username) {
+            const what = 'after a refused login';
+
+            await expectValue(passwordField, '', what);
+            await expectValue(usernameField, username, what);
         },
 
         /**
