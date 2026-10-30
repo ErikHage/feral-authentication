@@ -93,6 +93,18 @@ async function checkAppCallsTheService() {
             throw new Error(`the app logs in at ${request.url()}, not at ${authServiceUrl}/login. `
                 + wiringHint);
         }
+
+        // Reaching the service isn't enough: if its CORS_ORIGINS doesn't list
+        // the app, the browser hides the answer, and the page shows a network
+        // error instead of the 401 for an unknown user
+        try {
+            await loginPage.saysTheUsernameOrPasswordIsWrong();
+        } catch {
+            throw new Error(`logging in on ${appUrl}login reached the service, but the page didn't show `
+                + 'its answer ("Couldn\'t log in: the username or password is wrong"). If the browser '
+                + `blocked it for CORS, add ${new URL(appUrl).origin} to CORS_ORIGINS in the service's `
+                + '.env, and restart the service.');
+        }
     } finally {
         await browser.close();
     }
