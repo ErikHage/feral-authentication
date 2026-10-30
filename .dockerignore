@@ -1,0 +1,20 @@
+# The image is built from the source alone. Keep everything local out of the
+# build context: the UI suite's credentials, and its failure output, whose
+# traces and page snapshots can hold the admin's typed password
+spec/helpers/ui/.env.ui
+test-results
+playwright-report
+
+# Installed and built inside the image; a copy from the host would replace
+# the image's own node_modules with this platform's binaries
+node_modules
+dist
+
+.git
+.run
+*.pid
+coverage
+.env.local
+.env.*.local
+.idea
+.vscode

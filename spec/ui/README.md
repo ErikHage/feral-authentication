@@ -17,11 +17,11 @@ Any value can also be set from the shell, which wins over the file:
 - `UI_AUTH_SERVICE_URL` (default `http://localhost:8003/api/feral-authentication-service/v0`)
 - `UI_APPLICATION_ID` (default: the app's own `VITE_APPLICATION_ID`, the application scoped `feral`)
 
-A preflight runs before any test. It checks that the service answers, that the admin can log in and list users, and that the app answers. If any of that fails, it stops with a message naming the fix.
+A preflight runs before any test. It checks that the service answers, that the admin can log in and list users, that the app answers, and that the page sees the service's answers (a CORS refusal hides them). If any of that fails, it stops with a message naming the fix.
 
 ## Safety: local services only
 
-The suite adds users, grants them `feral/admin`, and leaves keys and applications it can't delete. It must never run against the live service. Logging in as a local-only admin means a stray run fails at login, and three guards stop it before then:
+The suite adds users, keys and applications, and grants users `feral/admin`. It must never run against the live service. Logging in as a local-only admin means a stray run fails at login, and three guards stop it before then:
 
 1. **Local URLs only.** `setup/config.js` refuses a `UI_APP_URL` or `UI_AUTH_SERVICE_URL` whose host isn't `localhost`, `127.0.0.1` or `[::1]`.
 2. **The preflight checks where the app logs in.** The app in the browser calls whichever service it was built with, not `UI_AUTH_SERVICE_URL`. A production build (`vite build`, `vite preview`, `npm run serve`) reads `.env.production`, which names the live service. So the preflight logs in through the page, as a user who doesn't exist, and stops the run unless the request went to `UI_AUTH_SERVICE_URL`.
@@ -30,6 +30,8 @@ The suite adds users, grants them `feral/admin`, and leaves keys and application
 Run the suite against the dev server, as `./start-feral-authentication.sh` starts it. The guards were added after a run against `vite preview` wrote test data to the live service (see the security-updates changelog, 2026-10-20).
 
 Failures save a screenshot and a trace under `test-results/`. Open a trace with `npx playwright show-trace <path>/trace.zip`, or open the HTML report with `npx playwright show-report`.
+
+A failure's trace and its `error-context.md` can hold any password typed in the test, the admin's included: they record the page's fields as they were. Both folders are gitignored and kept out of the Docker build context (`.dockerignore`), so they stay on this machine. Don't share them; share a screenshot instead, which shows a password as dots.
 
 ## Layers
 
