@@ -1,91 +1,80 @@
 <template>
-  <v-container>
-    <v-row class="justify-center">
-      <v-col cols="12" sm="8">
+  <fr-container>
+    <fr-row class="justify-center">
+      <fr-col cols="12" sm="8">
         <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-        <v-card>
-          <v-card-title>
-            <span class="headline">Manage Roles</span>
-            <v-spacer></v-spacer>
-            <v-btn class="mr-2" color="primary" @click="openDialog()">Add</v-btn>
-            <v-btn color="primary" @click="fetchRoles()">Refresh</v-btn>
-          </v-card-title>
-          <v-card-text>
-            <v-data-table
+        <fr-card title="Manage Roles">
+          <div class="px-4 pb-4">
+            <div class="mb-3">
+              <fr-btn class="mr-2" color="primary" @click="openDialog()">Add</fr-btn>
+              <fr-btn color="primary" @click="fetchRoles()">Refresh</fr-btn>
+            </div>
+            <fr-data-table
                 :headers="headers"
                 :items="roles"
-                item-key="roleId"
+                item-value="roleId"
                 class="elevation-1"
             >
               <template #item.actions="{ item }">
-                <v-icon small :aria-label="`Delete ${item.scope}/${item.title}`" @click="openDeleteDialog(item)">mdi-delete</v-icon>
+                <fr-icon :aria-label="`Delete ${item.scope}/${item.title}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
               </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+            </fr-data-table>
+          </div>
+        </fr-card>
+      </fr-col>
+    </fr-row>
 
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Add Role</span>
-        </v-card-title>
-        <v-card-text>
-          <v-form ref="roleForm" v-model="formValid">
-            <v-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></v-text-field>
-            <v-text-field v-model="form.title" label="Title" :rules="rules.title"></v-text-field>
-            <v-textarea v-model="form.description" label="Description" :rules="rules.description"></v-textarea>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text :disabled="!formValid" @click="saveRole">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <fr-dialog v-model="dialog" title="Add Role">
+      <fr-form ref="roleForm" v-model="formValid">
+        <v-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></v-text-field>
+        <v-text-field v-model="form.title" label="Title" :rules="rules.title"></v-text-field>
+        <v-textarea v-model="form.description" label="Description" :rules="rules.description"></v-textarea>
+      </fr-form>
+      <template #actions>
+        <fr-btn color="blue darken-1" text @click="closeDialog">Cancel</fr-btn>
+        <fr-btn color="blue darken-1" text :disabled="!formValid" @click="saveRole">Save</fr-btn>
+      </template>
+    </fr-dialog>
 
-    <v-dialog v-model="deleteDialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Delete Role</span>
-        </v-card-title>
-        <v-card-text class="text-center">
-          <v-table>
-            <tbody>
-            <tr>
-              <th>Scope</th>
-              <td>{{this.roleToDelete?.scope}}</td>
-            </tr>
-            <tr>
-              <th>Title</th>
-              <td>{{this.roleToDelete?.title}}</td>
-            </tr>
-            </tbody>
-          </v-table>
-          <br/>
-          <span class="red-text">Are you sure? This cannot be undone!</span>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDeleteDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="deleteRoleById(this.roleToDelete?.roleId)">Delete</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+    <fr-dialog v-model="deleteDialog" title="Delete Role">
+      <div class="text-center">
+        <fr-table>
+          <tbody>
+          <tr>
+            <th>Scope</th>
+            <td>{{this.roleToDelete?.scope}}</td>
+          </tr>
+          <tr>
+            <th>Title</th>
+            <td>{{this.roleToDelete?.title}}</td>
+          </tr>
+          </tbody>
+        </fr-table>
+        <br/>
+        <span class="red-text">Are you sure? This cannot be undone!</span>
+      </div>
+      <template #actions>
+        <fr-btn color="blue darken-1" text @click="closeDeleteDialog">Cancel</fr-btn>
+        <fr-btn color="blue darken-1" text @click="deleteRoleById(this.roleToDelete?.roleId)">Delete</fr-btn>
+      </template>
+    </fr-dialog>
+  </fr-container>
 </template>
 
 <script>
 import { useRolesStore } from "@/store";
 import { mapActions, mapState } from "pinia";
+import {
+  FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+} from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 import { required } from "@/utils/rules";
 
 export default {
   name: "RolesAdmin",
-  components: { FadeOutAlert },
+  components: {
+    FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+  },
 
   data() {
     return {

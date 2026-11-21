@@ -58,9 +58,9 @@ async function mountPage() {
 const selectLabelled = (wrapper, label) => wrapper.findAllComponents({ name: 'VSelect' })
     .find(select => select.props('label') === label);
 
-// A card is a region, named by its title
+// A card is a region, named as its title reads
 const cardTitled = (wrapper, title) => wrapper.findAll('[role="region"]')
-    .find(card => card.find(`#${card.attributes('aria-labelledby')}`).text() === title);
+    .find(card => card.attributes('aria-label') === title && card.find('.v-card-title').text() === title);
 
 const chips = card => card.findAll('.v-chip').map(chip => chip.text());
 const chipToRemove = (card, name) => card.find(`.v-chip[role="button"][aria-label="Remove ${name}"]`);

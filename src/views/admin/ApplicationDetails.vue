@@ -1,13 +1,13 @@
 <template>
-  <v-container v-if="applicationDetails">
+  <fr-container v-if="applicationDetails">
     <h2>Application Details</h2>
 
-    <v-row class="justify-center">
-      <v-col cols="12" sm="8">
+    <fr-row class="justify-center">
+      <fr-col cols="12" sm="8">
         <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-        <v-card class="mt-3">
-          <v-card-text>
-            <v-form v-model="formValid">
+        <fr-card class="mt-3">
+          <div class="pa-4">
+            <fr-form v-model="formValid">
               <v-text-field
                   disabled
                   v-model="applicationDetails.applicationId"
@@ -51,64 +51,59 @@
                   v-model="previousKeyDetails.keyName"
                   label="Previous Key Pair Name"
               ></v-text-field>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
+            </fr-form>
+          </div>
+          <template #actions>
+            <fr-btn
                 @click="openDialog">
               Rotate Key
-            </v-btn>
-            <v-btn
+            </fr-btn>
+            <fr-btn
                 @click="refreshData">
               Reset
-            </v-btn>
-            <v-btn
+            </fr-btn>
+            <fr-btn
                 :disabled="!formValid || !isChanged"
                 @click="updateApplicationDetails">
               Save
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
+            </fr-btn>
+          </template>
+        </fr-card>
+      </fr-col>
+    </fr-row>
 
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Choose New Key</span>
-        </v-card-title>
-        <v-card-text>
-          <v-autocomplete
-              v-model="form.newKeyId"
-              :items="rotateKeysSelect"
-              item-title="keyName"
-              item-value="keyId"
-              label="Key"
-              variant="solo"
-          ></v-autocomplete>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text :disabled="!form.newKeyId" @click="performKeyRotation">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <fr-dialog v-model="dialog" title="Choose New Key">
+      <fr-autocomplete
+          v-model="form.newKeyId"
+          :items="rotateKeysSelect"
+          item-title="keyName"
+          item-value="keyId"
+          label="Key"
+      ></fr-autocomplete>
+      <template #actions>
+        <fr-btn color="blue darken-1" text @click="closeDialog">Cancel</fr-btn>
+        <fr-btn color="blue darken-1" text :disabled="!form.newKeyId" @click="performKeyRotation">Save</fr-btn>
+      </template>
+    </fr-dialog>
 
-  </v-container>
+  </fr-container>
 </template>
 
 <script>
 import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useKeysStore } from "@/store";
+import {
+  FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDialog, FrForm, FrRow,
+} from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: "ApplicationDetails",
 
-  components: { FadeOutAlert },
+  components: {
+    FadeOutAlert, FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDialog, FrForm, FrRow,
+  },
 
   data() {
     return {

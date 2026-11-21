@@ -1,73 +1,66 @@
 <template>
-  <v-container>
-    <v-row class="justify-center">
-      <v-col cols="12" sm="8">
+  <fr-container>
+    <fr-row class="justify-center">
+      <fr-col cols="12" sm="8">
         <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
 
-        <v-card>
-          <v-card-title>
-            <span class="headline">Manage Keys</span>
-            <v-spacer></v-spacer>
-            <v-btn class="mr-2" color="primary" @click="openGenerateDialog">Generate</v-btn>
-            <v-btn color="primary" @click="refresh">Refresh</v-btn>
-          </v-card-title>
-          <v-card-text>
-            <v-data-table
+        <fr-card title="Manage Keys">
+          <div class="px-4 pb-4">
+            <div class="mb-3">
+              <fr-btn class="mr-2" color="primary" @click="openGenerateDialog">Generate</fr-btn>
+              <fr-btn color="primary" @click="refresh">Refresh</fr-btn>
+            </div>
+            <fr-data-table
                 :headers="headers"
                 :items="availableKeys"
-                item-key="keyId"
+                item-value="keyId"
                 class="elevation-1"
             >
-            </v-data-table>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+            </fr-data-table>
+          </div>
+        </fr-card>
+      </fr-col>
+    </fr-row>
 
-    <v-dialog v-model="generateDialog" max-width="500px" persistent>
-      <v-card>
-        <v-card-title>
-          <span class="headline">Generate Key</span>
-        </v-card-title>
+    <fr-dialog v-model="generateDialog" title="Generate Key" persistent>
+      <fr-form ref="generateForm" v-model="formValid">
+        <v-text-field
+            v-model="keyName"
+            label="Key Name"
+            :rules="nameRules"
+            required
+        ></v-text-field>
 
-        <v-card-text>
-          <v-form ref="generateForm" v-model="formValid">
-            <v-text-field
-                v-model="keyName"
-                label="Key Name"
-                :rules="nameRules"
-                required
-            ></v-text-field>
-
-            <v-text-field
-                v-model="expiration"
-                label="Expiration Date"
-                :rules="dateRules"
-                required
-                type="datetime-local"
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeGenerateDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="generate" :disabled="!formValid">Generate</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+        <v-text-field
+            v-model="expiration"
+            label="Expiration Date"
+            :rules="dateRules"
+            required
+            type="datetime-local"
+        ></v-text-field>
+      </fr-form>
+      <template #actions>
+        <fr-btn color="blue darken-1" text @click="closeGenerateDialog">Cancel</fr-btn>
+        <fr-btn color="blue darken-1" text @click="generate" :disabled="!formValid">Generate</fr-btn>
+      </template>
+    </fr-dialog>
+  </fr-container>
 </template>
 
 <script>
 import { useKeysStore } from "@/store";
 import { mapActions, mapState } from "pinia";
+import {
+  FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrRow,
+} from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 import { required } from "@/utils/rules";
 
 export default {
   name: "KeysAdmin",
-  components: { FadeOutAlert },
+  components: {
+    FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrRow,
+  },
 
   data() {
     return {
