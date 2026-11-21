@@ -4,6 +4,9 @@
 spec/helpers/ui/.env.ui
 test-results
 playwright-report
+# npm's token for the private @feral-auth packages, if a local .npmrc holds
+# it. The build gets it only as a secret, never as a copied file
+.npmrc
 
 # Installed and built inside the image; a copy from the host would replace
 # the image's own node_modules with this platform's binaries
