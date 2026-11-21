@@ -1,5 +1,6 @@
 import { expectCount, expectDisabled, expectText, expectValue, expectVisible } from './assertions';
 import { createDataTable } from './data-table';
+import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
 
 // The Last Login column: "-" until the user first logs in
@@ -9,7 +10,6 @@ const neverOrATime = /^(-|\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})$/;
 export function createUsersAdminPageDriver(page) {
     const main = page.getByRole('main');
     const addButton = main.getByRole('button', { name: 'Add' });
-    const alertSaying = message => main.getByRole('alert').filter({ hasText: message });
     const table = createDataTable(page);
 
     // Dialogs open outside main
@@ -64,7 +64,7 @@ export function createUsersAdminPageDriver(page) {
         async listsTheUserRenamed(username, newFirstName) {
             const what = `renaming ${username} to ${newFirstName}`;
 
-            await expectVisible(alertSaying('User updated successfully!'), what);
+            await expectVisible(messageSaying(page, 'User updated successfully!'), what);
             await expectText(table.detailsIn(username).first(), newFirstName, what);
         },
 

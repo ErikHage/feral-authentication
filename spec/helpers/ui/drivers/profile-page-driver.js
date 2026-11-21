@@ -1,6 +1,7 @@
 import {
     expectDisabled, expectEnabled, expectText, expectValue, expectVisible,
 } from './assertions';
+import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
 
 /** The logged-in user's profile page, as Playwright sees it. */
@@ -11,6 +12,7 @@ export function createProfilePageDriver(page) {
     const heading = main.getByRole('heading', { level: 2 });
     const field = label => main.getByLabel(label, { exact: true });
     const saveButton = main.getByRole('button', { name: 'Save' });
+    // A field's validation message
     const alertSaying = message => main.getByRole('alert').filter({ hasText: message });
 
     return {
@@ -40,7 +42,7 @@ export function createProfilePageDriver(page) {
         },
 
         async savedDetails() {
-            await expectVisible(alertSaying('User updated successfully!'), 'saving the profile');
+            await expectVisible(messageSaying(page, 'User updated successfully!'), 'saving the profile');
         },
 
         async cannotSaveAnEmptyFirstName() {

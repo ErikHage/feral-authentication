@@ -1,6 +1,7 @@
 import {
     expectCount, expectDisabled, expectEnabled, expectUrl, expectValue, expectVisible,
 } from './assertions';
+import { messageSaying } from './messages';
 import { chooseOption, selectField } from './select';
 import { urlOf } from './urls';
 
@@ -13,6 +14,7 @@ export function createApplicationDetailsPageDriver(page) {
     const heading = main.getByRole('heading', { name: 'Application Details' });
     const field = label => main.getByLabel(label, { exact: true });
     const saveButton = main.getByRole('button', { name: 'Save' });
+    // A field's validation message
     const alertSaying = message => main.getByRole('alert').filter({ hasText: message });
 
     // Dialogs open outside main
@@ -84,7 +86,7 @@ export function createApplicationDetailsPageDriver(page) {
         async savesTheName({ applicationName }, newName) {
             const what = `renaming ${applicationName} to ${newName}`;
 
-            await expectVisible(alertSaying(`Application ${newName} saved`), what);
+            await expectVisible(messageSaying(page, `Application ${newName} saved`), what);
             await expectDisabled(saveButton, what);
             await expectValue(field('Application Name'), newName, what);
         },
