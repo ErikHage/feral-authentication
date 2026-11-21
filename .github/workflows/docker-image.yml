@@ -5,6 +5,9 @@ name: Docker image
 # :sha-<commit>.
 #
 # Repository secrets:
+#   NPM_TOKEN        npm granular token, read-only, for the private
+#                    @feral-auth packages. It reaches the build only as a
+#                    BuildKit secret, so it's in no layer of the image.
 #   DOCKERHUB_TOKEN  Docker Hub access token for ehage, Read & Write.
 
 on:
@@ -44,5 +47,8 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ env.IMAGE }}:sha-${{ github.sha }}
+          # The Dockerfile mounts this as .npmrc while npm ci runs
+          secrets: |
+            npmrc=//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
