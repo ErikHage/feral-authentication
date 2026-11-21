@@ -1,41 +1,37 @@
 <template>
-  <v-container v-if="userApplications">
-    <h2 class="headline">Available Applications</h2>
+  <fr-container v-if="userApplications">
+    <h2>Available Applications</h2>
     <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
     <!-- Logging in, and opening an application, are the authentication store's -->
     <FadeOutAlert class="my-2" :is-visible="signOnAlertVisible" :alert-type="signOnAlertType" :message="signOnAlertMessage"/>
-    <v-row class="mt-3">
-      <v-col cols="2"></v-col>
+    <fr-row class="mt-3">
+      <fr-col cols="2"></fr-col>
 
-      <v-col cols="8">
-        <v-row>
-          <v-col v-for="application in userApplications"
-                 v-bind:key="application.applicationId"
-                 cols="4"
+      <fr-col cols="8">
+        <fr-row>
+          <fr-col v-for="application in userApplications"
+                  v-bind:key="application.applicationId"
+                  cols="4"
           >
-            <v-card>
-              <v-card-title class="text-center">
-                {{ application.applicationName }}
-              </v-card-title>
-              <v-card-text class="ma-3">
-                <v-img
+            <fr-card class="text-center" :title="application.applicationName">
+              <div class="ma-3 px-4 pb-4">
+                <fr-image
                     :src="getAssetPathToDisplay(application)"
                     alt="Logo"
-                    contain
                     max-width="125"
                     class="mx-auto pointer"
                     @click="goToApplication(application.applicationId)"
-                ></v-img>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-col>
+                ></fr-image>
+              </div>
+            </fr-card>
+          </fr-col>
+        </fr-row>
+      </fr-col>
 
-      <v-col cols="2"></v-col>
+      <fr-col cols="2"></fr-col>
 
-    </v-row>
-  </v-container>
+    </fr-row>
+  </fr-container>
 </template>
 
 <script>
@@ -43,12 +39,13 @@ import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useAuthenticationStore, } from "@/store";
 import { getAssetPath } from "@/utils/assets";
+import { FrCard, FrCol, FrContainer, FrImage, FrRow } from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: 'ApplicationPicker',
 
-  components: { FadeOutAlert },
+  components: { FadeOutAlert, FrCard, FrCol, FrContainer, FrImage, FrRow },
 
   data() {
     return {
