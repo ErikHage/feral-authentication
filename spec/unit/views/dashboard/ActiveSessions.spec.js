@@ -80,6 +80,14 @@ describe('ActiveSessions', () => {
         expect(remoteCard.find('.mdi-star').exists()).toBe(false);
     });
 
+    it('colours the star primary, and keeps a prepend area on every card', async () => {
+        const { wrapper } = await mountSessions();
+
+        expect(cardFor(wrapper, 'session-1').find('.v-card-item__prepend .mdi-star').classes())
+            .toContain('text-primary');
+        expect(cardFor(wrapper, 'session-2').find('.v-card-item__prepend').exists()).toBe(true);
+    });
+
     it('lets only other sessions be revoked', async () => {
         const { wrapper } = await mountSessions();
 
