@@ -9,7 +9,8 @@ describe('FadeOutAlert', () => {
 
         const alert = wrapper.find('.v-alert');
         expect(alert.text()).toContain('Something broke');
-        expect(alert.classes()).toContain('bg-error');
+        // FrAlert is tonal: the type colours the text, on a tint of it
+        expect(alert.classes()).toContain('text-error');
     });
 
     it('renders nothing when hidden', () => {

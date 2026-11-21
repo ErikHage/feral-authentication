@@ -1,11 +1,12 @@
 <template>
+  <!-- No Fr* app bar or toolbar title yet -->
   <v-app-bar app>
     <v-toolbar-title>Feral Authentication</v-toolbar-title>
-    <v-spacer></v-spacer>
+    <fr-spacer></fr-spacer>
     <div v-if="showAppBar() === true">
-      <v-btn to="/dashboard">Dashboard</v-btn>
-      <v-btn to="/admin">Admin</v-btn>
-      <v-btn @click="logoutUser">Logout</v-btn>
+      <fr-btn to="/dashboard">Dashboard</fr-btn>
+      <fr-btn to="/admin">Admin</fr-btn>
+      <fr-btn @click="logoutUser">Logout</fr-btn>
     </div>
   </v-app-bar>
 </template>
@@ -13,9 +14,12 @@
 <script>
 import { mapActions, mapState } from "pinia";
 import { useAuthenticationStore } from "@/store";
+import { FrBtn, FrSpacer } from "@feral-auth/vue-components";
 
 export default {
   name: "AppBar",
+
+  components: { FrBtn, FrSpacer },
 
   methods: {
     ...mapActions(useAuthenticationStore, {

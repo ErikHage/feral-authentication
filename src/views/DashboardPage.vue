@@ -1,23 +1,27 @@
 <template>
-  <v-container>
+  <fr-container>
+    <!-- No Fr* app bar yet -->
     <v-app-bar app>
-      <v-btn to="/dashboard/applications">Applications</v-btn>
-      <v-btn to="/dashboard/profile">Profile</v-btn>
-      <v-btn to="/dashboard/sessions">Sessions</v-btn>
+      <fr-btn to="/dashboard/applications">Applications</fr-btn>
+      <fr-btn to="/dashboard/profile">Profile</fr-btn>
+      <fr-btn to="/dashboard/sessions">Sessions</fr-btn>
     </v-app-bar>
-    <v-row class="text-center">
+    <fr-row class="text-center">
       <router-view/>
-    </v-row>
-  </v-container>
+    </fr-row>
+  </fr-container>
 </template>
 
 <script>
 
 import { mapState } from "pinia";
+import { FrBtn, FrContainer, FrRow } from "@feral-auth/vue-components";
 import { useAuthenticationStore } from "@/store";
 
 export default {
   name: 'DashboardPage',
+
+  components: { FrBtn, FrContainer, FrRow },
 
   methods: {
     ...mapState(useAuthenticationStore, {
