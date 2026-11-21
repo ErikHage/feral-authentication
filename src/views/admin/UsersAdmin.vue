@@ -1,102 +1,91 @@
 <template>
-  <v-container>
-    <v-row class="justify-center">
-      <v-col cols="12" sm="8">
+  <fr-container>
+    <fr-row class="justify-center">
+      <fr-col cols="12" sm="8">
         <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-        <v-card>
-          <v-card-title>
-            <span class="headline">Manage Users</span>
-            <v-spacer></v-spacer>
-            <v-btn class="mr-2" color="primary" @click="openDialog()">Add</v-btn>
-            <v-btn color="primary" @click="refreshData()">Refresh</v-btn>
-          </v-card-title>
-          <v-card-text>
-            <v-data-table
+        <fr-card title="Manage Users">
+          <div class="px-4 pb-4">
+            <div class="mb-3">
+              <fr-btn class="mr-2" color="primary" @click="openDialog()">Add</fr-btn>
+              <fr-btn color="primary" @click="refreshData()">Refresh</fr-btn>
+            </div>
+            <fr-data-table
                 :headers="headers"
                 :items="users"
-                item-key="userId"
+                item-value="userId"
                 class="elevation-1"
                 :loading="loading"
             >
               <template #item.actions="{ item }">
-                <v-icon small :aria-label="`Edit ${item.username}`" @click="openDialog(item)">mdi-pencil</v-icon>
-                <v-icon small :aria-label="`Delete ${item.username}`" @click="openDeleteDialog(item)">mdi-delete</v-icon>
+                <fr-icon :aria-label="`Edit ${item.username}`" @click="openDialog(item)">mdi-pencil</fr-icon>
+                <fr-icon :aria-label="`Delete ${item.username}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
               </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+            </fr-data-table>
+          </div>
+        </fr-card>
+      </fr-col>
+    </fr-row>
 
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">{{ isEditMode ? 'Edit User' : 'Add User' }}</span>
-        </v-card-title>
-        <v-card-text>
-          <v-form ref="userForm" v-model="formValid">
-            <v-text-field v-model="form.firstName" label="First Name" :rules="rules.firstName"></v-text-field>
-            <v-text-field v-model="form.lastName" label="Last Name" :rules="rules.lastName"></v-text-field>
-            <!-- Editing changes only the name: the service updates nothing else -->
-            <v-text-field v-model="form.email" label="Email" :rules="rules.email" :disabled="isEditMode"></v-text-field>
-            <v-text-field v-model="form.username" label="Username" :rules="rules.username" :disabled="isEditMode"></v-text-field>
-            <v-text-field
-                v-if="!isEditMode"
-                v-model="form.password"
-                :rules="rules.password"
-                :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                :type="showPassword ? 'text' : 'password'"
-                label="Password"
-                counter
-                @click:append="showPassword = !showPassword"
-            ></v-text-field>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text :disabled="!formValid" @click="saveUser">Save</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <fr-dialog v-model="dialog" :title="isEditMode ? 'Edit User' : 'Add User'">
+      <fr-form ref="userForm" v-model="formValid">
+        <v-text-field v-model="form.firstName" label="First Name" :rules="rules.firstName"></v-text-field>
+        <v-text-field v-model="form.lastName" label="Last Name" :rules="rules.lastName"></v-text-field>
+        <!-- Editing changes only the name: the service updates nothing else -->
+        <v-text-field v-model="form.email" label="Email" :rules="rules.email" :disabled="isEditMode"></v-text-field>
+        <v-text-field v-model="form.username" label="Username" :rules="rules.username" :disabled="isEditMode"></v-text-field>
+        <v-text-field
+            v-if="!isEditMode"
+            v-model="form.password"
+            :rules="rules.password"
+            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            :type="showPassword ? 'text' : 'password'"
+            label="Password"
+            counter
+            @click:append="showPassword = !showPassword"
+        ></v-text-field>
+      </fr-form>
+      <template #actions>
+        <fr-btn color="blue darken-1" text @click="closeDialog">Cancel</fr-btn>
+        <fr-btn color="blue darken-1" text :disabled="!formValid" @click="saveUser">Save</fr-btn>
+      </template>
+    </fr-dialog>
 
-    <v-dialog v-model="deleteDialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Delete User</span>
-        </v-card-title>
-        <v-card-text class="text-center">
-          <v-table>
-            <tbody>
-            <tr>
-              <th>Username</th>
-              <td>{{ this.userToDelete?.username }}</td>
-            </tr>
-            </tbody>
-          </v-table>
-          <br/>
-          <span class="red-text">Are you sure? This cannot be undone!</span>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDeleteDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text @click="deleteUserById(this.userToDelete?.userId)">Delete</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-container>
+    <fr-dialog v-model="deleteDialog" title="Delete User">
+      <div class="text-center">
+        <fr-table>
+          <tbody>
+          <tr>
+            <th>Username</th>
+            <td>{{ this.userToDelete?.username }}</td>
+          </tr>
+          </tbody>
+        </fr-table>
+        <br/>
+        <span class="red-text">Are you sure? This cannot be undone!</span>
+      </div>
+      <template #actions>
+        <fr-btn color="blue darken-1" text @click="closeDeleteDialog">Cancel</fr-btn>
+        <fr-btn color="blue darken-1" text @click="deleteUserById(this.userToDelete?.userId)">Delete</fr-btn>
+      </template>
+    </fr-dialog>
+  </fr-container>
 </template>
 
 <script>
 import { mapActions, mapState } from "pinia";
 import { useUsersStore } from "@/store";
+import {
+  FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+} from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 import { required } from "@/utils/rules";
 
 export default {
   name: "UsersAdmin",
 
-  components: { FadeOutAlert },
+  components: {
+    FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+  },
 
   data() {
     return {

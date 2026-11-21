@@ -1,36 +1,31 @@
 <template>
-  <v-container v-if="sessions">
-    <h2 class="headline">Active Sessions</h2>
+  <fr-container v-if="sessions">
+    <h2>Active Sessions</h2>
 
-    <v-row class="mt-3">
+    <fr-row class="mt-3">
 
-      <v-col cols="2"></v-col>
+      <fr-col cols="2"></fr-col>
 
-      <v-col cols="8">
-        <v-row>
-          <v-col>
-            <v-btn color="green" @click="refreshData">Refresh</v-btn>
+      <fr-col cols="8">
+        <fr-row>
+          <fr-col>
+            <fr-btn color="green" @click="refreshData">Refresh</fr-btn>
             <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-          </v-col>
-        </v-row>
+          </fr-col>
+        </fr-row>
 
-        <v-row>
-          <v-col cols="6" v-for="session in sessions" v-bind:key="session.sessionId">
-            <v-card
+        <fr-row>
+          <fr-col cols="6" v-for="session in sessions" v-bind:key="session.sessionId">
+            <!-- FrCard has no prepend slot, so the star can't take a colour -->
+            <fr-card
                 class="ma-2 text-left"
                 role="region"
                 :aria-label="`Session ${session.sessionId}`"
                 :title="session.sessionId"
                 :subtitle="isCurrentSession(session.sessionId) ? 'current session' : 'remote session'"
+                :prepend-icon="isCurrentSession(session.sessionId) ? 'mdi-star' : undefined"
             >
-              <template v-slot:prepend>
-                <v-icon
-                    v-if="isCurrentSession(session.sessionId)"
-                    color="primary"
-                    icon="mdi-star"
-                ></v-icon>
-              </template>
-              <v-card-text class="ma-3">
+              <div class="ma-3 px-4 pb-4">
                 <v-text-field
                     :model-value="applicationNameOf(session.applicationId)"
                     label="Application"
@@ -49,25 +44,25 @@
                     disabled
                     density="compact"
                 ></v-text-field>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn
+              </div>
+              <template #actions>
+                <fr-btn
                     class="text-red"
                     :disabled="isCurrentSession(session.sessionId)"
                     @click="revokeSession(session.sessionId)"
                 >Revoke
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
+                </fr-btn>
+              </template>
+            </fr-card>
+          </fr-col>
+        </fr-row>
 
-      </v-col>
+      </fr-col>
 
-      <v-col cols="2"></v-col>
+      <fr-col cols="2"></fr-col>
 
-    </v-row>
-  </v-container>
+    </fr-row>
+  </fr-container>
 </template>
 
 <script>
@@ -75,12 +70,13 @@
 import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useAuthenticationStore, useSessionsStore } from "@/store";
+import { FrBtn, FrCard, FrCol, FrContainer, FrRow } from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: 'ActiveSessions',
 
-  components: { FadeOutAlert },
+  components: { FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrRow },
 
   computed: {
     ...mapState(useAuthenticationStore, [

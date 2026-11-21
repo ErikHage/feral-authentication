@@ -1,12 +1,16 @@
 <template>
   <transition name="fade">
-    <v-alert v-if="isVisible" :type="alertType" class="mt-3">{{ message }}</v-alert>
+    <fr-alert v-if="isVisible" :type="alertType" class="mt-3">{{ message }}</fr-alert>
   </transition>
 </template>
 
 <script>
+import { FrAlert } from "@feral-auth/vue-components";
+
 export default {
   name: "FadeOutAlert",
+
+  components: { FrAlert },
 
   props: ['isVisible', 'alertType', 'message'],
 }

@@ -1,24 +1,21 @@
 <template>
-  <v-container>
+  <fr-container>
 
-    <v-row class="justify-center">
-      <v-col cols="12" sm="8" md="4">
+    <fr-row class="justify-center">
+      <fr-col cols="12" sm="8" md="4">
         <div class="text-center mb-4">
-          <v-img
+          <fr-image
               :src="getLogoPath()"
               alt="Logo"
-              contain
               max-width="250"
               class="mx-auto"
-          ></v-img>
+          ></fr-image>
         </div>
 
-        <v-card>
-          <v-card-title>
-            <span class="headline">Login</span>
-          </v-card-title>
-          <v-card-text>
-            <v-form @submit.prevent="login">
+        <fr-card title="Login">
+          <div class="px-4 pb-4">
+            <!-- FrForm stops the page submitting, and emits submit itself -->
+            <fr-form @submit="login">
               <v-text-field
                   v-model="username"
                   label="Username"
@@ -34,30 +31,35 @@
               ></v-text-field>
 
               <div class="text-center">
-                <v-btn v-if="showLoginButton" type="submit" color="primary" class="mt-3">Submit</v-btn>
-                <v-progress-circular v-else color="primary" indeterminate></v-progress-circular>
+                <fr-btn v-if="showLoginButton" type="submit" color="primary" class="mt-3">Submit</fr-btn>
+                <fr-spinner v-else color="primary"></fr-spinner>
               </div>
 
               <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
 
-            </v-form>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+            </fr-form>
+          </div>
+        </fr-card>
+      </fr-col>
+    </fr-row>
+  </fr-container>
 </template>
 
 <script>
 import { useAuthenticationStore } from '@/store';
 import { mapActions, mapState } from "pinia";
+import {
+  FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner,
+} from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 import { getAssetPath } from "@/utils/assets";
 
 export default {
   name: 'LoginPage',
 
-  components: { FadeOutAlert },
+  components: {
+    FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner,
+  },
 
   data: () => ({
     username: '',

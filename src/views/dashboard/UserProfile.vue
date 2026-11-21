@@ -1,19 +1,16 @@
 <template>
-  <v-container v-if="userDetails">
-    <h2 class="headline">{{ savedDetails.firstName }} {{ savedDetails.lastName }}</h2>
-    <v-row class="mt-3">
-      <v-col cols="2">
-      </v-col>
+  <fr-container v-if="userDetails">
+    <h2>{{ savedDetails.firstName }} {{ savedDetails.lastName }}</h2>
+    <fr-row class="mt-3">
+      <fr-col cols="2">
+      </fr-col>
 
-      <v-col cols="8">
-        <v-row>
-          <v-col>
-            <v-card>
-              <v-card-title class="text-left">
-                Personal Details
-              </v-card-title>
-              <v-card-text class="ma-3">
-                <v-form v-model="formValid">
+      <fr-col cols="8">
+        <fr-row>
+          <fr-col>
+            <fr-card class="text-left" title="Personal Details">
+              <div class="ma-3 px-4 pb-4">
+                <fr-form v-model="formValid">
                   <v-text-field
                       :rules="[rules.firstName]"
                       v-model="userDetails.firstName"
@@ -44,78 +41,75 @@
                       v-model="userDetails.isSuspended"
                       label="Suspended"
                   ></v-text-field>
-                </v-form>
+                </fr-form>
 
                 <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
+              </div>
+              <template #actions>
+                <fr-btn
                     :disabled="!formValid || !isChanged"
                     @click="updateUserDetails">
                   Save
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
+                </fr-btn>
+              </template>
+            </fr-card>
+          </fr-col>
+        </fr-row>
 
-        <v-row>
-          <v-col>
-            <v-card>
-              <v-card-title class="text-left">
-                Authorization
-              </v-card-title>
-              <v-card-text class="ma-3">
-                <v-row>
-                  <v-card
+        <fr-row>
+          <fr-col>
+            <fr-card class="text-left" title="Authorization">
+              <div class="ma-3 px-4 pb-4">
+                <fr-row>
+                  <fr-card
                       class="ma-2"
                       v-for="scope in Object.keys(userRolesMap)"
                       :key="scope"
                       variant="tonal"
+                      :subtitle="scope"
                   >
-                    <v-card-subtitle class="text-left pt-2">
-                      {{ scope }}
-                    </v-card-subtitle>
-                    <v-card-text>
-                      <v-chip-group>
-                        <v-chip
-                            v-for="role in userRolesMap[scope]"
-                            :key="role.roleId"
-                            text="Elevator"
-                            variant="outlined"
-                        >{{ role.title }}
-                        </v-chip>
-                      </v-chip-group>
-                    </v-card-text>
-                  </v-card>
-                </v-row>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-col>
+                    <fr-chip-group class="px-4 pb-4">
+                      <fr-chip
+                          v-for="role in userRolesMap[scope]"
+                          :key="role.roleId"
+                          text="Elevator"
+                          variant="outlined"
+                      >{{ role.title }}
+                      </fr-chip>
+                    </fr-chip-group>
+                  </fr-card>
+                </fr-row>
+              </div>
+            </fr-card>
+          </fr-col>
+        </fr-row>
+      </fr-col>
 
-      <v-col cols="2"></v-col>
+      <fr-col cols="2"></fr-col>
 
-    </v-row>
-  </v-container>
+    </fr-row>
+  </fr-container>
   <!-- A failed load leaves no form, so its alert shows on its own -->
-  <v-container v-else>
+  <fr-container v-else>
     <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-  </v-container>
+  </fr-container>
 </template>
 
 <script>
 
 import { mapActions, mapState } from "pinia";
 import { useUsersStore } from "@/store";
+import {
+  FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrForm, FrRow,
+} from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 
 export default {
   name: 'UserProfile',
 
-  components: { FadeOutAlert },
+  components: {
+    FadeOutAlert, FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrForm, FrRow,
+  },
 
   data() {
     return {

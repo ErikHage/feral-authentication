@@ -1,28 +1,31 @@
 <template>
-  <v-container>
+  <fr-container>
+    <!-- No Fr* app bar yet -->
     <v-app-bar app>
-      <v-btn :to="loginPath">Login</v-btn>
+      <fr-btn :to="loginPath">Login</fr-btn>
     </v-app-bar>
     <div class="text-center mb-4">
-      <v-img
+      <fr-image
           :src="getLogoPath()"
           alt="Logo"
-          contain
           max-width="500"
           class="mx-auto"
-      ></v-img>
+      ></fr-image>
     </div>
-  </v-container>
+  </fr-container>
 </template>
 
 <script>
 
 import { views } from "@/utils/constants";
 import { getAssetPath } from "@/utils/assets";
+import { FrBtn, FrContainer, FrImage } from "@feral-auth/vue-components";
 
 
 export default {
   name: 'PublicPage',
+
+  components: { FrBtn, FrContainer, FrImage },
 
   data: () => ({
     loginPath: views.login.path,

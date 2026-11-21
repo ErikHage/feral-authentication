@@ -1,75 +1,69 @@
 <template>
-  <v-container>
-    <v-row class="justify-center">
-      <v-col cols="12" sm="8">
+  <fr-container>
+    <fr-row class="justify-center">
+      <fr-col cols="12" sm="8">
         <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-        <v-card>
-          <v-card-title>
-            <span class="headline">Manage Applications</span>
-            <v-spacer></v-spacer>
-            <v-btn class="mr-2" color="primary" @click="openDialog()">Add</v-btn>
-            <v-btn color="primary" @click="refreshData()">Refresh</v-btn>
-          </v-card-title>
-          <v-card-text>
-            <v-data-table
+        <fr-card title="Manage Applications">
+          <div class="px-4 pb-4">
+            <div class="mb-3">
+              <fr-btn class="mr-2" color="primary" @click="openDialog()">Add</fr-btn>
+              <fr-btn color="primary" @click="refreshData()">Refresh</fr-btn>
+            </div>
+            <fr-data-table
                 :headers="headers"
                 :items="applications"
-                item-key="applicationId"
+                item-value="applicationId"
                 class="elevation-1"
                 :loading="loading"
             >
               <template #item.actions="{ item }">
-                <v-icon small :aria-label="`Edit ${item.applicationName}`" @click="goToApplicationDetails(item)">mdi-pencil</v-icon>
+                <fr-icon :aria-label="`Edit ${item.applicationName}`" @click="goToApplicationDetails(item)">mdi-pencil</fr-icon>
               </template>
-            </v-data-table>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+            </fr-data-table>
+          </div>
+        </fr-card>
+      </fr-col>
+    </fr-row>
 
-    <v-dialog v-model="dialog" max-width="500px" persistent>
-      <v-card>
-        <v-card-title>
-          <span class="headline">Add Application</span>
-        </v-card-title>
-        <v-card-text>
-          <v-form ref="applicationForm" v-model="formValid">
-            <v-text-field v-model="form.applicationName" label="Name" :rules="rules.applicationName"></v-text-field>
-            <v-text-field v-model="form.applicationUrl" label="Url" :rules="rules.applicationUrl"></v-text-field>
-            <v-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></v-text-field>
-            <v-autocomplete
-                v-model="form.keyPairId"
-                :items="availableKeys"
-                item-title="keyName"
-                item-value="keyId"
-                label="Key"
-                variant="solo"
-                :rules="rules.keyPairId"
-            ></v-autocomplete>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
-          <v-btn color="blue darken-1" text :disabled="!formValid" @click="saveApplication">Create</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <fr-dialog v-model="dialog" title="Add Application" persistent>
+      <fr-form ref="applicationForm" v-model="formValid">
+        <v-text-field v-model="form.applicationName" label="Name" :rules="rules.applicationName"></v-text-field>
+        <v-text-field v-model="form.applicationUrl" label="Url" :rules="rules.applicationUrl"></v-text-field>
+        <v-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></v-text-field>
+        <fr-autocomplete
+            v-model="form.keyPairId"
+            :items="availableKeys"
+            item-title="keyName"
+            item-value="keyId"
+            label="Key"
+            :rules="rules.keyPairId"
+        ></fr-autocomplete>
+      </fr-form>
+      <template #actions>
+        <fr-btn color="blue darken-1" text @click="closeDialog">Cancel</fr-btn>
+        <fr-btn color="blue darken-1" text :disabled="!formValid" @click="saveApplication">Create</fr-btn>
+      </template>
+    </fr-dialog>
 
-  </v-container>
+  </fr-container>
 </template>
 
 <script>
 import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useKeysStore } from "@/store";
+import {
+  FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow,
+} from "@feral-auth/vue-components";
 import FadeOutAlert from "@/components/FadeOutAlert.vue";
 import { required } from "@/utils/rules";
 
 export default {
   name: "ApplicationsAdmin",
 
-  components: { FadeOutAlert },
+  components: {
+    FadeOutAlert, FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow,
+  },
 
   data() {
     return {
