@@ -1,6 +1,16 @@
 /**
+ * A Vuetify select or autocomplete in `within`, by its label (a string,
+ * matched exactly, or a pattern). Vuetify names the field's own input, which
+ * is hidden; the field around it is what opens the menu, and names it.
+ */
+export function selectField(page, within, label) {
+    return within.getByRole('combobox')
+        .filter({ has: page.getByRole('combobox', { name: label, exact: true }) });
+}
+
+/**
  * Chooses `option` in a Vuetify select or autocomplete, `select` being its
- * combobox.
+ * field, from `selectField`.
  *
  * A long list renders only the options in view, so this scrolls the
  * select's own menu until the option is there. Typing would bring it into

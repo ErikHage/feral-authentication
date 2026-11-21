@@ -1,3 +1,5 @@
+import { selectField } from './select';
+
 /**
  * The admin pages' tables, as Playwright sees them: a Vuetify data table in
  * `main`, with an Actions column of icons. A row is found by a cell that
@@ -9,8 +11,8 @@ export function createDataTable(page) {
     const main = page.getByRole('main');
 
     // The table pages at 10 rows, and the service lists in no particular order
-    const rowsPerPage = main.getByRole('combobox');
-    const rowsPerPageValue = rowsPerPage.getByRole('textbox');
+    const rowsPerPage = selectField(page, main, 'Items per page:');
+    const rowsPerPageValue = main.getByRole('combobox', { name: 'Items per page:' });
 
     const row = key => main.getByRole('row')
         .filter({ has: page.getByRole('cell', { name: key, exact: true }) });
@@ -26,8 +28,8 @@ export function createDataTable(page) {
 
         /** Shows every row on one page, so no row is out of sight on another. */
         async showAllRows() {
-            // "All" is stored as -1
-            if (await rowsPerPageValue.inputValue() !== '-1') {
+            // The input holds the shown option's title
+            if (await rowsPerPageValue.inputValue() !== 'All') {
                 await rowsPerPage.click();
                 await page.getByRole('option', { name: 'All' }).click();
             }

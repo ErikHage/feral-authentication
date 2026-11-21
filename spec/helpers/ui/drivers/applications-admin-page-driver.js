@@ -1,7 +1,7 @@
 import { expectDisabled, expectText, expectValue } from './assertions';
 import { createDataTable } from './data-table';
 import { createRoutedPageDriver } from './routed-page-driver';
-import { chooseOption } from './select';
+import { chooseOption, selectField } from './select';
 
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
@@ -26,7 +26,7 @@ export function createApplicationsAdminPageDriver(page) {
             await dialog.getByLabel('Name', { exact: true }).fill(applicationName);
             await dialog.getByLabel('Url').fill(applicationUrl);
             await dialog.getByLabel('Scope').fill(scope);
-            await chooseOption(page, dialog.getByRole('combobox'), keyName);
+            await chooseOption(page, selectField(page, dialog, 'Key'), keyName);
             await dialog.getByRole('button', { name: 'Create' }).click();
         },
 
