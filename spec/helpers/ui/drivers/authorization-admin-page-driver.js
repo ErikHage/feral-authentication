@@ -1,6 +1,6 @@
 import { expectCount, expectEventually, expectVisible } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
-import { chooseOption } from './select';
+import { chooseOption, selectField } from './select';
 
 /**
  * The authorization admin page, as Playwright sees it: a user select, and
@@ -10,9 +10,7 @@ import { chooseOption } from './select';
  */
 export function createAuthorizationAdminPageDriver(page, serviceCalls) {
     const main = page.getByRole('main');
-    // Vuetify doesn't tie a select's label to it, so the selects go by place:
-    // the user select comes first, and each card has one of its own
-    const userSelect = main.getByRole('combobox').first();
+    const userSelect = selectField(page, main, 'Select User');
 
     const applicationsCard = main.getByRole('region', { name: 'Manage Applications' });
     const rolesCard = main.getByRole('region', { name: 'Manage Roles' });
@@ -31,7 +29,8 @@ export function createAuthorizationAdminPageDriver(page, serviceCalls) {
 
     /** Adds `option` in the card as a chip, without saving. */
     async function add(cardLocator, option) {
-        await choose(cardLocator.getByRole('combobox'), option);
+        // "Select Application To Add", "Select Role To Add"
+        await choose(selectField(page, cardLocator, /To Add$/), option);
         await plusIn(cardLocator).click();
         await expectVisible(chipIn(cardLocator, option), `adding ${option}`);
     }

@@ -19,6 +19,18 @@ export default defineConfig({
       ignored: ['**/test-results/**', '**/playwright-report/**'],
     },
   },
+  // Pre-bundle every Vuetify overlay together. Otherwise the dev server can
+  // serve two copies of Vuetify's overlay stack, and a select's menu opens
+  // behind the dialog it's in. Builds aren't affected
+  optimizeDeps: {
+    include: [
+      'vuetify/components/VOverlay',
+      'vuetify/components/VDialog',
+      'vuetify/components/VMenu',
+      'vuetify/components/VSelect',
+      'vuetify/components/VAutocomplete',
+    ],
+  },
   define: { 'process.env': {} },
   base: '/auth/',
   resolve: {

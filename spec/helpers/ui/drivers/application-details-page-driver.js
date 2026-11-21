@@ -1,7 +1,7 @@
 import {
     expectCount, expectDisabled, expectEnabled, expectUrl, expectValue, expectVisible,
 } from './assertions';
-import { chooseOption } from './select';
+import { chooseOption, selectField } from './select';
 import { urlOf } from './urls';
 
 /**
@@ -20,7 +20,7 @@ export function createApplicationDetailsPageDriver(page) {
     const rotateSaveButton = rotateDialog.getByRole('button', { name: 'Save' });
 
     const openRotateDialog = () => main.getByRole('button', { name: 'Rotate Key' }).click();
-    const chooseNewKey = keyName => chooseOption(page, rotateDialog.getByRole('combobox'), keyName);
+    const chooseNewKey = keyName => chooseOption(page, selectField(page, rotateDialog, 'Key'), keyName);
 
     return {
         /** The previous key's fields show only after a rotation. */

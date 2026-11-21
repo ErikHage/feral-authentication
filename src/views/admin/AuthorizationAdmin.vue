@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row justify="center">
+    <v-row class="justify-center">
       <v-col cols="12" sm="8">
         <v-card>
           <v-card-title>
@@ -26,7 +26,7 @@
             <span id="manage-applications" class="headline">Manage Applications</span>
           </v-card-title>
           <v-card-text>
-            <v-row align="center">
+            <v-row class="align-center">
               <v-col cols="11">
                 <v-select
                     v-model="selectedApplication"
@@ -71,7 +71,7 @@
             <span id="manage-roles" class="headline">Manage Roles</span>
           </v-card-title>
           <v-card-text>
-            <v-row align="center">
+            <v-row class="align-center">
               <v-col cols="11">
                 <!--            TODO split into scope and title selects -->
                 <v-select
