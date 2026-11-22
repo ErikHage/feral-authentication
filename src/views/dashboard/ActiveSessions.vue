@@ -10,7 +10,7 @@
         <fr-row>
           <fr-col>
             <fr-btn color="green" @click="refreshData">Refresh</fr-btn>
-            <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+            <LoadErrors :messages="[sessionsLoadError, userApplicationsLoadError]"/>
           </fr-col>
         </fr-row>
 
@@ -74,12 +74,12 @@ import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useAuthenticationStore, useSessionsStore } from "@/store";
 import { FrBtn, FrCard, FrCol, FrContainer, FrIcon, FrRow } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 
 export default {
   name: 'ActiveSessions',
 
-  components: { FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrIcon, FrRow },
+  components: { LoadErrors, FrBtn, FrCard, FrCol, FrContainer, FrIcon, FrRow },
 
   computed: {
     ...mapState(useAuthenticationStore, [
@@ -87,11 +87,11 @@ export default {
     ]),
 
     ...mapState(useSessionsStore, [
-      'sessions', 'alertType', 'alertMessage', 'alertVisible',
+      'sessions', 'sessionsLoadError',
     ]),
 
     ...mapState(useApplicationsStore, [
-      'userAllowedApplications',
+      'userAllowedApplications', 'userApplicationsLoadError',
     ]),
   },
 

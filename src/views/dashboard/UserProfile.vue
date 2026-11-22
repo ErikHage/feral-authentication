@@ -42,8 +42,6 @@
                       label="Suspended"
                   ></v-text-field>
                 </fr-form>
-
-                <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
               </div>
               <template #actions>
                 <fr-btn
@@ -91,7 +89,7 @@
   </fr-container>
   <!-- A failed load leaves no form, so its alert shows on its own -->
   <fr-container v-else>
-    <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+    <LoadErrors :messages="[currentUserLoadError]"/>
   </fr-container>
 </template>
 
@@ -102,13 +100,13 @@ import { useUsersStore } from "@/store";
 import {
   FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrForm, FrRow,
 } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 
 export default {
   name: 'UserProfile',
 
   components: {
-    FadeOutAlert, FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrForm, FrRow,
+    LoadErrors, FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrForm, FrRow,
   },
 
   data() {
@@ -134,7 +132,7 @@ export default {
     },
 
     ...mapState(useUsersStore, [
-      'currentUser', 'alertType', 'alertMessage', 'alertVisible',
+      'currentUser', 'currentUserLoadError',
     ]),
   },
 

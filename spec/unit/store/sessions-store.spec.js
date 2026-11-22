@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { useSessionsStore } from '@/store';
 import sessionsApi from '@/api/sessions-api';
 import { httpError } from '../../helpers/http-errors';
+import { lastMessage } from '../../helpers/notifications';
 
 vi.mock('@/api/sessions-api', () => ({
     default: {
@@ -28,24 +29,12 @@ describe('useSessionsStore', () => {
         vi.restoreAllMocks();
     });
 
-    it('starts with no sessions and no alert', () => {
+    it('starts with no sessions and no load error', () => {
         expect(store.$state).toEqual({
             sessions: [],
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            sessionsLoadError: null,
         });
-    });
-
-    it('hides an alert after 3 seconds', () => {
-        store.setAlertMessage('success', 'saved');
-
-        vi.advanceTimersByTime(2999);
-        expect(store.alertVisible).toBe(true);
-
-        vi.advanceTimersByTime(1);
-        expect(store.alertVisible).toBe(false);
     });
 
     describe('fetchUserSessions', () => {
@@ -78,20 +67,18 @@ describe('useSessionsStore', () => {
 
             expect(store.sessions).toEqual([]);
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't load your sessions: you don't have permission");
+            expect(store.sessionsLoadError).toBe("Couldn't load your sessions: you don't have permission");
         });
     });
 
     describe('deleteSessionById', () => {
-        it('revokes the session and names it in the alert', async () => {
+        it('revokes the session and names it in the message', async () => {
             sessionsApi.deleteSessionById.mockResolvedValue();
 
             await store.deleteSessionById('session-1');
 
             expect(sessionsApi.deleteSessionById).toHaveBeenCalledWith('a-token', 'session-1');
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('Session session-1 revoked');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'Session session-1 revoked' });
         });
 
         it('shows the error when it fails', async () => {
@@ -99,8 +86,7 @@ describe('useSessionsStore', () => {
 
             await store.deleteSessionById('session-1');
 
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't revoke the session: it wasn't found");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't revoke the session: it wasn't found" });
         });
     });
 });

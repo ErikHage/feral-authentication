@@ -4,7 +4,7 @@
 
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
-        <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+        <LoadErrors :messages="[applicationsLoadError, keysLoadError]"/>
         <fr-card class="mt-3">
           <div class="pa-4">
             <fr-form v-model="formValid">
@@ -96,13 +96,13 @@ import { useApplicationsStore, useKeysStore } from "@/store";
 import {
   FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDialog, FrForm, FrRow,
 } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 
 export default {
   name: "ApplicationDetails",
 
   components: {
-    FadeOutAlert, FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDialog, FrForm, FrRow,
+    LoadErrors, FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDialog, FrForm, FrRow,
   },
 
   data() {
@@ -134,11 +134,11 @@ export default {
     },
 
     ...mapState(useApplicationsStore, [
-      'selectedApplication', 'loading', 'alertType', 'alertMessage', 'alertVisible',
+      'selectedApplication', 'loading', 'applicationsLoadError',
     ]),
 
     ...mapState(useKeysStore, [
-      'availableKeys',
+      'availableKeys', 'keysLoadError',
     ]),
   },
 

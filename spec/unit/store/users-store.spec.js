@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { useUsersStore } from '@/store';
 import usersApi from '@/api/users-api';
 import { httpError } from '../../helpers/http-errors';
+import { lastMessage } from '../../helpers/notifications';
 
 vi.mock('@/api/users-api', () => ({
     default: {
@@ -47,26 +48,16 @@ describe('useUsersStore', () => {
         vi.restoreAllMocks();
     });
 
-    it('starts with no users, none selected or current, and no alert', () => {
+    it('starts with no users, none selected or current, and no load error', () => {
         expect(store.$state).toEqual({
             users: [],
             selectedUser: null,
             currentUser: null,
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            usersLoadError: null,
+            selectedUserLoadError: null,
+            currentUserLoadError: null,
         });
-    });
-
-    it('hides an alert after 3 seconds', () => {
-        store.setAlertMessage('success', 'saved');
-
-        vi.advanceTimersByTime(2999);
-        expect(store.alertVisible).toBe(true);
-
-        vi.advanceTimersByTime(1);
-        expect(store.alertVisible).toBe(false);
     });
 
     describe('fetchUsers', () => {
@@ -98,8 +89,7 @@ describe('useUsersStore', () => {
             await store.fetchUsers();
 
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't load the users: you don't have permission");
+            expect(store.usersLoadError).toBe("Couldn't load the users: you don't have permission");
         });
     });
 
@@ -118,8 +108,7 @@ describe('useUsersStore', () => {
             await store[action](...args);
 
             expect(usersApi[action]).toHaveBeenCalledWith('a-token', ...apiArgs);
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe(successMessage);
+            expect(lastMessage()).toEqual({ color: 'success', text: successMessage });
         });
 
         it('says what failed, and why', async () => {
@@ -127,8 +116,7 @@ describe('useUsersStore', () => {
 
             await store[action](...args);
 
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe(`${whatFailed}: the service failed (500)`);
+            expect(lastMessage()).toEqual({ color: 'error', text: `${whatFailed}: the service failed (500)` });
         });
     });
 
@@ -195,8 +183,7 @@ describe('useUsersStore', () => {
             await store.selectUser('user-1');
 
             expect(store.selectedUser).toBeNull();
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't load the user: you don't have permission");
+            expect(store.selectedUserLoadError).toBe("Couldn't load the user: you don't have permission");
         });
 
         // Choosing users in quick succession: alice's roles answer after bob's
@@ -226,7 +213,7 @@ describe('useUsersStore', () => {
             await choosingAlice;
 
             expect(store.selectedUser.details).toEqual(bob);
-            expect(store.alertVisible).toBe(false);
+            expect(store.selectedUserLoadError).toBeNull();
         });
 
         it('drops a choice still loading when the user is deselected', async () => {
@@ -270,8 +257,7 @@ describe('useUsersStore', () => {
             await store.loadCurrentUser();
 
             expect(store.currentUser).toBeNull();
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't load your profile: the service failed (500)");
+            expect(store.currentUserLoadError).toBe("Couldn't load your profile: the service failed (500)");
         });
     });
 
@@ -284,8 +270,7 @@ describe('useUsersStore', () => {
             await expect(store.updateCurrentUser(names)).resolves.toBe(true);
 
             expect(usersApi.updateCurrentUser).toHaveBeenCalledWith('a-token', names);
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('User updated successfully!');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'User updated successfully!' });
         });
 
         it('says what failed, and why, and resolves to false', async () => {
@@ -293,8 +278,7 @@ describe('useUsersStore', () => {
 
             await expect(store.updateCurrentUser(names)).resolves.toBe(false);
 
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't save your details: the service failed (500)");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't save your details: the service failed (500)" });
         });
     });
 

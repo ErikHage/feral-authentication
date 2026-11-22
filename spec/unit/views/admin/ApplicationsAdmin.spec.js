@@ -91,12 +91,12 @@ describe('ApplicationsAdmin', () => {
         expect(keysStore.fetchKeys).toHaveBeenCalledTimes(2);
     });
 
-    it('shows the applications store alert', async () => {
+    it("shows why the applications couldn't be loaded", async () => {
         const { wrapper } = await mountPage({
-            state: { alertVisible: true, alertType: 'error', alertMessage: 'Request failed with status code 500' },
+            state: { applicationsLoadError: "Couldn't load the applications: the service failed (500)" },
         });
 
-        expect(wrapper.find('.v-alert').text()).toContain('Request failed with status code 500');
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load the applications: the service failed (500)");
     });
 
     describe('adding an application', () => {

@@ -2,7 +2,7 @@
   <fr-container>
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
-        <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+        <LoadErrors :messages="[keysLoadError]"/>
 
         <fr-card title="Manage Keys">
           <div class="px-4 pb-4">
@@ -53,13 +53,13 @@ import { mapActions, mapState } from "pinia";
 import {
   FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrRow,
 } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 import { required } from "@/utils/rules";
 
 export default {
   name: "KeysAdmin",
   components: {
-    FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrRow,
+    LoadErrors, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrRow,
   },
 
   data() {
@@ -82,7 +82,7 @@ export default {
 
   computed: {
     ...mapState(useKeysStore, [
-      'availableKeys', 'alertType', 'alertMessage', 'alertVisible',
+      'availableKeys', 'keysLoadError',
     ]),
   },
 

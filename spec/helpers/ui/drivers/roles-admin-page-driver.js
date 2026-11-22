@@ -1,12 +1,12 @@
 import { expectCount, expectDisabled, expectText, expectValue, expectVisible } from './assertions';
 import { createDataTable } from './data-table';
+import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
 
 /** The roles admin page, as Playwright sees it. Its table's rows are found by scope. */
 export function createRolesAdminPageDriver(page) {
     const main = page.getByRole('main');
     const addButton = main.getByRole('button', { name: 'Add' });
-    const alertSaying = message => main.getByRole('alert').filter({ hasText: message });
     const table = createDataTable(page);
 
     // Dialogs open outside main
@@ -51,7 +51,7 @@ export function createRolesAdminPageDriver(page) {
         async saysItAlreadyExists({ scope, title }) {
             const what = `adding the role ${scope}/${title} a second time`;
 
-            await expectVisible(alertSaying(`Couldn't add the role ${scope}/${title}: it already exists`), what);
+            await expectVisible(messageSaying(page, `Couldn't add the role ${scope}/${title}: it already exists`), what);
             await expectCount(table.row(scope), 1, what);
         },
 

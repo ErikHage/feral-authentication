@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { useApplicationsStore } from '@/store';
 import applicationsApi from '@/api/applications-api';
 import { httpError } from '../../helpers/http-errors';
+import { lastMessage } from '../../helpers/notifications';
 
 vi.mock('@/api/applications-api', () => ({
     default: {
@@ -34,32 +35,21 @@ describe('useApplicationsStore', () => {
         vi.restoreAllMocks();
     });
 
-    it('starts with no applications, none selected and no alert', () => {
+    it('starts with no applications, none selected and no load error', () => {
         expect(store.$state).toEqual({
             applications: [],
             userAllowedApplications: [],
             selectedApplication: null,
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            applicationsLoadError: null,
+            userApplicationsLoadError: null,
         });
     });
 
-    it('hides an alert after 3 seconds', () => {
-        store.setAlertMessage('success', 'saved');
-
-        vi.advanceTimersByTime(2999);
-        expect(store.alertVisible).toBe(true);
-
-        vi.advanceTimersByTime(1);
-        expect(store.alertVisible).toBe(false);
-    });
-
     describe.each([
-        ['fetchApplications', 'applications', "Couldn't load the applications"],
-        ['fetchApplicationsForCurrentUser', 'userAllowedApplications', "Couldn't load your applications", 'fetchApplicationsForUser'],
-    ])('%s', (action, stateKey, whatFailed, apiFunction = action) => {
+        ['fetchApplications', 'applications', 'applicationsLoadError', "Couldn't load the applications"],
+        ['fetchApplicationsForCurrentUser', 'userAllowedApplications', 'userApplicationsLoadError', "Couldn't load your applications", 'fetchApplicationsForUser'],
+    ])('%s', (action, stateKey, loadErrorKey, whatFailed, apiFunction = action) => {
         it(`loads ${stateKey} with the stored token`, async () => {
             applicationsApi[apiFunction].mockResolvedValue([feral, harvest]);
 
@@ -89,8 +79,7 @@ describe('useApplicationsStore', () => {
 
             expect(store[stateKey]).toEqual([]);
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe(`${whatFailed}: you don't have permission`);
+            expect(store[loadErrorKey]).toBe(`${whatFailed}: you don't have permission`);
         });
     });
 
@@ -116,15 +105,14 @@ describe('useApplicationsStore', () => {
     describe('createApplication', () => {
         const newApplication = { applicationName: 'New', applicationUrl: 'https://new.test', scope: 'new', keyPairId: 'key-1' };
 
-        it('creates the application with the stored token, and names it in the alert', async () => {
+        it('creates the application with the stored token, and names it in the message', async () => {
             applicationsApi.createApplication.mockResolvedValue({ applicationId: 'app-3' });
 
             await store.createApplication(newApplication);
 
             expect(applicationsApi.createApplication).toHaveBeenCalledWith('a-token', newApplication);
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('Application New created');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'Application New created' });
         });
 
         it('is loading while the application is created', async () => {
@@ -145,23 +133,21 @@ describe('useApplicationsStore', () => {
             await store.createApplication(newApplication);
 
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't create the application New: the service failed (500)");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't create the application New: the service failed (500)" });
         });
     });
 
     describe('updateApplication', () => {
         const changed = { ...feral, applicationName: 'Feral 2' };
 
-        it('saves the application with the stored token, names it in the alert, and says it saved', async () => {
+        it('saves the application with the stored token, names it in the message, and says it saved', async () => {
             applicationsApi.updateApplication.mockResolvedValue(changed);
 
             const saved = await store.updateApplication(changed);
 
             expect(applicationsApi.updateApplication).toHaveBeenCalledWith('a-token', changed);
             expect(saved).toBe(true);
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('Application Feral 2 saved');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'Application Feral 2 saved' });
         });
 
         it('says another application has the name or scope, when the service finds one (409)', async () => {
@@ -170,9 +156,10 @@ describe('useApplicationsStore', () => {
             const saved = await store.updateApplication(changed);
 
             expect(saved).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage)
-                .toBe("Couldn't save the application Feral 2: another application has that name or scope");
+            expect(lastMessage()).toEqual({
+                color: 'error',
+                text: "Couldn't save the application Feral 2: another application has that name or scope",
+            });
         });
 
         it('shows the error when it fails', async () => {
@@ -181,7 +168,7 @@ describe('useApplicationsStore', () => {
             const saved = await store.updateApplication(changed);
 
             expect(saved).toBe(false);
-            expect(store.alertMessage).toBe("Couldn't save the application Feral 2: the service failed (500)");
+            expect(lastMessage().text).toBe("Couldn't save the application Feral 2: the service failed (500)");
         });
     });
 
@@ -192,8 +179,7 @@ describe('useApplicationsStore', () => {
             await store.rotateAuthenticationKey('app-1', 'key-2');
 
             expect(applicationsApi.rotateAuthenticationKey).toHaveBeenCalledWith('a-token', 'app-1', 'key-2');
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('Key Rotated!');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'Key Rotated!' });
         });
 
         it('shows the error when it fails', async () => {
@@ -201,8 +187,7 @@ describe('useApplicationsStore', () => {
 
             await store.rotateAuthenticationKey('app-1', 'key-2');
 
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't rotate the key: the service refused it (400)");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't rotate the key: the service refused it (400)" });
         });
     });
 });

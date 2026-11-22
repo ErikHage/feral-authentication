@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { useKeysStore } from '@/store';
 import keysApi from '@/api/keys-api';
 import { httpError } from '../../helpers/http-errors';
+import { lastMessage } from '../../helpers/notifications';
 
 vi.mock('@/api/keys-api', () => ({
     default: {
@@ -31,24 +32,12 @@ describe('useKeysStore', () => {
         vi.restoreAllMocks();
     });
 
-    it('starts with no keys and no alert', () => {
+    it('starts with no keys and no load error', () => {
         expect(store.$state).toEqual({
             availableKeys: [],
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            keysLoadError: null,
         });
-    });
-
-    it('hides an alert after 3 seconds', () => {
-        store.setAlertMessage('success', 'saved');
-
-        vi.advanceTimersByTime(2999);
-        expect(store.alertVisible).toBe(true);
-
-        vi.advanceTimersByTime(1);
-        expect(store.alertVisible).toBe(false);
     });
 
     describe('fetchKeys', () => {
@@ -80,21 +69,19 @@ describe('useKeysStore', () => {
             await store.fetchKeys();
 
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't load the keys: you don't have permission");
+            expect(store.keysLoadError).toBe("Couldn't load the keys: you don't have permission");
         });
     });
 
     describe('generateKey', () => {
-        it('generates the key with the stored token, and names it in the alert', async () => {
+        it('generates the key with the stored token, and names it in the message', async () => {
             keysApi.generateKey.mockResolvedValue(key1);
 
             await store.generateKey('first', '2027-01-01T00:00');
 
             expect(keysApi.generateKey).toHaveBeenCalledWith('a-token', 'first', '2027-01-01T00:00');
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('Key first generated');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'Key first generated' });
         });
 
         it('keeps nothing, leaving the page to fetch the list again', async () => {
@@ -125,8 +112,7 @@ describe('useKeysStore', () => {
             await store.generateKey('first', '2027-01-01T00:00');
 
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't generate the key first: the service refused it (400)");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't generate the key first: the service refused it (400)" });
         });
     });
 

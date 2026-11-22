@@ -2,7 +2,7 @@
   <fr-container>
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
-        <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+        <LoadErrors :messages="[applicationsLoadError, keysLoadError]"/>
         <fr-card title="Manage Applications">
           <div class="px-4 pb-4">
             <div class="mb-3">
@@ -55,14 +55,14 @@ import { useApplicationsStore, useKeysStore } from "@/store";
 import {
   FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow,
 } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 import { required } from "@/utils/rules";
 
 export default {
   name: "ApplicationsAdmin",
 
   components: {
-    FadeOutAlert, FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow,
+    LoadErrors, FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow,
   },
 
   data() {
@@ -95,11 +95,11 @@ export default {
 
   computed: {
     ...mapState(useApplicationsStore, [
-      'applications', 'loading', 'alertType', 'alertMessage', 'alertVisible',
+      'applications', 'loading', 'applicationsLoadError',
     ]),
 
     ...mapState(useKeysStore, [
-      'availableKeys',
+      'availableKeys', 'keysLoadError',
     ]),
   },
 
@@ -107,7 +107,6 @@ export default {
     ...mapActions(useApplicationsStore, [
       'fetchApplications',
       'createApplication',
-      'setAlertMessage',
     ]),
 
     ...mapActions(useKeysStore, [

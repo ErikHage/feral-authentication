@@ -10,7 +10,8 @@ import applicationsApi from "@/api/applications-api";
 import storageUtils from "@/utils/storage-utils";
 import jwtUtils from "@/utils/jwt-utils";
 
-import { failureMessage, showAlert } from "./alerts";
+import { failureMessage } from "./alerts";
+import { notify, useNotificationsStore } from "./notifications";
 
 export const useAuthenticationStore = defineStore('authentication', {
     actions: {
@@ -23,11 +24,11 @@ export const useAuthenticationStore = defineStore('authentication', {
                 this.isAuthenticated = true;
                 this.showAppBar = true;
                 this.loading = false;
-                this.setAlertMessage('success', 'Login Succeeded!');
+                notify('success', 'Login Succeeded!');
             } catch (err) {
                 this.isAuthenticated = false;
                 this.loading = false;
-                this.setAlertMessage('error', failureMessage(err, "Couldn't log in", {
+                notify('error', failureMessage(err, "Couldn't log in", {
                     401: 'the username or password is wrong',
                     // An unknown username
                     404: 'the username or password is wrong',
@@ -47,17 +48,19 @@ export const useAuthenticationStore = defineStore('authentication', {
                 }
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't open the application"));
+                notify('error', failureMessage(err, "Couldn't open the application"));
             }
         },
         async logout() {
+            // The last user's messages go; any said about this logout stay
+            useNotificationsStore().clear();
             try {
                 await authenticationApi.logout(this.token);
             } catch (err) {
                 // A 401: the token had expired, so the session was over anyway
                 if (err.status !== 401) {
                     console.log(err);
-                    this.setAlertMessage('warning', failureMessage(err, "Logged out here, but the service couldn't end the session"));
+                    notify('warning', failureMessage(err, "Logged out here, but the service couldn't end the session"));
                 }
             }
             this.clearToken();
@@ -92,9 +95,6 @@ export const useAuthenticationStore = defineStore('authentication', {
             storageUtils.clearTokenFromStorage();
             this.token = null;
         },
-        setAlertMessage(type, message) {
-            showAlert(this, type, message);
-        }
     },
     state: () => {
         return {
@@ -102,9 +102,6 @@ export const useAuthenticationStore = defineStore('authentication', {
             token: storageUtils.tryToLoadTokenFromStorage(),
             isAuthenticated: false,
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
             showAppBar: storageUtils.tryToLoadTokenFromStorage() !== null,
         };
     },
@@ -120,42 +117,38 @@ export const useRolesStore = defineStore('role', {
         async fetchRoles() {
             try {
                 this.loading = true;
+                this.rolesLoadError = null;
                 this.roles = await rolesApi.fetchRoles(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't load the roles"));
+                this.rolesLoadError = failureMessage(err, "Couldn't load the roles");
             }
             this.loading = false;
         },
         async addRole(role) {
             try {
                 await rolesApi.addRole(storageUtils.tryToLoadTokenFromStorage(), role);
-                this.setAlertMessage('success', `Role ${role.scope}/${role.title} Added`);
+                notify('success', `Role ${role.scope}/${role.title} Added`);
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, `Couldn't add the role ${role.scope}/${role.title}`));
+                notify('error', failureMessage(err, `Couldn't add the role ${role.scope}/${role.title}`));
             }
         },
         async deleteRole(roleId) {
             try {
                 await rolesApi.deleteRole(storageUtils.tryToLoadTokenFromStorage(), roleId);
-                this.setAlertMessage('success', 'Role Deleted.');
+                notify('success', 'Role Deleted.');
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't delete the role"));
+                notify('error', failureMessage(err, "Couldn't delete the role"));
             }
         },
-        setAlertMessage(type, message) {
-            showAlert(this, type, message);
-        }
     },
     state: () => {
         return {
             roles: [],
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            rolesLoadError: null,
         };
     },
 });
@@ -187,38 +180,39 @@ export const useUsersStore = defineStore('user', {
         async fetchUsers() {
             try {
                 this.loading = true;
+                this.usersLoadError = null;
                 this.users = await usersApi.fetchUsers(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't load the users"));
+                this.usersLoadError = failureMessage(err, "Couldn't load the users");
             }
             this.loading = false;
         },
         async addUser(user) {
             try {
                 await usersApi.addUser(storageUtils.tryToLoadTokenFromStorage(), user);
-                this.setAlertMessage('success', 'User added successfully!');
+                notify('success', 'User added successfully!');
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't add the user"));
+                notify('error', failureMessage(err, "Couldn't add the user"));
             }
         },
         async updateUser(userDetails) {
             try {
                 await usersApi.updateUser(storageUtils.tryToLoadTokenFromStorage(), userDetails);
-                this.setAlertMessage('success', 'User updated successfully!');
+                notify('success', 'User updated successfully!');
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't update the user"));
+                notify('error', failureMessage(err, "Couldn't update the user"));
             }
         },
         async deleteUser(userId) {
             try {
                 await usersApi.deleteUser(storageUtils.tryToLoadTokenFromStorage(), userId);
-                this.setAlertMessage('success', 'User deleted successfully.');
+                notify('success', 'User deleted successfully.');
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't delete the user"));
+                notify('error', failureMessage(err, "Couldn't delete the user"));
             }
         },
         async selectUser(userId) {
@@ -238,37 +232,39 @@ export const useUsersStore = defineStore('user', {
                     rolesByScope: groupedByScope(userRoles.roles),
                     applications: userApplications,
                 };
+                this.selectedUserLoadError = null;
             } catch (err) {
                 console.log(err);
                 if (!isLatestSelection(this, selection)) {
                     return;
                 }
                 this.selectedUser = null;
-                this.setAlertMessage('error', failureMessage(err, "Couldn't load the user"));
+                this.selectedUserLoadError = failureMessage(err, "Couldn't load the user");
             }
         },
         // The logged-in user, for their profile: no admin role needed
         async loadCurrentUser() {
             try {
                 const token = storageUtils.tryToLoadTokenFromStorage();
+                this.currentUserLoadError = null;
                 const details = await usersApi.fetchCurrentUser(token);
                 const { roles } = await usersApi.fetchCurrentUserRoles(token);
                 this.currentUser = { details, roles, rolesByScope: groupedByScope(roles) };
             } catch (err) {
                 console.log(err);
                 this.currentUser = null;
-                this.setAlertMessage('error', failureMessage(err, "Couldn't load your profile"));
+                this.currentUserLoadError = failureMessage(err, "Couldn't load your profile");
             }
         },
         // Resolves to whether it saved
         async updateCurrentUser(names) {
             try {
                 await usersApi.updateCurrentUser(storageUtils.tryToLoadTokenFromStorage(), names);
-                this.setAlertMessage('success', 'User updated successfully!');
+                notify('success', 'User updated successfully!');
                 return true;
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't save your details"));
+                notify('error', failureMessage(err, "Couldn't save your details"));
                 return false;
             }
         },
@@ -276,55 +272,53 @@ export const useUsersStore = defineStore('user', {
             // A selection still loading is dropped too
             startSelection(this);
             this.selectedUser = null;
+            this.selectedUserLoadError = null;
         },
         // Each of these four resolves to whether it saved
         async setUserRoles(userId, roleIds) {
             try {
                 await usersApi.setUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId, roleIds);
-                this.setAlertMessage('success', 'User Roles Updated!');
+                notify('success', 'User Roles Updated!');
                 return true;
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't update the user's roles"));
+                notify('error', failureMessage(err, "Couldn't update the user's roles"));
                 return false;
             }
         },
         async clearUserRoles(userId) {
             try {
                 await usersApi.clearUserRoles(storageUtils.tryToLoadTokenFromStorage(), userId);
-                this.setAlertMessage('success', 'User Roles Updated!');
+                notify('success', 'User Roles Updated!');
                 return true;
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't update the user's roles"));
+                notify('error', failureMessage(err, "Couldn't update the user's roles"));
                 return false;
             }
         },
         async setUserApplications(userId, applicationIds) {
             try {
                 await usersApi.setUserApplications(storageUtils.tryToLoadTokenFromStorage(), userId, applicationIds);
-                this.setAlertMessage('success', 'User Applications Updated!');
+                notify('success', 'User Applications Updated!');
                 return true;
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't update the user's applications"));
+                notify('error', failureMessage(err, "Couldn't update the user's applications"));
                 return false;
             }
         },
         async clearUserApplications(userId) {
             try {
                 await usersApi.clearUserApplications(storageUtils.tryToLoadTokenFromStorage(), userId);
-                this.setAlertMessage('success', 'User Applications Updated!');
+                notify('success', 'User Applications Updated!');
                 return true;
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't update the user's applications"));
+                notify('error', failureMessage(err, "Couldn't update the user's applications"));
                 return false;
             }
         },
-        setAlertMessage(type, message) {
-            showAlert(this, type, message);
-        }
     },
     state: () => {
         return {
@@ -332,9 +326,9 @@ export const useUsersStore = defineStore('user', {
             selectedUser: null,
             currentUser: null,
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            usersLoadError: null,
+            selectedUserLoadError: null,
+            currentUserLoadError: null,
         };
     }
 });
@@ -344,33 +338,29 @@ export const useSessionsStore = defineStore('session', {
         async fetchUserSessions() {
             try {
                 this.loading = true;
+                this.sessionsLoadError = null;
                 this.sessions = await sessionsApi.fetchSessionsForCurrentUser(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't load your sessions"));
+                this.sessionsLoadError = failureMessage(err, "Couldn't load your sessions");
             }
             this.loading = false;
         },
         async deleteSessionById(sessionId) {
             try {
                 await sessionsApi.deleteSessionById(storageUtils.tryToLoadTokenFromStorage(), sessionId);
-                this.setAlertMessage('success', `Session ${sessionId} revoked`);
+                notify('success', `Session ${sessionId} revoked`);
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't revoke the session"));
+                notify('error', failureMessage(err, "Couldn't revoke the session"));
             }
         },
-        setAlertMessage(type, message) {
-            showAlert(this, type, message);
-        }
     },
     state: () => {
         return {
             sessions: [],
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            sessionsLoadError: null,
         };
     },
 });
@@ -380,10 +370,11 @@ export const useKeysStore = defineStore('key', {
         async fetchKeys() {
             try {
                 this.loading = true;
+                this.keysLoadError = null;
                 this.availableKeys = await keysApi.fetchKeys(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't load the keys"));
+                this.keysLoadError = failureMessage(err, "Couldn't load the keys");
             }
             this.loading = false;
         },
@@ -391,10 +382,10 @@ export const useKeysStore = defineStore('key', {
             try {
                 this.loading = true;
                 await keysApi.generateKey(storageUtils.tryToLoadTokenFromStorage(), keyName, expiration);
-                this.setAlertMessage('success', `Key ${keyName} generated`);
+                notify('success', `Key ${keyName} generated`);
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, `Couldn't generate the key ${keyName}`));
+                notify('error', failureMessage(err, `Couldn't generate the key ${keyName}`));
             }
             this.loading = false;
         },
@@ -408,17 +399,12 @@ export const useKeysStore = defineStore('key', {
                 keyDetails,
             };
         },
-        setAlertMessage(type, message) {
-            showAlert(this, type, message);
-        }
     },
     state: () => {
         return {
             availableKeys: [],
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            keysLoadError: null,
         };
     },
 });
@@ -428,10 +414,11 @@ export const useApplicationsStore = defineStore('application', {
         async fetchApplications() {
             try {
                 this.loading = true;
+                this.applicationsLoadError = null;
                 this.applications = await applicationsApi.fetchApplications(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't load the applications"));
+                this.applicationsLoadError = failureMessage(err, "Couldn't load the applications");
             }
             this.loading = false;
         },
@@ -449,10 +436,10 @@ export const useApplicationsStore = defineStore('application', {
             try {
                 this.loading = true;
                 await applicationsApi.createApplication(storageUtils.tryToLoadTokenFromStorage(), application);
-                this.setAlertMessage('success', `Application ${application.applicationName} created`);
+                notify('success', `Application ${application.applicationName} created`);
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, `Couldn't create the application ${application.applicationName}`));
+                notify('error', failureMessage(err, `Couldn't create the application ${application.applicationName}`));
             }
             this.loading = false;
         },
@@ -460,11 +447,11 @@ export const useApplicationsStore = defineStore('application', {
         async updateApplication(application) {
             try {
                 await applicationsApi.updateApplication(storageUtils.tryToLoadTokenFromStorage(), application);
-                this.setAlertMessage('success', `Application ${application.applicationName} saved`);
+                notify('success', `Application ${application.applicationName} saved`);
                 return true;
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err,
+                notify('error', failureMessage(err,
                     `Couldn't save the application ${application.applicationName}`,
                     { 409: 'another application has that name or scope' }));
                 return false;
@@ -474,25 +461,23 @@ export const useApplicationsStore = defineStore('application', {
             try {
                 await applicationsApi.rotateAuthenticationKey(
                     storageUtils.tryToLoadTokenFromStorage(), applicationId, newKeyId);
-                this.setAlertMessage('success', `Key Rotated!`);
+                notify('success', `Key Rotated!`);
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't rotate the key"));
+                notify('error', failureMessage(err, "Couldn't rotate the key"));
             }
         },
         async fetchApplicationsForCurrentUser() {
             try {
                 this.loading = true;
+                this.userApplicationsLoadError = null;
                 this.userAllowedApplications = await applicationsApi.fetchApplicationsForUser(storageUtils.tryToLoadTokenFromStorage());
             } catch (err) {
                 console.log(err);
-                this.setAlertMessage('error', failureMessage(err, "Couldn't load your applications"));
+                this.userApplicationsLoadError = failureMessage(err, "Couldn't load your applications");
             }
             this.loading = false;
         },
-        setAlertMessage(type, message) {
-            showAlert(this, type, message);
-        }
     },
     state: () => {
         return {
@@ -500,9 +485,8 @@ export const useApplicationsStore = defineStore('application', {
             userAllowedApplications: [],
             selectedApplication: null,
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            applicationsLoadError: null,
+            userApplicationsLoadError: null,
         };
     },
 });

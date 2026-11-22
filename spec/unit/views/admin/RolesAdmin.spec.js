@@ -54,12 +54,12 @@ describe('RolesAdmin', () => {
         expect(store.fetchRoles).toHaveBeenCalledTimes(2);
     });
 
-    it('shows the roles store alert', async () => {
+    it("shows why the roles couldn't be loaded", async () => {
         const { wrapper } = await mountPage({
-            state: { alertVisible: true, alertType: 'success', alertMessage: 'Role Deleted.' },
+            state: { rolesLoadError: "Couldn't load the roles: you don't have permission" },
         });
 
-        expect(wrapper.find('.v-alert').text()).toContain('Role Deleted.');
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load the roles: you don't have permission");
     });
 
     describe('adding a role', () => {

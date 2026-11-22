@@ -1,17 +1,3 @@
-// Each store's alert hides after a while. A store keeps one timer, so a new
-// alert restarts the clock instead of being hidden early by an older one's
-const hideTimers = new WeakMap();
-
-export function showAlert(store, type, message) {
-    clearTimeout(hideTimers.get(store));
-    store.alertVisible = true;
-    store.alertType = type;
-    store.alertMessage = message;
-    hideTimers.set(store, setTimeout(() => {
-        store.alertVisible = false;
-    }, 3000));
-}
-
 // The service's error bodies all say "Something went wrong!", so the reason
 // comes from the status
 const reasons = {

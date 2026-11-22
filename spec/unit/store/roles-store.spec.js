@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { useRolesStore } from '@/store';
 import rolesApi from '@/api/roles-api';
 import { httpError } from '../../helpers/http-errors';
+import { lastMessage } from '../../helpers/notifications';
 
 vi.mock('@/api/roles-api', () => ({
     default: {
@@ -31,24 +32,12 @@ describe('useRolesStore', () => {
         vi.restoreAllMocks();
     });
 
-    it('starts with no roles and no alert', () => {
+    it('starts with no roles and no load error', () => {
         expect(store.$state).toEqual({
             roles: [],
             loading: false,
-            alertVisible: false,
-            alertType: 'success',
-            alertMessage: null,
+            rolesLoadError: null,
         });
-    });
-
-    it('hides an alert after 3 seconds', () => {
-        store.setAlertMessage('success', 'saved');
-
-        vi.advanceTimersByTime(2999);
-        expect(store.alertVisible).toBe(true);
-
-        vi.advanceTimersByTime(1);
-        expect(store.alertVisible).toBe(false);
     });
 
     describe('fetchRoles', () => {
@@ -82,20 +71,27 @@ describe('useRolesStore', () => {
 
             expect(store.roles).toEqual([{ roleId: 'role-1' }]);
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't load the roles: you don't have permission");
+            expect(store.rolesLoadError).toBe("Couldn't load the roles: you don't have permission");
+        });
+
+        it('forgets an earlier failure once a load succeeds', async () => {
+            rolesApi.fetchRoles.mockRejectedValueOnce(httpError(403)).mockResolvedValueOnce([]);
+
+            await store.fetchRoles();
+            await store.fetchRoles();
+
+            expect(store.rolesLoadError).toBeNull();
         });
     });
 
     describe('addRole', () => {
-        it('adds the role and names it in the alert', async () => {
+        it('adds the role and names it in the message', async () => {
             rolesApi.addRole.mockResolvedValue({});
 
             await store.addRole(role);
 
             expect(rolesApi.addRole).toHaveBeenCalledWith('a-token', role);
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('Role feral/admin Added');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'Role feral/admin Added' });
         });
 
         it('shows the error when it fails', async () => {
@@ -103,8 +99,7 @@ describe('useRolesStore', () => {
 
             await store.addRole(role);
 
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't add the role feral/admin: the service failed (500)");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't add the role feral/admin: the service failed (500)" });
         });
     });
 
@@ -115,8 +110,7 @@ describe('useRolesStore', () => {
             await store.deleteRole('role-1');
 
             expect(rolesApi.deleteRole).toHaveBeenCalledWith('a-token', 'role-1');
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('Role Deleted.');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'Role Deleted.' });
         });
 
         it('shows the error when it fails', async () => {
@@ -124,8 +118,7 @@ describe('useRolesStore', () => {
 
             await store.deleteRole('role-1');
 
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't delete the role: it wasn't found");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't delete the role: it wasn't found" });
         });
     });
 });

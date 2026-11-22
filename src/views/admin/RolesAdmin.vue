@@ -2,7 +2,7 @@
   <fr-container>
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
-        <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+        <LoadErrors :messages="[rolesLoadError]"/>
         <fr-card title="Manage Roles">
           <div class="px-4 pb-4">
             <div class="mb-3">
@@ -67,13 +67,13 @@ import { mapActions, mapState } from "pinia";
 import {
   FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
 } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 import { required } from "@/utils/rules";
 
 export default {
   name: "RolesAdmin",
   components: {
-    FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+    LoadErrors, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
   },
 
   data() {
@@ -103,7 +103,7 @@ export default {
   },
 
   computed: {
-    ...mapState(useRolesStore, ['roles', 'alertType', 'alertMessage', 'alertVisible']),
+    ...mapState(useRolesStore, ['roles', 'rolesLoadError']),
   },
 
   methods: {

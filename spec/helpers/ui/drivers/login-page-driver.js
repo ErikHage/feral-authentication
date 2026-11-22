@@ -1,4 +1,5 @@
 import { expectUrl, expectValue, expectVisible } from './assertions';
+import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { openPath, urlOf } from './urls';
 
@@ -10,11 +11,8 @@ export function createLoginPageDriver(page) {
     const usernameField = page.getByLabel('Username');
     const passwordField = page.getByLabel('Password');
     const submitButton = page.getByRole('button', { name: 'Submit' });
-    // Each Vuetify field's message area is an (empty) alert too, so match the
-    // text. The page's alert fades out after 3s, well inside the assertion
-    // timeout
-    const credentialsWrong = page.getByRole('alert')
-        .filter({ hasText: "Couldn't log in: the username or password is wrong" });
+    // The message goes after 3s, well inside the assertion timeout
+    const credentialsWrong = messageSaying(page, "Couldn't log in: the username or password is wrong");
 
     return {
         ...createRoutedPageDriver(page, {

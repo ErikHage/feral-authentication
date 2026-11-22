@@ -113,12 +113,12 @@ describe('ActiveSessions', () => {
         expect(sessionsStore.fetchUserSessions).toHaveBeenCalledTimes(2);
     });
 
-    it('shows the sessions store alert', async () => {
+    it("shows why the sessions couldn't be loaded", async () => {
         const { wrapper } = await mountSessions({
-            state: { alertVisible: true, alertType: 'success', alertMessage: 'Session session-2 revoked' },
+            state: { sessionsLoadError: "Couldn't load your sessions: you don't have permission" },
         });
 
-        expect(wrapper.find('.v-alert').text()).toContain('Session session-2 revoked');
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load your sessions: you don't have permission");
     });
 
     it('is named ActiveSessions', () => {

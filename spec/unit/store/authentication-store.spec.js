@@ -3,6 +3,8 @@ import { tokenFor } from '../../helpers/tokens';
 import { useAuthenticationStore, useUsersStore, useApplicationsStore } from '@/store';
 import authenticationApi from '@/api/authentication-api';
 import { httpError } from '../../helpers/http-errors';
+import { lastMessage } from '../../helpers/notifications';
+import { useNotificationsStore } from '@/store/notifications';
 
 vi.mock('@/api/authentication-api', () => ({
     default: {
@@ -41,14 +43,11 @@ describe('useAuthenticationStore', () => {
     });
 
     describe('initial state', () => {
-        it('starts logged out with no alert', () => {
+        it('starts logged out', () => {
             expect(store.$state).toEqual({
                 token: null,
                 isAuthenticated: false,
                 loading: false,
-                alertVisible: false,
-                alertType: 'success',
-                alertMessage: null,
                 showAppBar: false,
             });
         });
@@ -67,21 +66,6 @@ describe('useAuthenticationStore', () => {
         });
     });
 
-    describe('setAlertMessage', () => {
-        it('shows the alert, then hides it after 3 seconds', () => {
-            store.setAlertMessage('success', 'saved');
-
-            expect(store.alertVisible).toBe(true);
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('saved');
-
-            vi.advanceTimersByTime(2999);
-            expect(store.alertVisible).toBe(true);
-
-            vi.advanceTimersByTime(1);
-            expect(store.alertVisible).toBe(false);
-        });
-    });
 
     describe('authenticate', () => {
         it('stores the token and shows the app bar', async () => {
@@ -95,8 +79,7 @@ describe('useAuthenticationStore', () => {
             expect(store.isAuthenticated).toBe(true);
             expect(store.showAppBar).toBe(true);
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('success');
-            expect(store.alertMessage).toBe('Login Succeeded!');
+            expect(lastMessage()).toEqual({ color: 'success', text: 'Login Succeeded!' });
         });
 
         it('is loading while the login is in flight', async () => {
@@ -121,8 +104,7 @@ describe('useAuthenticationStore', () => {
             expect(store.isAuthenticated).toBe(false);
             expect(store.showAppBar).toBe(false);
             expect(store.loading).toBe(false);
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't log in: the username or password is wrong");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't log in: the username or password is wrong" });
         });
 
         it('says the same of an unknown username, which the service answers with 404', async () => {
@@ -130,7 +112,7 @@ describe('useAuthenticationStore', () => {
 
             await store.authenticate('nobody', 'secret');
 
-            expect(store.alertMessage).toBe("Couldn't log in: the username or password is wrong");
+            expect(lastMessage().text).toBe("Couldn't log in: the username or password is wrong");
         });
     });
 
@@ -165,8 +147,7 @@ describe('useAuthenticationStore', () => {
             await store.loginToApplication('app-1', false);
 
             expect(window.open).not.toHaveBeenCalled();
-            expect(store.alertType).toBe('error');
-            expect(store.alertMessage).toBe("Couldn't open the application: you don't have permission");
+            expect(lastMessage()).toEqual({ color: 'error', text: "Couldn't open the application: you don't have permission" });
         });
     });
 
@@ -210,18 +191,30 @@ describe('useAuthenticationStore', () => {
 
             expect(localStorage.getItem(tokenKey)).toBeNull();
             expect(store.isAuthenticated).toBe(false);
-            expect(store.alertVisible).toBe(false);
+            expect(useNotificationsStore().messages).toEqual([]);
+        });
+
+        it("drops the last user's messages", async () => {
+            authenticationApi.logout.mockResolvedValue();
+            useNotificationsStore().notify('success', 'User updated successfully!');
+
+            await store.logout();
+
+            expect(useNotificationsStore().messages).toEqual([]);
         });
 
         it('logs out locally, and warns that the session may live on, when the service fails', async () => {
             authenticationApi.logout.mockRejectedValue(httpError(500));
+            useNotificationsStore().notify('success', 'User updated successfully!');
 
             await store.logout();
 
             expect(localStorage.getItem(tokenKey)).toBeNull();
             expect(store.isAuthenticated).toBe(false);
-            expect(store.alertType).toBe('warning');
-            expect(store.alertMessage).toBe("Logged out here, but the service couldn't end the session: the service failed (500)");
+            // Given after the last user's messages were dropped, so it stays
+            expect(useNotificationsStore().messages).toEqual([
+                { color: 'warning', text: "Logged out here, but the service couldn't end the session: the service failed (500)" },
+            ]);
         });
     });
 

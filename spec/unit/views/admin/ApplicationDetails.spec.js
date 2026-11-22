@@ -100,12 +100,12 @@ describe('ApplicationDetails', () => {
         ]);
     });
 
-    it('shows the applications store alert', async () => {
+    it("shows why the applications couldn't be loaded", async () => {
         const { wrapper } = await mountDetails('app-1', {
-            state: { alertVisible: true, alertType: 'success', alertMessage: 'Key Rotated!' },
+            state: { applicationsLoadError: "Couldn't load the applications: the service failed (500)" },
         });
 
-        expect(wrapper.find('.v-alert').text()).toContain('Key Rotated!');
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load the applications: the service failed (500)");
     });
 
     it('reloads when Reset is pressed', async () => {
