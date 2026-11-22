@@ -73,12 +73,12 @@ describe('UsersAdmin', () => {
         expect(store.fetchUsers).toHaveBeenCalledTimes(2);
     });
 
-    it('shows the users store alert', async () => {
+    it("shows why the users couldn't be loaded", async () => {
         const { wrapper } = await mountPage({
-            state: { alertVisible: true, alertType: 'error', alertMessage: 'error adding user' },
+            state: { usersLoadError: "Couldn't load the users: you don't have permission" },
         });
 
-        expect(wrapper.find('.v-alert').text()).toContain('error adding user');
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load the users: you don't have permission");
     });
 
     describe('adding a user', () => {

@@ -1,9 +1,7 @@
 <template>
   <fr-container v-if="userApplications">
     <h2>Available Applications</h2>
-    <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-    <!-- Logging in, and opening an application, are the authentication store's -->
-    <FadeOutAlert class="my-2" :is-visible="signOnAlertVisible" :alert-type="signOnAlertType" :message="signOnAlertMessage"/>
+    <LoadErrors :messages="[userApplicationsLoadError]"/>
     <fr-row class="mt-3">
       <fr-col cols="2"></fr-col>
 
@@ -40,12 +38,12 @@ import { mapActions, mapState } from "pinia";
 import { useApplicationsStore, useAuthenticationStore, } from "@/store";
 import { getAssetPath } from "@/utils/assets";
 import { FrCard, FrCol, FrContainer, FrImage, FrRow } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 
 export default {
   name: 'ApplicationPicker',
 
-  components: { FadeOutAlert, FrCard, FrCol, FrContainer, FrImage, FrRow },
+  components: { LoadErrors, FrCard, FrCol, FrContainer, FrImage, FrRow },
 
   data() {
     return {
@@ -55,14 +53,8 @@ export default {
 
   computed: {
     ...mapState(useApplicationsStore, [
-      'userAllowedApplications', 'alertType', 'alertMessage', 'alertVisible',
+      'userAllowedApplications', 'userApplicationsLoadError',
     ]),
-
-    ...mapState(useAuthenticationStore, {
-      signOnAlertType: 'alertType',
-      signOnAlertMessage: 'alertMessage',
-      signOnAlertVisible: 'alertVisible',
-    }),
   },
 
   methods: {

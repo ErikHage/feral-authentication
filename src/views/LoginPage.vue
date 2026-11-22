@@ -35,8 +35,6 @@
                 <fr-spinner v-else color="primary"></fr-spinner>
               </div>
 
-              <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
-
             </fr-form>
           </div>
         </fr-card>
@@ -51,14 +49,13 @@ import { mapActions, mapState } from "pinia";
 import {
   FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner,
 } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
 import { getAssetPath } from "@/utils/assets";
 
 export default {
   name: 'LoginPage',
 
   components: {
-    FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner,
+    FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner,
   },
 
   data: () => ({
@@ -69,7 +66,7 @@ export default {
 
   computed: {
     ...mapState(useAuthenticationStore, [
-        'isAuthenticated', 'loading', 'alertType', 'alertMessage', 'alertVisible',
+        'isAuthenticated', 'loading',
     ]),
 
     // A spinner in its place while logging in, and once logged in

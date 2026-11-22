@@ -57,14 +57,6 @@ describe('LoginPage', () => {
         expect(wrapper.findComponent({ name: 'VImg' }).props('src')).toBe('/assets-test/ai-rooster.jpg');
     });
 
-    it('shows the store alert', async () => {
-        const { wrapper } = await mountPage({
-            state: { alertVisible: true, alertType: 'error', alertMessage: 'Error logging in' },
-        });
-
-        expect(wrapper.find('.v-alert').text()).toContain('Error logging in');
-    });
-
     describe('submitting', () => {
         it('logs in with what was typed', async () => {
             const { wrapper, store } = await mountPage();

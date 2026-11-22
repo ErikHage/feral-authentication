@@ -2,7 +2,7 @@
   <fr-container>
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
-        <FadeOutAlert class="my-2" :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+        <LoadErrors :messages="[usersLoadError]"/>
         <fr-card title="Manage Users">
           <div class="px-4 pb-4">
             <div class="mb-3">
@@ -77,14 +77,14 @@ import { useUsersStore } from "@/store";
 import {
   FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
 } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 import { required } from "@/utils/rules";
 
 export default {
   name: "UsersAdmin",
 
   components: {
-    FadeOutAlert, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+    LoadErrors, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
   },
 
   data() {
@@ -125,7 +125,7 @@ export default {
 
   computed: {
     ...mapState(useUsersStore, [
-        'users', 'loading', 'alertType', 'alertMessage', 'alertVisible',
+        'users', 'loading', 'usersLoadError',
     ]),
   },
 

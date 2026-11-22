@@ -159,7 +159,7 @@ describe('UserProfile', () => {
     it("shows only the alert when the user can't be loaded", async () => {
         const pinia = createTestingPinia({
             initialState: {
-                user: { alertVisible: true, alertType: 'error', alertMessage: "Couldn't load your profile: the service failed (500)" },
+                user: { currentUserLoadError: "Couldn't load your profile: the service failed (500)" },
             },
         });
 
@@ -168,13 +168,5 @@ describe('UserProfile', () => {
 
         expect(wrapper.find('h2').exists()).toBe(false);
         expect(wrapper.find('.v-alert').text()).toContain("Couldn't load your profile: the service failed (500)");
-    });
-
-    it('shows the users store alert', async () => {
-        const { wrapper } = await mountProfile({
-            state: { alertVisible: true, alertType: 'success', alertMessage: 'User updated successfully!' },
-        });
-
-        expect(wrapper.find('.v-alert').text()).toContain('User updated successfully!');
     });
 });

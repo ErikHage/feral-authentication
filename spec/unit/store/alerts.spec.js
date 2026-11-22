@@ -1,51 +1,5 @@
-import { failureMessage, showAlert } from '@/store/alerts';
+import { failureMessage } from '@/store/alerts';
 import { httpError, noAnswer } from '../../helpers/http-errors';
-
-describe('showAlert', () => {
-    let store;
-
-    beforeEach(() => {
-        vi.useFakeTimers();
-        store = { alertVisible: false, alertType: null, alertMessage: null };
-    });
-
-    afterEach(() => {
-        vi.useRealTimers();
-    });
-
-    it('shows the alert, and hides it after 3 seconds', () => {
-        showAlert(store, 'success', 'User added successfully!');
-
-        expect(store).toEqual({ alertVisible: true, alertType: 'success', alertMessage: 'User added successfully!' });
-        vi.advanceTimersByTime(3000);
-        expect(store.alertVisible).toBe(false);
-    });
-
-    it("gives a newer alert its own 3 seconds, not what's left of the older one's", () => {
-        showAlert(store, 'success', 'User added successfully!');
-        vi.advanceTimersByTime(2000);
-
-        showAlert(store, 'success', 'User deleted successfully.');
-        vi.advanceTimersByTime(2000);
-
-        expect(store.alertVisible).toBe(true);
-        expect(store.alertMessage).toBe('User deleted successfully.');
-        vi.advanceTimersByTime(1000);
-        expect(store.alertVisible).toBe(false);
-    });
-
-    it("keeps each store's clock to itself", () => {
-        const other = { ...store };
-        showAlert(store, 'success', 'Role Deleted.');
-        vi.advanceTimersByTime(2000);
-
-        showAlert(other, 'success', 'Key Rotated!');
-        vi.advanceTimersByTime(1000);
-
-        expect(store.alertVisible).toBe(false);
-        expect(other.alertVisible).toBe(true);
-    });
-});
 
 describe('failureMessage', () => {
     it.each([

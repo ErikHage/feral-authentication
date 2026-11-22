@@ -56,12 +56,12 @@ describe('KeysAdmin', () => {
         expect(store.fetchKeys).toHaveBeenCalledTimes(2);
     });
 
-    it('shows the keys store alert', async () => {
+    it("shows why the keys couldn't be loaded", async () => {
         const { wrapper } = await mountPage({
-            state: { alertVisible: true, alertType: 'error', alertMessage: 'Request failed with status code 400' },
+            state: { keysLoadError: "Couldn't load the keys: the service refused it (400)" },
         });
 
-        expect(wrapper.find('.v-alert').text()).toContain('Request failed with status code 400');
+        expect(wrapper.find('.v-alert').text()).toContain("Couldn't load the keys: the service refused it (400)");
     });
 
     describe('generating a key', () => {

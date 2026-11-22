@@ -15,7 +15,7 @@
           </div>
         </fr-card>
 
-        <FadeOutAlert :is-visible="alertVisible" :alert-type="alertType" :message="alertMessage"/>
+        <LoadErrors :messages="[usersLoadError, selectedUserLoadError, rolesLoadError, applicationsLoadError]"/>
 
         <fr-card class="mt-3" v-if="selectedUser" role="region" aria-label="Manage Applications" title="Manage Applications">
           <div class="px-4 pb-4">
@@ -109,12 +109,12 @@ import { mapActions, mapState } from "pinia";
 import {
   FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrIcon, FrRow, FrSelect,
 } from "@feral-auth/vue-components";
-import FadeOutAlert from "@/components/FadeOutAlert.vue";
+import LoadErrors from "@/components/LoadErrors.vue";
 
 export default {
   name: "AuthorizationAdmin",
   components: {
-    FadeOutAlert, FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrIcon, FrRow, FrSelect,
+    LoadErrors, FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrIcon, FrRow, FrSelect,
   },
 
   data() {
@@ -131,15 +131,15 @@ export default {
 
   computed: {
     ...mapState(useUsersStore, [
-      'users', 'selectedUser', 'loading', 'alertType', 'alertMessage', 'alertVisible',
+      'users', 'selectedUser', 'loading', 'usersLoadError', 'selectedUserLoadError',
     ]),
 
     ...mapState(useRolesStore, [
-      'roles',
+      'roles', 'rolesLoadError',
     ]),
 
     ...mapState(useApplicationsStore, [
-      'applications',
+      'applications', 'applicationsLoadError',
     ]),
   },
 
