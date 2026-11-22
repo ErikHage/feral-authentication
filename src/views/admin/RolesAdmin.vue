@@ -3,18 +3,21 @@
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
         <LoadErrors :messages="[rolesLoadError]"/>
-        <fr-card title="Manage Roles">
-          <div class="px-4 pb-4">
-            <div class="mb-3">
-              <fr-btn class="mr-2" color="primary" @click="openDialog()">Add</fr-btn>
-              <fr-btn color="primary" @click="fetchRoles()">Refresh</fr-btn>
-            </div>
+        <fr-card>
+          <div class="pa-4">
             <fr-data-table
                 :headers="headers"
                 :items="roles"
                 item-value="roleId"
                 class="elevation-1"
             >
+              <template #top>
+                <h2 class="text-h6">Manage Roles</h2>
+              </template>
+              <template #actions>
+                <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
+                <fr-btn color="primary" @click="fetchRoles()">Refresh</fr-btn>
+              </template>
               <template #item.actions="{ item }">
                 <fr-icon :aria-label="`Delete ${item.scope}/${item.title}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
               </template>

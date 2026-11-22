@@ -4,18 +4,21 @@
       <fr-col cols="12" sm="8">
         <LoadErrors :messages="[keysLoadError]"/>
 
-        <fr-card title="Manage Keys">
-          <div class="px-4 pb-4">
-            <div class="mb-3">
-              <fr-btn class="mr-2" color="primary" @click="openGenerateDialog">Generate</fr-btn>
-              <fr-btn color="primary" @click="refresh">Refresh</fr-btn>
-            </div>
+        <fr-card>
+          <div class="pa-4">
             <fr-data-table
                 :headers="headers"
                 :items="availableKeys"
                 item-value="keyId"
                 class="elevation-1"
             >
+              <template #top>
+                <h2 class="text-h6">Manage Keys</h2>
+              </template>
+              <template #actions>
+                <fr-btn color="primary" @click="openGenerateDialog">Generate</fr-btn>
+                <fr-btn color="primary" @click="refresh">Refresh</fr-btn>
+              </template>
             </fr-data-table>
           </div>
         </fr-card>
