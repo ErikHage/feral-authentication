@@ -1,58 +1,56 @@
 <template>
   <fr-container v-if="applicationDetails">
-    <h2>Application Details</h2>
+    <h2 class="text-center">Application Details</h2>
 
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
         <LoadErrors :messages="[applicationsLoadError, keysLoadError]"/>
         <fr-card class="mt-3">
-          <div class="pa-4">
-            <fr-form v-model="formValid">
-              <v-text-field
-                  disabled
-                  v-model="applicationDetails.applicationId"
-                  label="Application Id"
-              ></v-text-field>
-              <v-text-field
-                  :rules="[rules.applicationName]"
-                  v-model="applicationDetails.applicationName"
-                  label="Application Name"
-              ></v-text-field>
-              <v-text-field
-                  :rules="[rules.applicationUrl]"
-                  v-model="applicationDetails.applicationUrl"
-                  label="Application Landing Page"
-              ></v-text-field>
-              <v-text-field
-                  :rules="[rules.scope]"
-                  v-model="applicationDetails.scope"
-                  label="Roles Scope"
-              ></v-text-field>
-              <v-text-field
-                  disabled
-                  v-model="applicationDetails.keyPairId"
-                  label="Key Pair Id"
-              ></v-text-field>
-              <v-text-field
-                  v-if="currentKeyDetails"
-                  disabled
-                  v-model="currentKeyDetails.keyName"
-                  label="Key Pair Name"
-              ></v-text-field>
-              <v-text-field
-                  v-if="applicationDetails.previousKeyPairId"
-                  disabled
-                  v-model="applicationDetails.previousKeyPairId"
-                  label="Previous Key Pair Id"
-              ></v-text-field>
-              <v-text-field
-                  v-if="previousKeyDetails"
-                  disabled
-                  v-model="previousKeyDetails.keyName"
-                  label="Previous Key Pair Name"
-              ></v-text-field>
-            </fr-form>
-          </div>
+          <fr-form v-model="formValid">
+            <v-text-field
+                disabled
+                v-model="applicationDetails.applicationId"
+                label="Application Id"
+            ></v-text-field>
+            <v-text-field
+                :rules="[rules.applicationName]"
+                v-model="applicationDetails.applicationName"
+                label="Application Name"
+            ></v-text-field>
+            <v-text-field
+                :rules="[rules.applicationUrl]"
+                v-model="applicationDetails.applicationUrl"
+                label="Application Landing Page"
+            ></v-text-field>
+            <v-text-field
+                :rules="[rules.scope]"
+                v-model="applicationDetails.scope"
+                label="Roles Scope"
+            ></v-text-field>
+            <v-text-field
+                disabled
+                v-model="applicationDetails.keyPairId"
+                label="Key Pair Id"
+            ></v-text-field>
+            <v-text-field
+                v-if="currentKeyDetails"
+                disabled
+                v-model="currentKeyDetails.keyName"
+                label="Key Pair Name"
+            ></v-text-field>
+            <v-text-field
+                v-if="applicationDetails.previousKeyPairId"
+                disabled
+                v-model="applicationDetails.previousKeyPairId"
+                label="Previous Key Pair Id"
+            ></v-text-field>
+            <v-text-field
+                v-if="previousKeyDetails"
+                disabled
+                v-model="previousKeyDetails.keyName"
+                label="Previous Key Pair Name"
+            ></v-text-field>
+          </fr-form>
           <template #actions>
             <fr-btn
                 @click="openDialog">
@@ -81,8 +79,8 @@
           label="Key"
       ></fr-autocomplete>
       <template #actions>
-        <fr-btn color="blue darken-1" text @click="closeDialog">Cancel</fr-btn>
-        <fr-btn color="blue darken-1" text :disabled="!form.newKeyId" @click="performKeyRotation">Save</fr-btn>
+        <fr-btn @click="closeDialog">Cancel</fr-btn>
+        <fr-btn :disabled="!form.newKeyId" @click="performKeyRotation">Save</fr-btn>
       </template>
     </fr-dialog>
 

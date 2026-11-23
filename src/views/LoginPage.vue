@@ -13,30 +13,28 @@
         </div>
 
         <fr-card title="Login">
-          <div class="px-4 pb-4">
-            <!-- FrForm stops the page submitting, and emits submit itself -->
-            <fr-form @submit="login">
-              <v-text-field
-                  v-model="username"
-                  label="Username"
-                  type="text"
-                  required
-              ></v-text-field>
+          <!-- FrForm stops the page submitting, and emits submit itself -->
+          <fr-form @submit="login">
+            <v-text-field
+                v-model="username"
+                label="Username"
+                type="text"
+                required
+            ></v-text-field>
 
-              <v-text-field
-                  v-model="password"
-                  label="Password"
-                  type="password"
-                  required
-              ></v-text-field>
+            <v-text-field
+                v-model="password"
+                label="Password"
+                type="password"
+                required
+            ></v-text-field>
 
-              <div class="text-center">
-                <fr-btn v-if="showLoginButton" type="submit" color="primary" class="mt-3">Submit</fr-btn>
-                <fr-spinner v-else color="primary"></fr-spinner>
-              </div>
+            <div class="text-center">
+              <fr-btn v-if="showLoginButton" type="submit" color="primary" class="mt-3">Submit</fr-btn>
+              <fr-spinner v-else color="primary"></fr-spinner>
+            </div>
 
-            </fr-form>
-          </div>
+          </fr-form>
         </fr-card>
       </fr-col>
     </fr-row>

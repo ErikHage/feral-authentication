@@ -3,98 +3,92 @@
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
         <fr-card title="Manage Authorization">
-          <div class="px-4 pb-4">
-            <fr-select
-                v-model="selectedUserId"
-                :items="users"
-                item-title="username"
-                item-value="userId"
-                label="Select User"
-                @update:model-value="onSelectUserChange"
-            ></fr-select>
-          </div>
+          <fr-select
+              v-model="selectedUserId"
+              :items="users"
+              item-title="username"
+              item-value="userId"
+              label="Select User"
+              @update:model-value="onSelectUserChange"
+          ></fr-select>
         </fr-card>
 
         <LoadErrors :messages="[usersLoadError, selectedUserLoadError, rolesLoadError, applicationsLoadError]"/>
 
         <fr-card class="mt-3" v-if="selectedUser" role="region" aria-label="Manage Applications" title="Manage Applications">
-          <div class="px-4 pb-4">
-            <fr-row class="align-center">
-              <fr-col cols="11">
-                <fr-select
-                    v-model="selectedApplication"
-                    :items="applications"
-                    item-title="applicationName"
-                    item-value="applicationId"
-                    label="Select Application To Add"
-                    return-object
-                ></fr-select>
-              </fr-col>
-              <fr-col cols="1">
-                <fr-btn
-                    block
-                    color="error"
-                    @click="addSelectedApplication"
-                    :disabled="!selectedApplication || isApplicationAlreadySelected(selectedApplication)"
-                    aria-label="Add the application"
-                >
-                  <fr-icon>mdi-plus</fr-icon>
-                </fr-btn>
-              </fr-col>
-            </fr-row>
-            <fr-chip-group v-if="selectedApplications">
-              <fr-chip v-for="application in selectedApplications" :key="application.applicationId"
-                       role="button" :aria-label="`Remove ${application.applicationName}`"
-                       @click="removeApplicationFromSelected(application.applicationId)">
-                {{ application.applicationName }}
-              </fr-chip>
-              <!-- click on them to remove -->
-            </fr-chip-group>
-          </div>
+          <fr-row class="align-center">
+            <fr-col cols="11">
+              <fr-select
+                  v-model="selectedApplication"
+                  :items="applications"
+                  item-title="applicationName"
+                  item-value="applicationId"
+                  label="Select Application To Add"
+                  return-object
+              ></fr-select>
+            </fr-col>
+            <fr-col cols="1">
+              <fr-btn
+                  block
+                  color="error"
+                  @click="addSelectedApplication"
+                  :disabled="!selectedApplication || isApplicationAlreadySelected(selectedApplication)"
+                  aria-label="Add the application"
+              >
+                <fr-icon>mdi-plus</fr-icon>
+              </fr-btn>
+            </fr-col>
+          </fr-row>
+          <fr-chip-group v-if="selectedApplications">
+            <fr-chip v-for="application in selectedApplications" :key="application.applicationId"
+                     role="button" :aria-label="`Remove ${application.applicationName}`"
+                     @click="removeApplicationFromSelected(application.applicationId)">
+              {{ application.applicationName }}
+            </fr-chip>
+            <!-- click on them to remove -->
+          </fr-chip-group>
           <template #actions>
-            <fr-btn color="blue darken-1" text @click="cancelUpdatingApplications">Cancel</fr-btn>
-            <fr-btn color="blue darken-1" text @click="saveApplicationUpdates">Save</fr-btn>
+            <fr-btn @click="cancelUpdatingApplications">Cancel</fr-btn>
+            <fr-btn @click="saveApplicationUpdates">Save</fr-btn>
           </template>
         </fr-card>
 
         <fr-card class="mt-3" v-if="selectedUser" role="region" aria-label="Manage Roles" title="Manage Roles">
-          <div class="px-4 pb-4">
-            <fr-row class="align-center">
-              <fr-col cols="11">
-                <!--            TODO split into scope and title selects -->
-                <fr-select
-                    v-model="selectedRole"
-                    :items="roles"
-                    :item-title="(item) => `${item.scope}/${item.title}`"
-                    item-value="roleId"
-                    label="Select Role To Add"
-                    return-object
-                ></fr-select>
-              </fr-col>
-              <fr-col cols="1">
-                <fr-btn
-                    block
-                    color="error"
-                    @click="addSelectedRole"
-                    :disabled="!selectedRole || isRoleAlreadySelected(selectedRole)"
-                    aria-label="Add the role"
-                >
-                  <fr-icon>mdi-plus</fr-icon>
-                </fr-btn>
-              </fr-col>
-            </fr-row>
-            <fr-chip-group v-if="selectedRoles">
-              <fr-chip v-for="role in selectedRoles" :key="role.roleId"
-                       role="button" :aria-label="`Remove ${role.scope}/${role.title}`"
-                       @click="removeRoleFromSelected(role.roleId)">
-                {{ role.scope }}/{{ role.title }}
-              </fr-chip>
-              <!-- click on them to remove -->
-            </fr-chip-group>
-          </div>
+          <fr-row class="align-center">
+            <fr-col cols="11">
+              <!--            TODO split into scope and title selects -->
+              <fr-select
+                  v-model="selectedRole"
+                  :items="roles"
+                  :item-title="(item) => `${item.scope}/${item.title}`"
+                  item-value="roleId"
+                  label="Select Role To Add"
+                  return-object
+              ></fr-select>
+            </fr-col>
+            <fr-col cols="1">
+              <fr-btn
+                  block
+                  color="error"
+                  @click="addSelectedRole"
+                  :disabled="!selectedRole || isRoleAlreadySelected(selectedRole)"
+                  aria-label="Add the role"
+              >
+                <fr-icon>mdi-plus</fr-icon>
+              </fr-btn>
+            </fr-col>
+          </fr-row>
+          <fr-chip-group v-if="selectedRoles">
+            <fr-chip v-for="role in selectedRoles" :key="role.roleId"
+                     role="button" :aria-label="`Remove ${role.scope}/${role.title}`"
+                     @click="removeRoleFromSelected(role.roleId)">
+              {{ role.scope }}/{{ role.title }}
+            </fr-chip>
+            <!-- click on them to remove -->
+          </fr-chip-group>
           <template #actions>
-            <fr-btn color="blue darken-1" text @click="cancelUpdatingRoles">Cancel</fr-btn>
-            <fr-btn color="blue darken-1" text @click="saveRoleUpdates">Save</fr-btn>
+            <fr-btn @click="cancelUpdatingRoles">Cancel</fr-btn>
+            <fr-btn @click="saveRoleUpdates">Save</fr-btn>
           </template>
         </fr-card>
 

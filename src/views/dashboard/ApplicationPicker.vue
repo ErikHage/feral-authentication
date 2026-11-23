@@ -1,6 +1,6 @@
 <template>
   <fr-container v-if="userApplications">
-    <h2>Available Applications</h2>
+    <h2 class="text-center">Available Applications</h2>
     <LoadErrors :messages="[userApplicationsLoadError]"/>
     <fr-row class="mt-3">
       <fr-col cols="2"></fr-col>
@@ -12,15 +12,13 @@
                   cols="4"
           >
             <fr-card class="text-center" :title="application.applicationName">
-              <div class="ma-3 px-4 pb-4">
-                <fr-image
-                    :src="getAssetPathToDisplay(application)"
-                    alt="Logo"
-                    max-width="125"
-                    class="mx-auto pointer"
-                    @click="goToApplication(application.applicationId)"
-                ></fr-image>
-              </div>
+              <fr-image
+                  :src="getAssetPathToDisplay(application)"
+                  alt="Logo"
+                  max-width="125"
+                  class="mx-auto pointer"
+                  @click="goToApplication(application.applicationId)"
+              ></fr-image>
             </fr-card>
           </fr-col>
         </fr-row>

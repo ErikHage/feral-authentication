@@ -3,27 +3,22 @@
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
         <LoadErrors :messages="[applicationsLoadError, keysLoadError]"/>
-        <fr-card>
-          <div class="pa-4">
-            <fr-data-table
-                :headers="headers"
-                :items="applications"
-                item-value="applicationId"
-                class="elevation-1"
-                :loading="loading"
-            >
-              <template #top>
-                <h2 class="text-h6">Manage Applications</h2>
-              </template>
-              <template #actions>
-                <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
-                <fr-btn color="primary" @click="refreshData()">Refresh</fr-btn>
-              </template>
-              <template #item.actions="{ item }">
-                <fr-icon :aria-label="`Edit ${item.applicationName}`" @click="goToApplicationDetails(item)">mdi-pencil</fr-icon>
-              </template>
-            </fr-data-table>
-          </div>
+        <fr-card flush>
+          <fr-data-table
+              title="Manage Applications"
+              :headers="headers"
+              :items="applications"
+              item-value="applicationId"
+              :loading="loading"
+          >
+            <template #actions>
+              <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
+              <fr-btn color="primary" @click="refreshData()">Refresh</fr-btn>
+            </template>
+            <template #item.actions="{ item }">
+              <fr-icon :aria-label="`Edit ${item.applicationName}`" @click="goToApplicationDetails(item)">mdi-pencil</fr-icon>
+            </template>
+          </fr-data-table>
         </fr-card>
       </fr-col>
     </fr-row>
@@ -43,8 +38,8 @@
         ></fr-autocomplete>
       </fr-form>
       <template #actions>
-        <fr-btn color="blue darken-1" text @click="closeDialog">Cancel</fr-btn>
-        <fr-btn color="blue darken-1" text :disabled="!formValid" @click="saveApplication">Create</fr-btn>
+        <fr-btn @click="closeDialog">Cancel</fr-btn>
+        <fr-btn :disabled="!formValid" @click="saveApplication">Create</fr-btn>
       </template>
     </fr-dialog>
 

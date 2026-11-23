@@ -3,28 +3,23 @@
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
         <LoadErrors :messages="[usersLoadError]"/>
-        <fr-card>
-          <div class="pa-4">
-            <fr-data-table
-                :headers="headers"
-                :items="users"
-                item-value="userId"
-                class="elevation-1"
-                :loading="loading"
-            >
-              <template #top>
-                <h2 class="text-h6">Manage Users</h2>
-              </template>
-              <template #actions>
-                <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
-                <fr-btn color="primary" @click="refreshData()">Refresh</fr-btn>
-              </template>
-              <template #item.actions="{ item }">
-                <fr-icon :aria-label="`Edit ${item.username}`" @click="openDialog(item)">mdi-pencil</fr-icon>
-                <fr-icon :aria-label="`Delete ${item.username}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
-              </template>
-            </fr-data-table>
-          </div>
+        <fr-card flush>
+          <fr-data-table
+              title="Manage Users"
+              :headers="headers"
+              :items="users"
+              item-value="userId"
+              :loading="loading"
+          >
+            <template #actions>
+              <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
+              <fr-btn color="primary" @click="refreshData()">Refresh</fr-btn>
+            </template>
+            <template #item.actions="{ item }">
+              <fr-icon :aria-label="`Edit ${item.username}`" @click="openDialog(item)">mdi-pencil</fr-icon>
+              <fr-icon :aria-label="`Delete ${item.username}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
+            </template>
+          </fr-data-table>
         </fr-card>
       </fr-col>
     </fr-row>
@@ -48,8 +43,8 @@
         ></v-text-field>
       </fr-form>
       <template #actions>
-        <fr-btn color="blue darken-1" text @click="closeDialog">Cancel</fr-btn>
-        <fr-btn color="blue darken-1" text :disabled="!formValid" @click="saveUser">Save</fr-btn>
+        <fr-btn @click="closeDialog">Cancel</fr-btn>
+        <fr-btn :disabled="!formValid" @click="saveUser">Save</fr-btn>
       </template>
     </fr-dialog>
 
@@ -67,8 +62,8 @@
         <span class="red-text">Are you sure? This cannot be undone!</span>
       </div>
       <template #actions>
-        <fr-btn color="blue darken-1" text @click="closeDeleteDialog">Cancel</fr-btn>
-        <fr-btn color="blue darken-1" text @click="deleteUserById(this.userToDelete?.userId)">Delete</fr-btn>
+        <fr-btn @click="closeDeleteDialog">Cancel</fr-btn>
+        <fr-btn color="error" @click="deleteUserById(this.userToDelete?.userId)">Delete</fr-btn>
       </template>
     </fr-dialog>
   </fr-container>

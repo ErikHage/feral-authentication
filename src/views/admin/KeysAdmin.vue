@@ -4,23 +4,18 @@
       <fr-col cols="12" sm="8">
         <LoadErrors :messages="[keysLoadError]"/>
 
-        <fr-card>
-          <div class="pa-4">
-            <fr-data-table
-                :headers="headers"
-                :items="availableKeys"
-                item-value="keyId"
-                class="elevation-1"
-            >
-              <template #top>
-                <h2 class="text-h6">Manage Keys</h2>
-              </template>
-              <template #actions>
-                <fr-btn color="primary" @click="openGenerateDialog">Generate</fr-btn>
-                <fr-btn color="primary" @click="refresh">Refresh</fr-btn>
-              </template>
-            </fr-data-table>
-          </div>
+        <fr-card flush>
+          <fr-data-table
+              title="Manage Keys"
+              :headers="headers"
+              :items="availableKeys"
+              item-value="keyId"
+          >
+            <template #actions>
+              <fr-btn color="primary" @click="openGenerateDialog">Generate</fr-btn>
+              <fr-btn color="primary" @click="refresh">Refresh</fr-btn>
+            </template>
+          </fr-data-table>
         </fr-card>
       </fr-col>
     </fr-row>
@@ -43,8 +38,8 @@
         ></v-text-field>
       </fr-form>
       <template #actions>
-        <fr-btn color="blue darken-1" text @click="closeGenerateDialog">Cancel</fr-btn>
-        <fr-btn color="blue darken-1" text @click="generate" :disabled="!formValid">Generate</fr-btn>
+        <fr-btn @click="closeGenerateDialog">Cancel</fr-btn>
+        <fr-btn @click="generate" :disabled="!formValid">Generate</fr-btn>
       </template>
     </fr-dialog>
   </fr-container>

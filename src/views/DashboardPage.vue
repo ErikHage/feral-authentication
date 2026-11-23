@@ -6,7 +6,7 @@
       <fr-btn to="/dashboard/profile">Profile</fr-btn>
       <fr-btn to="/dashboard/sessions">Sessions</fr-btn>
     </v-app-bar>
-    <fr-row class="text-center">
+    <fr-row>
       <router-view/>
     </fr-row>
   </fr-container>

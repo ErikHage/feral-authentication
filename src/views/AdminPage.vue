@@ -8,7 +8,7 @@
       <fr-btn to="/admin/keys">Keys</fr-btn>
       <fr-btn to="/admin/applications">Applications</fr-btn>
     </v-app-bar>
-    <fr-row class="text-center">
+    <fr-row>
       <router-view/>
     </fr-row>
   </fr-container>

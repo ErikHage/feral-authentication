@@ -3,26 +3,21 @@
     <fr-row class="justify-center">
       <fr-col cols="12" sm="8">
         <LoadErrors :messages="[rolesLoadError]"/>
-        <fr-card>
-          <div class="pa-4">
-            <fr-data-table
-                :headers="headers"
-                :items="roles"
-                item-value="roleId"
-                class="elevation-1"
-            >
-              <template #top>
-                <h2 class="text-h6">Manage Roles</h2>
-              </template>
-              <template #actions>
-                <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
-                <fr-btn color="primary" @click="fetchRoles()">Refresh</fr-btn>
-              </template>
-              <template #item.actions="{ item }">
-                <fr-icon :aria-label="`Delete ${item.scope}/${item.title}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
-              </template>
-            </fr-data-table>
-          </div>
+        <fr-card flush>
+          <fr-data-table
+              title="Manage Roles"
+              :headers="headers"
+              :items="roles"
+              item-value="roleId"
+          >
+            <template #actions>
+              <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
+              <fr-btn color="primary" @click="fetchRoles()">Refresh</fr-btn>
+            </template>
+            <template #item.actions="{ item }">
+              <fr-icon :aria-label="`Delete ${item.scope}/${item.title}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
+            </template>
+          </fr-data-table>
         </fr-card>
       </fr-col>
     </fr-row>
@@ -34,8 +29,8 @@
         <v-textarea v-model="form.description" label="Description" :rules="rules.description"></v-textarea>
       </fr-form>
       <template #actions>
-        <fr-btn color="blue darken-1" text @click="closeDialog">Cancel</fr-btn>
-        <fr-btn color="blue darken-1" text :disabled="!formValid" @click="saveRole">Save</fr-btn>
+        <fr-btn @click="closeDialog">Cancel</fr-btn>
+        <fr-btn :disabled="!formValid" @click="saveRole">Save</fr-btn>
       </template>
     </fr-dialog>
 
@@ -57,8 +52,8 @@
         <span class="red-text">Are you sure? This cannot be undone!</span>
       </div>
       <template #actions>
-        <fr-btn color="blue darken-1" text @click="closeDeleteDialog">Cancel</fr-btn>
-        <fr-btn color="blue darken-1" text @click="deleteRoleById(this.roleToDelete?.roleId)">Delete</fr-btn>
+        <fr-btn @click="closeDeleteDialog">Cancel</fr-btn>
+        <fr-btn color="error" @click="deleteRoleById(this.roleToDelete?.roleId)">Delete</fr-btn>
       </template>
     </fr-dialog>
   </fr-container>

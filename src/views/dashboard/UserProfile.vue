@@ -1,6 +1,6 @@
 <template>
   <fr-container v-if="userDetails">
-    <h2>{{ savedDetails.firstName }} {{ savedDetails.lastName }}</h2>
+    <h2 class="text-center">{{ savedDetails.firstName }} {{ savedDetails.lastName }}</h2>
     <fr-row class="mt-3">
       <fr-col cols="2">
       </fr-col>
@@ -8,41 +8,39 @@
       <fr-col cols="8">
         <fr-row>
           <fr-col>
-            <fr-card class="text-left" title="Personal Details">
-              <div class="ma-3 px-4 pb-4">
-                <fr-form v-model="formValid">
-                  <v-text-field
-                      :rules="[rules.firstName]"
-                      v-model="userDetails.firstName"
-                      label="First Name"
-                  ></v-text-field>
-                  <v-text-field
-                      :rules="[rules.lastName]"
-                      v-model="userDetails.lastName"
-                      label="Last Name"
-                  ></v-text-field>
-                  <v-text-field
-                      disabled
-                      v-model="userDetails.username"
-                      label="Username"
-                  ></v-text-field>
-                  <v-text-field
-                      disabled
-                      v-model="userDetails.email"
-                      label="Email"
-                  ></v-text-field>
-                  <v-text-field
-                      disabled
-                      v-model="userDetails.lastLogin"
-                      label="Last Login"
-                  ></v-text-field>
-                  <v-text-field
-                      disabled
-                      v-model="userDetails.isSuspended"
-                      label="Suspended"
-                  ></v-text-field>
-                </fr-form>
-              </div>
+            <fr-card title="Personal Details">
+              <fr-form v-model="formValid">
+                <v-text-field
+                    :rules="[rules.firstName]"
+                    v-model="userDetails.firstName"
+                    label="First Name"
+                ></v-text-field>
+                <v-text-field
+                    :rules="[rules.lastName]"
+                    v-model="userDetails.lastName"
+                    label="Last Name"
+                ></v-text-field>
+                <v-text-field
+                    disabled
+                    v-model="userDetails.username"
+                    label="Username"
+                ></v-text-field>
+                <v-text-field
+                    disabled
+                    v-model="userDetails.email"
+                    label="Email"
+                ></v-text-field>
+                <v-text-field
+                    disabled
+                    v-model="userDetails.lastLogin"
+                    label="Last Login"
+                ></v-text-field>
+                <v-text-field
+                    disabled
+                    v-model="userDetails.isSuspended"
+                    label="Suspended"
+                ></v-text-field>
+              </fr-form>
               <template #actions>
                 <fr-btn
                     :disabled="!formValid || !isChanged"
@@ -56,28 +54,26 @@
 
         <fr-row>
           <fr-col>
-            <fr-card class="text-left" title="Authorization">
-              <div class="ma-3 px-4 pb-4">
-                <fr-row>
-                  <fr-card
-                      class="ma-2"
-                      v-for="scope in Object.keys(userRolesMap)"
-                      :key="scope"
-                      variant="tonal"
-                      :subtitle="scope"
-                  >
-                    <fr-chip-group class="px-4 pb-4">
-                      <fr-chip
-                          v-for="role in userRolesMap[scope]"
-                          :key="role.roleId"
-                          text="Elevator"
-                          variant="outlined"
-                      >{{ role.title }}
-                      </fr-chip>
-                    </fr-chip-group>
-                  </fr-card>
-                </fr-row>
-              </div>
+            <fr-card title="Authorization">
+              <fr-row>
+                <fr-card
+                    class="ma-2"
+                    v-for="scope in Object.keys(userRolesMap)"
+                    :key="scope"
+                    variant="tonal"
+                    :subtitle="scope"
+                >
+                  <fr-chip-group>
+                    <fr-chip
+                        v-for="role in userRolesMap[scope]"
+                        :key="role.roleId"
+                        text="Elevator"
+                        variant="outlined"
+                    >{{ role.title }}
+                    </fr-chip>
+                  </fr-chip-group>
+                </fr-card>
+              </fr-row>
             </fr-card>
           </fr-col>
         </fr-row>

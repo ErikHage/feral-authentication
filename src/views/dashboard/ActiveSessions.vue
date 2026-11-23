@@ -1,6 +1,6 @@
 <template>
   <fr-container v-if="sessions">
-    <h2>Active Sessions</h2>
+    <h2 class="text-center">Active Sessions</h2>
 
     <fr-row class="mt-3">
 
@@ -8,7 +8,7 @@
 
       <fr-col cols="8">
         <fr-row>
-          <fr-col>
+          <fr-col class="text-center">
             <fr-btn color="green" @click="refreshData">Refresh</fr-btn>
             <LoadErrors :messages="[sessionsLoadError, userApplicationsLoadError]"/>
           </fr-col>
@@ -17,7 +17,7 @@
         <fr-row>
           <fr-col cols="6" v-for="session in sessions" v-bind:key="session.sessionId">
             <fr-card
-                class="ma-2 text-left"
+                class="ma-2"
                 role="region"
                 :aria-label="`Session ${session.sessionId}`"
                 :title="session.sessionId"
@@ -28,29 +28,27 @@
               <template #prepend>
                 <fr-icon v-if="isCurrentSession(session.sessionId)" color="primary" icon="mdi-star"/>
               </template>
-              <div class="ma-3 px-4 pb-4">
-                <v-text-field
-                    :model-value="applicationNameOf(session.applicationId)"
-                    label="Application"
-                    disabled
-                    density="compact"
-                ></v-text-field>
-                <v-text-field
-                    v-model="session.roles"
-                    label="Authorization"
-                    disabled
-                    density="compact"
-                ></v-text-field>
-                <v-text-field
-                    v-model="session.expiration"
-                    label="Expiration"
-                    disabled
-                    density="compact"
-                ></v-text-field>
-              </div>
+              <v-text-field
+                  :model-value="applicationNameOf(session.applicationId)"
+                  label="Application"
+                  disabled
+                  density="compact"
+              ></v-text-field>
+              <v-text-field
+                  v-model="session.roles"
+                  label="Authorization"
+                  disabled
+                  density="compact"
+              ></v-text-field>
+              <v-text-field
+                  v-model="session.expiration"
+                  label="Expiration"
+                  disabled
+                  density="compact"
+              ></v-text-field>
               <template #actions>
                 <fr-btn
-                    class="text-red"
+                    color="error"
                     :disabled="isCurrentSession(session.sessionId)"
                     @click="revokeSession(session.sessionId)"
                 >Revoke
