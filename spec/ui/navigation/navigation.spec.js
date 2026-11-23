@@ -7,13 +7,13 @@ test.describe('Navigation', () => {
         await applicationPickerPage.checkIsShown();
     });
 
-    test('the app bar reaches the admin area and the dashboard, at their first pages', async ({
+    test('opens the admin area and the dashboard at their first pages', async ({
         applicationPickerPage, rolesAdminPage,
     }) => {
-        await applicationPickerPage.appBar.goToAdmin();
+        await rolesAdminPage.openArea();
         await rolesAdminPage.checkIsShown();
 
-        await rolesAdminPage.appBar.goToDashboard();
+        await applicationPickerPage.openArea();
         await applicationPickerPage.checkIsShown();
     });
 
@@ -26,38 +26,55 @@ test.describe('Navigation', () => {
         await publicPage.checkIsShown();
     });
 
-    test('the dashboard navigation reaches each dashboard page', async ({
+    test('the User group reaches each of its pages', async ({
         applicationPickerPage, profilePage, sessionsPage,
     }) => {
-        await applicationPickerPage.dashboardNav.goToProfile();
+        await applicationPickerPage.nav.goToProfile();
         await profilePage.checkIsShown();
 
-        await profilePage.dashboardNav.goToSessions();
+        await profilePage.nav.goToSessions();
         await sessionsPage.checkIsShown();
 
-        await sessionsPage.dashboardNav.goToApplications();
+        await sessionsPage.nav.goToMyApplications();
         await applicationPickerPage.checkIsShown();
     });
 
-    test('the admin navigation reaches each admin page', async ({
-        applicationPickerPage, adminPage, rolesAdminPage, usersAdminPage,
+    test('the Admin group reaches each of its pages', async ({
+        applicationPickerPage, rolesAdminPage, usersAdminPage,
         authorizationAdminPage, keysAdminPage, applicationsAdminPage,
     }) => {
-        await applicationPickerPage.appBar.goToAdmin();
-
-        await adminPage.adminNav.goToRoles();
+        await applicationPickerPage.nav.goToRoles();
         await rolesAdminPage.checkIsShown();
 
-        await rolesAdminPage.adminNav.goToUsers();
+        await rolesAdminPage.nav.goToUsers();
         await usersAdminPage.checkIsShown();
 
-        await usersAdminPage.adminNav.goToAuthorization();
+        await usersAdminPage.nav.goToAuthorization();
         await authorizationAdminPage.checkIsShown();
 
-        await authorizationAdminPage.adminNav.goToKeys();
+        await authorizationAdminPage.nav.goToKeys();
         await keysAdminPage.checkIsShown();
 
-        await keysAdminPage.adminNav.goToApplications();
+        await keysAdminPage.nav.goToApplications();
         await applicationsAdminPage.checkIsShown();
+    });
+
+    test('collapses to a rail that is remembered, and expands again', async ({
+        applicationPickerPage, keysAdminPage,
+    }) => {
+        await applicationPickerPage.nav.collapseToRail();
+
+        await applicationPickerPage.nav.goToKeys();
+        await keysAdminPage.checkIsShown();
+        await keysAdminPage.nav.checkIsRail();
+
+        await keysAdminPage.reload();
+        await keysAdminPage.checkIsShownAfterReload();
+        await keysAdminPage.nav.checkIsRail();
+
+        await keysAdminPage.nav.expand();
+        await keysAdminPage.reload();
+        await keysAdminPage.checkIsShownAfterReload();
+        await keysAdminPage.nav.checkIsExpanded();
     });
 });

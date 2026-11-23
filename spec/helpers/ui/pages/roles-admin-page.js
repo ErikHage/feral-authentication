@@ -1,7 +1,7 @@
 import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 import { role } from '../params';
-import { adminComponents, routedPageSteps } from './routed-page';
+import { shellComponents, routedPageSteps } from './routed-page';
 
 /**
  * The roles admin page, in words. A role added here is titled by its alias,
@@ -10,8 +10,18 @@ import { adminComponents, routedPageSteps } from './routed-page';
  */
 export function createRolesAdminPage(world, driver) {
     return {
-        ...adminComponents(world),
+        ...shellComponents(world),
         ...routedPageSteps(driver),
+
+        /**
+         * Goes to the admin area's own URL, `/admin`, which opens this, its
+         * first page. `checkIsShown` checks it did. No parameters.
+         */
+        async openArea(...args) {
+            parseDslArgs(args, {});
+
+            await driver.openArea();
+        },
 
         /** Adds a new `role` through the Add dialog. */
         async addRole(...args) {

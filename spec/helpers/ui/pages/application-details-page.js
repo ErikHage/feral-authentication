@@ -1,7 +1,7 @@
 import { optional, parseDslArgs, required } from '@feral-auth/ts-simple-dsl';
 
 import { application, key } from '../params';
-import { adminComponents } from './routed-page';
+import { shellComponents } from './routed-page';
 
 /**
  * An application's details page, in words. It's reached from the
@@ -9,7 +9,7 @@ import { adminComponents } from './routed-page';
  */
 export function createApplicationDetailsPage(world, driver) {
     return {
-        ...adminComponents(world),
+        ...shellComponents(world),
 
         /**
          * The page shows the `application`, signed with the `key`, and

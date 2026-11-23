@@ -1,7 +1,7 @@
 import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 import { application, key } from '../params';
-import { adminComponents, routedPageSteps } from './routed-page';
+import { shellComponents, routedPageSteps } from './routed-page';
 
 /**
  * The applications admin page, in words. An application added here gets
@@ -9,7 +9,7 @@ import { adminComponents, routedPageSteps } from './routed-page';
  */
 export function createApplicationsAdminPage(world, driver) {
     return {
-        ...adminComponents(world),
+        ...shellComponents(world),
         ...routedPageSteps(driver),
 
         /** Adds a new `application`, signed with the `key`, through the Add dialog. */

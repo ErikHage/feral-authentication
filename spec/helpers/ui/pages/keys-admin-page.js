@@ -1,7 +1,7 @@
 import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 import { key } from '../params';
-import { adminComponents, routedPageSteps } from './routed-page';
+import { shellComponents, routedPageSteps } from './routed-page';
 
 /**
  * The keys admin page, in words. A key generated here gets a made-up name,
@@ -9,7 +9,7 @@ import { adminComponents, routedPageSteps } from './routed-page';
  */
 export function createKeysAdminPage(world, driver) {
     return {
-        ...adminComponents(world),
+        ...shellComponents(world),
         ...routedPageSteps(driver),
 
         /** Generates a new `key` through the Generate dialog. */

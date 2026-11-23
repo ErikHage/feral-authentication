@@ -9,23 +9,22 @@ import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Single sign-on', () => {
     test.beforeEach(async ({
-        loginPage, applicationPickerPage, adminPage, keysAdminPage, applicationsAdminPage, usersAdminPage,
+        loginPage, applicationPickerPage, keysAdminPage, applicationsAdminPage, usersAdminPage,
         authorizationAdminPage,
     }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToKeys();
+        await applicationPickerPage.nav.goToKeys();
         await keysAdminPage.generateKey('key: signing');
         await keysAdminPage.checkKeyIsListed('key: signing');
-        await keysAdminPage.adminNav.goToApplications();
+        await keysAdminPage.nav.goToApplications();
         await applicationsAdminPage.addApplication('application: game', 'key: signing');
         await applicationsAdminPage.checkApplicationIsListed('application: game');
-        await applicationsAdminPage.adminNav.goToUsers();
+        await applicationsAdminPage.nav.goToUsers();
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');
-        await usersAdminPage.adminNav.goToAuthorization();
+        await usersAdminPage.nav.goToAuthorization();
         await authorizationAdminPage.grantApplication('user: bob', 'application: game');
         await authorizationAdminPage.checkUserHasApplication('user: bob', 'application: game');
         await authorizationAdminPage.appBar.logOut();

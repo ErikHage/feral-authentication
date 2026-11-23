@@ -8,6 +8,7 @@ test.describe('Route guard and logout', () => {
 
         await loginPage.checkIsShown();
         await loginPage.appBar.checkOffersNothing();
+        await loginPage.nav.checkIsAbsent();
     });
 
     test('sends a visitor who is not logged in from an admin page to the login page', async ({
@@ -38,6 +39,7 @@ test.describe('Route guard and logout', () => {
 
         await loginPage.checkIsShown();
         await loginPage.appBar.checkOffersNothing();
+        await loginPage.nav.checkIsAbsent();
     });
 
     test('applies again once the admin logs out', async ({ loginPage, applicationPickerPage }) => {
@@ -54,13 +56,12 @@ test.describe('Route guard and logout', () => {
     });
 
     test('keeps a logged-in admin on the page they reload', async ({
-        loginPage, applicationPickerPage, adminPage, usersAdminPage,
+        loginPage, applicationPickerPage, usersAdminPage,
     }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToUsers();
+        await applicationPickerPage.nav.goToUsers();
         await usersAdminPage.checkIsShown();
 
         await usersAdminPage.reload();

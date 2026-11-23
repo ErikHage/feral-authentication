@@ -40,7 +40,7 @@ const routes = [
         path: views.dashboard.path,
         name: views.dashboard.name,
         component: DashboardPage,
-        // On its own the dashboard is only its navigation, so open its first page
+        // On its own the dashboard is an empty parent, so open its first page
         redirect: { name: 'ApplicationPicker' },
         meta: {
             requiresAuthenticated: true,

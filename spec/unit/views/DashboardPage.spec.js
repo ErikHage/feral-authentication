@@ -19,20 +19,10 @@ async function mountDashboard(path) {
 }
 
 describe('DashboardPage', () => {
-    it('links to its three pages', async () => {
-        const wrapper = await mountDashboard('/dashboard/applications');
-
-        const links = wrapper.findAll('a.v-btn').map(link => [link.text(), link.attributes('href')]);
-        expect(links).toEqual([
-            ['Applications', '/dashboard/applications'],
-            ['Profile', '/dashboard/profile'],
-            ['Sessions', '/dashboard/sessions'],
-        ]);
-    });
-
-    it('shows the current page below the links', async () => {
+    it('shows the current page, and no links of its own', async () => {
         const wrapper = await mountDashboard('/dashboard/profile');
 
         expect(wrapper.find('.page').text()).toBe('profile page');
+        expect(wrapper.find('a').exists()).toBe(false);
     });
 });

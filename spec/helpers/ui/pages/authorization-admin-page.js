@@ -1,7 +1,7 @@
 import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 import { application, role, user } from '../params';
-import { adminComponents, routedPageSteps } from './routed-page';
+import { shellComponents, routedPageSteps } from './routed-page';
 
 /**
  * The authorization admin page, in words. The grant steps choose the user
@@ -21,7 +21,7 @@ export function createAuthorizationAdminPage(world, driver) {
     };
 
     return {
-        ...adminComponents(world),
+        ...shellComponents(world),
         ...routedPageSteps(driver),
 
         /** Gives the `user` the `role`, through the Manage Roles card. */

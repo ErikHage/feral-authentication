@@ -2,7 +2,6 @@ import { test as base } from '@playwright/test';
 
 import { guardNetwork } from './support/network-guard';
 import { createWorld } from './world';
-import { createAdminPage } from './pages/admin-pages';
 import { createApplicationDetailsPage } from './pages/application-details-page';
 import { createApplicationPickerPage } from './pages/application-picker-page';
 import { createApplicationsAdminPage } from './pages/applications-admin-page';
@@ -56,7 +55,6 @@ export const test = base.extend({
     profilePage: pageFixture('profilePage', createProfilePage),
     sessionsPage: pageFixture('sessionsPage', createSessionsPage),
 
-    adminPage: pageFixture('adminPage', createAdminPage),
     rolesAdminPage: pageFixture('rolesAdminPage', createRolesAdminPage),
     usersAdminPage: pageFixture('usersAdminPage', createUsersAdminPage),
     authorizationAdminPage: pageFixture('authorizationAdminPage', createAuthorizationAdminPage),

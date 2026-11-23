@@ -1,26 +1,30 @@
 import { flushPromises } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
-import { createRouter, createMemoryHistory } from 'vue-router';
 import { mountInLayout } from '../../helpers/layout';
+import { linkRouter } from '../../helpers/routers';
+import { onADesktop, onAPhone } from '../../helpers/display';
 import AppBar from '@/components/AppBar.vue';
 import { useAuthenticationStore } from '@/store';
-
-const emptyPage = { render: () => null };
+import { useNavigationStore } from '@/store/navigation';
 
 async function mountAppBar({ showAppBar }) {
-    const router = createRouter({
-        history: createMemoryHistory(),
-        routes: ['/', '/login', '/dashboard', '/admin'].map(path => ({ path, component: emptyPage })),
-    });
+    const router = linkRouter();
     const pinia = createTestingPinia({ initialState: { authentication: { showAppBar } } });
     const wrapper = await mountInLayout(AppBar, { global: { plugins: [router, pinia] } });
 
-    return { wrapper, router, store: useAuthenticationStore(pinia) };
+    return { wrapper, router, store: useAuthenticationStore(pinia), navigation: useNavigationStore(pinia) };
 }
 
 const buttonLabels = wrapper => wrapper.findAll('.v-btn').map(button => button.text());
 
+// The hamburger, which Vuetify renders as an icon button
+const menuButton = wrapper => wrapper.find('button[aria-label="Menu"]');
+
 describe('AppBar', () => {
+    afterEach(() => {
+        onADesktop();
+    });
+
     it('shows the title', async () => {
         const { wrapper } = await mountAppBar({ showAppBar: false });
 
@@ -31,19 +35,15 @@ describe('AppBar', () => {
         const { wrapper } = await mountAppBar({ showAppBar: false });
 
         expect(buttonLabels(wrapper)).toEqual([]);
+        expect(menuButton(wrapper).exists()).toBe(false);
     });
 
-    it('shows Dashboard, Admin and Logout when logged in', async () => {
+    it('shows Menu and Logout, and no links, when logged in', async () => {
         const { wrapper } = await mountAppBar({ showAppBar: true });
 
-        expect(buttonLabels(wrapper)).toEqual(['Dashboard', 'Admin', 'Logout']);
-    });
-
-    it('links to the dashboard and admin pages', async () => {
-        const { wrapper } = await mountAppBar({ showAppBar: true });
-
-        const hrefs = wrapper.findAll('a.v-btn').map(link => link.attributes('href'));
-        expect(hrefs).toEqual(['/dashboard', '/admin']);
+        expect(menuButton(wrapper).exists()).toBe(true);
+        expect(buttonLabels(wrapper)).toEqual(['', 'Logout']);
+        expect(wrapper.find('a').exists()).toBe(false);
     });
 
     it('shows the buttons as soon as the store says so', async () => {
@@ -52,7 +52,25 @@ describe('AppBar', () => {
         store.showAppBar = true;
         await flushPromises();
 
-        expect(buttonLabels(wrapper)).toEqual(['Dashboard', 'Admin', 'Logout']);
+        expect(menuButton(wrapper).exists()).toBe(true);
+        expect(buttonLabels(wrapper)).toContain('Logout');
+    });
+
+    it('switches the drawer to and from the rail on a desktop', async () => {
+        const { wrapper, navigation } = await mountAppBar({ showAppBar: true });
+
+        await menuButton(wrapper).trigger('click');
+
+        expect(navigation.toggle).toHaveBeenCalledWith(false);
+    });
+
+    it('opens the drawer on a phone', async () => {
+        onAPhone();
+        const { wrapper, navigation } = await mountAppBar({ showAppBar: true });
+
+        await menuButton(wrapper).trigger('click');
+
+        expect(navigation.toggle).toHaveBeenCalledWith(true);
     });
 
     it('logs out, then goes to the login page', async () => {

@@ -1,12 +1,11 @@
-import { createAdminNavDriver } from './admin-nav-driver';
 import { createAppBarDriver } from './app-bar-driver';
 import { createApplicationDetailsPageDriver } from './application-details-page-driver';
 import { createApplicationPickerPageDriver } from './application-picker-page-driver';
 import { createApplicationsAdminPageDriver } from './applications-admin-page-driver';
 import { createAuthorizationAdminPageDriver } from './authorization-admin-page-driver';
-import { createDashboardNavDriver } from './dashboard-nav-driver';
 import { createKeysAdminPageDriver } from './keys-admin-page-driver';
 import { createLoginPageDriver } from './login-page-driver';
+import { createNavDriver } from './nav-driver';
 import { createNotFoundPageDriver } from './not-found-page-driver';
 import { createProfilePageDriver } from './profile-page-driver';
 import { createPublicPageDriver } from './public-page-driver';
@@ -16,8 +15,7 @@ import { createSessionsPageDriver } from './sessions-page-driver';
 import { createUsersAdminPageDriver } from './users-admin-page-driver';
 
 /**
- * Builds each driver once per test, over Playwright's `page`. The admin
- * area's page object has no driver: it is only its components'.
+ * Builds each driver once per test, over Playwright's `page`.
  */
 export function createDrivers(page) {
     // Before anything loads, so no call goes unrecorded
@@ -25,8 +23,7 @@ export function createDrivers(page) {
 
     return {
         appBar: createAppBarDriver(page),
-        dashboardNav: createDashboardNavDriver(page),
-        adminNav: createAdminNavDriver(page),
+        nav: createNavDriver(page),
 
         publicPage: createPublicPageDriver(page),
         loginPage: createLoginPageDriver(page),

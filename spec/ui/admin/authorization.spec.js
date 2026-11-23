@@ -1,21 +1,20 @@
 import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Authorization admin page', () => {
-    test.beforeEach(async ({ loginPage, applicationPickerPage, adminPage, usersAdminPage }) => {
+    test.beforeEach(async ({ loginPage, applicationPickerPage, usersAdminPage }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToUsers();
+        await applicationPickerPage.nav.goToUsers();
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');
     });
 
     test('grants a role to a user', async ({ usersAdminPage, rolesAdminPage, authorizationAdminPage }) => {
-        await usersAdminPage.adminNav.goToRoles();
+        await usersAdminPage.nav.goToRoles();
         await rolesAdminPage.addRole('role: tester');
         await rolesAdminPage.checkRoleIsListed('role: tester');
-        await rolesAdminPage.adminNav.goToAuthorization();
+        await rolesAdminPage.nav.goToAuthorization();
 
         await authorizationAdminPage.grantRole('user: bob', 'role: tester');
 
@@ -23,7 +22,7 @@ test.describe('Authorization admin page', () => {
     });
 
     test('grants an application to a user', async ({ usersAdminPage, authorizationAdminPage }) => {
-        await usersAdminPage.adminNav.goToAuthorization();
+        await usersAdminPage.nav.goToAuthorization();
 
         await authorizationAdminPage.grantApplication('user: bob', 'application: Feral Authentication');
 
@@ -31,7 +30,7 @@ test.describe('Authorization admin page', () => {
     });
 
     test("cancels one card's changes and keeps the other's", async ({ usersAdminPage, authorizationAdminPage }) => {
-        await usersAdminPage.adminNav.goToAuthorization();
+        await usersAdminPage.nav.goToAuthorization();
         await authorizationAdminPage.chooseUser('user: bob');
         await authorizationAdminPage.addApplication('application: Feral Authentication');
         await authorizationAdminPage.addRole('role: feral/admin');
@@ -45,7 +44,7 @@ test.describe('Authorization admin page', () => {
     test("saves one card's changes, keeping the user and the other card's", async ({
         usersAdminPage, authorizationAdminPage,
     }) => {
-        await usersAdminPage.adminNav.goToAuthorization();
+        await usersAdminPage.nav.goToAuthorization();
         await authorizationAdminPage.chooseUser('user: bob');
         await authorizationAdminPage.addApplication('application: Feral Authentication');
         await authorizationAdminPage.addRole('role: feral/admin');
@@ -57,17 +56,16 @@ test.describe('Authorization admin page', () => {
     });
 
     test('lets a user granted feral/admin into the admin pages', async ({
-        usersAdminPage, authorizationAdminPage, loginPage, applicationPickerPage, adminPage,
+        usersAdminPage, authorizationAdminPage, loginPage, applicationPickerPage,
     }) => {
-        await usersAdminPage.adminNav.goToAuthorization();
+        await usersAdminPage.nav.goToAuthorization();
         await authorizationAdminPage.grantRole('user: bob', 'role: feral/admin');
         await authorizationAdminPage.appBar.logOut();
         await loginPage.checkIsShown();
 
         await loginPage.logIn('user: bob');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToUsers();
+        await applicationPickerPage.nav.goToUsers();
 
         await usersAdminPage.checkUserIsListed('user: bob');
     });
@@ -90,7 +88,7 @@ test.describe('Authorization admin page', () => {
         test('offers the applications granted to them', async ({
             usersAdminPage, authorizationAdminPage, loginPage, applicationPickerPage,
         }) => {
-            await usersAdminPage.adminNav.goToAuthorization();
+            await usersAdminPage.nav.goToAuthorization();
             await authorizationAdminPage.grantApplication('user: bob', 'application: Feral Authentication');
             await authorizationAdminPage.appBar.logOut();
             await loginPage.checkIsShown();
@@ -106,7 +104,7 @@ test.describe('Authorization admin page', () => {
             await loginPage.logIn('user: bob');
             await applicationPickerPage.checkIsShown();
 
-            await applicationPickerPage.dashboardNav.goToProfile();
+            await applicationPickerPage.nav.goToProfile();
 
             await profilePage.checkShowsUserWithoutAdminRole('user: bob');
         });
@@ -117,7 +115,7 @@ test.describe('Authorization admin page', () => {
             await loginPage.logIn('user: bob');
             await applicationPickerPage.checkIsShown();
 
-            await applicationPickerPage.dashboardNav.goToSessions();
+            await applicationPickerPage.nav.goToSessions();
 
             await sessionsPage.checkListsCurrentSession();
         });

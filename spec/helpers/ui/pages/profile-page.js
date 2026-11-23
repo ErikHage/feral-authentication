@@ -1,12 +1,12 @@
 import { optional, parseDslArgs, required } from '@feral-auth/ts-simple-dsl';
 
 import { user } from '../params';
-import { dashboardComponents, routedPageSteps } from './routed-page';
+import { shellComponents, routedPageSteps } from './routed-page';
 
 /** The logged-in user's profile page, in words. */
 export function createProfilePage(world, driver) {
     return {
-        ...dashboardComponents(world),
+        ...shellComponents(world),
         ...routedPageSteps(driver),
 
         /**

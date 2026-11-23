@@ -1,6 +1,6 @@
 import { expectCount, expectEventually, expectUrl, expectVisible } from './assertions';
 import { createRoutedPageDriver } from './routed-page-driver';
-import { urlOf } from './urls';
+import { openPath, urlOf } from './urls';
 
 /** The applications page, where a login lands, as Playwright sees it. */
 export function createApplicationPickerPageDriver(page, serviceCalls) {
@@ -22,6 +22,11 @@ export function createApplicationPickerPageDriver(page, serviceCalls) {
             path: 'dashboard/applications',
             marker: main => main.getByRole('heading', { name: 'Available Applications' }),
         }),
+
+        /** Goes to `/dashboard`, which has no page of its own. */
+        async openArea() {
+            await openPath(page, 'dashboard');
+        },
 
         async offersApplication(name) {
             const what = `offering ${name}`;

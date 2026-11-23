@@ -55,12 +55,13 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - `helpers/ui/support/network-guard.js` keeps each browser context to the local app and service (see Safety, above).
 - Steps are parsed with [`@feral-auth/ts-simple-dsl`](https://github.com/ErikHage/ts-simple-dsl).
 
-**Every page has `open`, `reload` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the components each part of the app shows:
-- every page has `appBar`;
-- dashboard pages add `dashboardNav`;
-- admin pages add `adminNav`.
+**Every page has `open`, `reload` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the two components every page has:
+- `appBar`: Logout, and `checkOffersNothing` for a visitor;
+- `nav`: the side drawer, with a `goTo…` step for each page, the rail steps (`collapseToRail`, `expand`, `checkIsRail`, `checkIsExpanded`), and `checkIsAbsent` for a visitor. The User group's Applications link is "My Applications" (`goToMyApplications`), so that the admin's Applications (`goToApplications`) has a name of its own.
 
-`drivers/routed-page-driver.js` checks a page by its URL and by something only that page shows. A page with nothing else to do yet lives in `pages/dashboard-pages.js` or `pages/admin-pages.js`, and its driver is a plain routed one in `drivers/drivers.js`. It moves to its own files once it gets steps of its own, as most pages now have.
+`/admin` and `/dashboard` have no page of their own: each opens its first page, so `rolesAdminPage.openArea()` and `applicationPickerPage.openArea()` go to them.
+
+`drivers/routed-page-driver.js` checks a page by its URL and by something only that page shows. A page with nothing else to do yet gets a page object of only those steps and components, over a plain routed driver in `drivers/drivers.js`. It gets its own driver file once it has steps of its own, as every page now has.
 
 **Logging in is a step.** `loginPage.logIn('user: admin')` logs in as the account in `.env.ui`. `admin` is a reserved name; any other is a user the test added. Add `'password: wrong'` to log in with a wrong password. Nothing is restored from a saved session: the app keeps "logged in" only in memory, so any page load goes through the login page. Each test logs in for itself.
 

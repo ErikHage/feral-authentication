@@ -1,7 +1,7 @@
 import { parseDslArgs, required } from '@feral-auth/ts-simple-dsl';
 
 import { user } from '../params';
-import { adminComponents, routedPageSteps } from './routed-page';
+import { shellComponents, routedPageSteps } from './routed-page';
 
 /**
  * The users admin page, in words. A user added here gets made-up details,
@@ -9,7 +9,7 @@ import { adminComponents, routedPageSteps } from './routed-page';
  */
 export function createUsersAdminPage(world, driver) {
     return {
-        ...adminComponents(world),
+        ...shellComponents(world),
         ...routedPageSteps(driver),
 
         /** Adds a new `user`, with made-up details, through the Add dialog. */

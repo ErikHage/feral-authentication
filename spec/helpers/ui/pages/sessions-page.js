@@ -1,12 +1,12 @@
 import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 import { application } from '../params';
-import { dashboardComponents, routedPageSteps } from './routed-page';
+import { shellComponents, routedPageSteps } from './routed-page';
 
 /** The logged-in user's sessions page, in words. */
 export function createSessionsPage(world, driver) {
     return {
-        ...dashboardComponents(world),
+        ...shellComponents(world),
         ...routedPageSteps(driver),
 
         /**

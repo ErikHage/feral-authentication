@@ -2,6 +2,7 @@ import { expectCount, expectDisabled, expectText, expectValue, expectVisible } f
 import { createDataTable } from './data-table';
 import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
+import { openPath } from './urls';
 
 /** The roles admin page, as Playwright sees it. Its table's rows are found by scope. */
 export function createRolesAdminPageDriver(page) {
@@ -19,6 +20,11 @@ export function createRolesAdminPageDriver(page) {
             path: 'admin/roles',
             marker: main => main.getByText('Manage Roles', { exact: true }),
         }),
+
+        /** Goes to `/admin`, which has no page of its own. */
+        async openArea() {
+            await openPath(page, 'admin');
+        },
 
         async addRole({ scope, title, description }) {
             await addButton.click();

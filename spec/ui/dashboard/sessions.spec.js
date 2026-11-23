@@ -5,16 +5,15 @@ test.describe('Sessions page', () => {
     // test's own. Granted this application, so the page can name it on bob's
     // sessions
     test.beforeEach(async ({
-        loginPage, applicationPickerPage, adminPage, usersAdminPage, authorizationAdminPage,
+        loginPage, applicationPickerPage, usersAdminPage, authorizationAdminPage,
     }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToUsers();
+        await applicationPickerPage.nav.goToUsers();
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');
-        await usersAdminPage.adminNav.goToAuthorization();
+        await usersAdminPage.nav.goToAuthorization();
         await authorizationAdminPage.grantApplication('user: bob', 'application: Feral Authentication');
         await authorizationAdminPage.appBar.logOut();
         await loginPage.checkIsShown();
@@ -23,7 +22,7 @@ test.describe('Sessions page', () => {
     });
 
     test('marks the current session, which cannot be revoked', async ({ applicationPickerPage, sessionsPage }) => {
-        await applicationPickerPage.dashboardNav.goToSessions();
+        await applicationPickerPage.nav.goToSessions();
 
         await sessionsPage.checkMarksCurrentSession();
     });
@@ -32,7 +31,7 @@ test.describe('Sessions page', () => {
         await anotherDevice.loginPage.open();
         await anotherDevice.loginPage.logIn('user: bob');
         await anotherDevice.applicationPickerPage.checkIsShown();
-        await applicationPickerPage.dashboardNav.goToSessions();
+        await applicationPickerPage.nav.goToSessions();
         await sessionsPage.checkMarksCurrentSession();
 
         await sessionsPage.revokeRemoteSession();
@@ -42,7 +41,7 @@ test.describe('Sessions page', () => {
     });
 
     test('names the application of a session', async ({ applicationPickerPage, sessionsPage }) => {
-        await applicationPickerPage.dashboardNav.goToSessions();
+        await applicationPickerPage.nav.goToSessions();
 
         await sessionsPage.checkShowsApplication('application: Feral Authentication');
     });

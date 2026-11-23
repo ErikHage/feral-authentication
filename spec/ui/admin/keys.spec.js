@@ -5,12 +5,11 @@ test.describe('Keys admin page', () => {
     // York is UTC-4 on the expiration's date
     test.use({ timezoneId: 'America/New_York' });
 
-    test.beforeEach(async ({ loginPage, applicationPickerPage, adminPage, keysAdminPage }) => {
+    test.beforeEach(async ({ loginPage, applicationPickerPage, keysAdminPage }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToKeys();
+        await applicationPickerPage.nav.goToKeys();
         await keysAdminPage.checkIsShown();
     });
 

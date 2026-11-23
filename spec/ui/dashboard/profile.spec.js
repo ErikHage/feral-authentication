@@ -4,20 +4,19 @@ test.describe('Profile page', () => {
     // As bob, a user without the admin role, so the admin's own name is never
     // edited
     test.beforeEach(async ({
-        loginPage, applicationPickerPage, adminPage, usersAdminPage,
+        loginPage, applicationPickerPage, usersAdminPage,
     }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToUsers();
+        await applicationPickerPage.nav.goToUsers();
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');
         await usersAdminPage.appBar.logOut();
         await loginPage.checkIsShown();
         await loginPage.logIn('user: bob');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.dashboardNav.goToProfile();
+        await applicationPickerPage.nav.goToProfile();
     });
 
     test('shows the user their details', async ({ profilePage }) => {
@@ -51,17 +50,15 @@ test.describe('Profile page', () => {
 
 test.describe('Profile page, after switching users', () => {
     test('shows the next user to log in their own details', async ({
-        loginPage, applicationPickerPage, adminPage, usersAdminPage, profilePage,
+        loginPage, applicationPickerPage, usersAdminPage, profilePage,
     }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToUsers();
+        await applicationPickerPage.nav.goToUsers();
         await usersAdminPage.addUser('user: bob');
         await usersAdminPage.checkUserIsListed('user: bob');
-        await usersAdminPage.appBar.goToDashboard();
-        await applicationPickerPage.dashboardNav.goToProfile();
+        await usersAdminPage.nav.goToProfile();
         await profilePage.checkIsShown();
         await profilePage.appBar.logOut();
         await loginPage.checkIsShown();
@@ -69,7 +66,7 @@ test.describe('Profile page, after switching users', () => {
         // In the same running app: no reload since the admin logged out
         await loginPage.logIn('user: bob');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.dashboardNav.goToProfile();
+        await applicationPickerPage.nav.goToProfile();
 
         await profilePage.checkShowsNextUser('user: bob', 'previous: admin');
     });

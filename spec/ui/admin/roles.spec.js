@@ -1,12 +1,11 @@
 import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Roles admin page', () => {
-    test.beforeEach(async ({ loginPage, applicationPickerPage, adminPage, rolesAdminPage }) => {
+    test.beforeEach(async ({ loginPage, applicationPickerPage, rolesAdminPage }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToRoles();
+        await applicationPickerPage.nav.goToRoles();
         await rolesAdminPage.checkIsShown();
     });
 

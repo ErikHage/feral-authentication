@@ -2,24 +2,11 @@ import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 /**
  * The app bar at the top of every page, in words. Every page object exposes
- * it as `appBar`. Where a step leads is checked by the destination page.
+ * it as `appBar`. Its only control is Logout, and the Menu button that
+ * `nav` presses.
  */
 export function createAppBar(world, driver) {
     return {
-        /** Follows the Dashboard link. No parameters. */
-        async goToDashboard(...args) {
-            parseDslArgs(args, {});
-
-            await driver.goToDashboard();
-        },
-
-        /** Follows the Admin link. No parameters. */
-        async goToAdmin(...args) {
-            parseDslArgs(args, {});
-
-            await driver.goToAdmin();
-        },
-
         /** Presses Logout. No parameters. */
         async logOut(...args) {
             parseDslArgs(args, {});

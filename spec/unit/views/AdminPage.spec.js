@@ -20,22 +20,10 @@ async function mountAdminPage(path) {
 }
 
 describe('AdminPage', () => {
-    it('links to its five pages', async () => {
-        const wrapper = await mountAdminPage('/admin/roles');
-
-        const links = wrapper.findAll('a.v-btn').map(link => [link.text(), link.attributes('href')]);
-        expect(links).toEqual([
-            ['Roles', '/admin/roles'],
-            ['Users', '/admin/users'],
-            ['Authorization', '/admin/authorization'],
-            ['Keys', '/admin/keys'],
-            ['Applications', '/admin/applications'],
-        ]);
-    });
-
-    it('shows the current page below the links', async () => {
+    it('shows the current page, and no links of its own', async () => {
         const wrapper = await mountAdminPage('/admin/keys');
 
         expect(wrapper.find('.page').text()).toBe('keys page');
+        expect(wrapper.find('a').exists()).toBe(false);
     });
 });

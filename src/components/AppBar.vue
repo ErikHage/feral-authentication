@@ -1,19 +1,21 @@
 <template>
-  <!-- No Fr* app bar or toolbar title yet -->
+  <!-- No Fr* app bar, nav icon or toolbar title yet -->
   <v-app-bar app>
+    <v-app-bar-nav-icon
+        v-if="showAppBar === true"
+        aria-label="Menu"
+        @click="toggle($vuetify.display.smAndDown)"
+    />
     <v-toolbar-title>Feral Authentication</v-toolbar-title>
     <fr-spacer></fr-spacer>
-    <div v-if="showAppBar() === true">
-      <fr-btn color="default" to="/dashboard">Dashboard</fr-btn>
-      <fr-btn color="default" to="/admin">Admin</fr-btn>
-      <fr-btn color="default" @click="logoutUser">Logout</fr-btn>
-    </div>
+    <fr-btn v-if="showAppBar === true" color="default" @click="logoutUser">Logout</fr-btn>
   </v-app-bar>
 </template>
 
 <script>
 import { mapActions, mapState } from "pinia";
 import { useAuthenticationStore } from "@/store";
+import { useNavigationStore } from "@/store/navigation";
 import { FrBtn, FrSpacer } from "@feral-auth/vue-components";
 
 export default {
@@ -21,14 +23,20 @@ export default {
 
   components: { FrBtn, FrSpacer },
 
+  computed: {
+    ...mapState(useAuthenticationStore, [
+      'showAppBar',
+    ]),
+  },
+
   methods: {
     ...mapActions(useAuthenticationStore, {
       logout: 'logout',
     }),
 
-    ...mapState(useAuthenticationStore, {
-      showAppBar: (state) => state.showAppBar,
-    }),
+    ...mapActions(useNavigationStore, [
+      'toggle',
+    ]),
 
     async logoutUser() {
       await this.logout();
@@ -37,7 +45,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-
-</style>

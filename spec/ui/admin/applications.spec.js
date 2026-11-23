@@ -1,18 +1,17 @@
 import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Applications admin page', () => {
-    test.beforeEach(async ({ loginPage, applicationPickerPage, adminPage, keysAdminPage }) => {
+    test.beforeEach(async ({ loginPage, applicationPickerPage, keysAdminPage }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToKeys();
+        await applicationPickerPage.nav.goToKeys();
         await keysAdminPage.generateKey('key: first');
         await keysAdminPage.checkKeyIsListed('key: first');
     });
 
     test('adds an application', async ({ keysAdminPage, applicationsAdminPage }) => {
-        await keysAdminPage.adminNav.goToApplications();
+        await keysAdminPage.nav.goToApplications();
 
         await applicationsAdminPage.addApplication('application: game', 'key: first');
 
@@ -20,7 +19,7 @@ test.describe('Applications admin page', () => {
     });
 
     test('shows an application\'s details', async ({ keysAdminPage, applicationsAdminPage, applicationDetailsPage }) => {
-        await keysAdminPage.adminNav.goToApplications();
+        await keysAdminPage.nav.goToApplications();
         await applicationsAdminPage.addApplication('application: game', 'key: first');
         await applicationsAdminPage.checkApplicationIsListed('application: game');
 
@@ -32,7 +31,7 @@ test.describe('Applications admin page', () => {
     test('rotates an application\'s key', async ({ keysAdminPage, applicationsAdminPage, applicationDetailsPage }) => {
         await keysAdminPage.generateKey('key: second');
         await keysAdminPage.checkKeyIsListed('key: second');
-        await keysAdminPage.adminNav.goToApplications();
+        await keysAdminPage.nav.goToApplications();
         await applicationsAdminPage.addApplication('application: game', 'key: first');
         await applicationsAdminPage.checkApplicationIsListed('application: game');
         await applicationsAdminPage.openDetails('application: game');
@@ -48,7 +47,7 @@ test.describe('Applications admin page', () => {
     }) => {
         await keysAdminPage.generateKey('key: second');
         await keysAdminPage.checkKeyIsListed('key: second');
-        await keysAdminPage.adminNav.goToApplications();
+        await keysAdminPage.nav.goToApplications();
         await applicationsAdminPage.addApplication('application: game', 'key: first');
         await applicationsAdminPage.checkApplicationIsListed('application: game');
         await applicationsAdminPage.openDetails('application: game');
@@ -63,7 +62,7 @@ test.describe('Applications admin page', () => {
     test('keeps Save disabled while the name is empty', async ({
         keysAdminPage, applicationsAdminPage, applicationDetailsPage,
     }) => {
-        await keysAdminPage.adminNav.goToApplications();
+        await keysAdminPage.nav.goToApplications();
         await applicationsAdminPage.addApplication('application: game', 'key: first');
         await applicationsAdminPage.checkApplicationIsListed('application: game');
         await applicationsAdminPage.openDetails('application: game');
@@ -76,7 +75,7 @@ test.describe('Applications admin page', () => {
     });
 
     test('saves a new name', async ({ keysAdminPage, applicationsAdminPage, applicationDetailsPage }) => {
-        await keysAdminPage.adminNav.goToApplications();
+        await keysAdminPage.nav.goToApplications();
         await applicationsAdminPage.addApplication('application: game', 'key: first');
         await applicationsAdminPage.checkApplicationIsListed('application: game');
         await applicationsAdminPage.openDetails('application: game');
@@ -91,12 +90,11 @@ test.describe('Applications admin page', () => {
 
 test.describe('Applications admin page, adding nothing', () => {
     // No key, and nothing is created
-    test.beforeEach(async ({ loginPage, applicationPickerPage, adminPage, applicationsAdminPage }) => {
+    test.beforeEach(async ({ loginPage, applicationPickerPage, applicationsAdminPage }) => {
         await loginPage.open();
         await loginPage.logIn('user: admin');
         await applicationPickerPage.checkIsShown();
-        await applicationPickerPage.appBar.goToAdmin();
-        await adminPage.adminNav.goToApplications();
+        await applicationPickerPage.nav.goToApplications();
         await applicationsAdminPage.checkIsShown();
     });
 
