@@ -56,7 +56,7 @@ describe('UserProfile', () => {
     it("is headed with the user's name", async () => {
         const { wrapper } = await mountProfile();
 
-        expect(wrapper.find('h2').text()).toBe('Alice Smith');
+        expect(wrapper.find('h1').text()).toBe('Alice Smith');
     });
 
     it('shows the personal details, with only the name editable', async () => {
@@ -150,7 +150,7 @@ describe('UserProfile', () => {
 
             await typeInto(wrapper, 'First Name', 'Alicia');
 
-            expect(wrapper.find('h2').text()).toBe('Alice Smith');
+            expect(wrapper.find('h1').text()).toBe('Alice Smith');
             expect(usersStore.currentUser.details.firstName).toBe('Alice');
             expect(usersStore.updateCurrentUser).not.toHaveBeenCalled();
         });
@@ -166,7 +166,7 @@ describe('UserProfile', () => {
         const wrapper = mountWithPlugins(UserProfile, { global: { plugins: [pinia] } });
         await flushPromises();
 
-        expect(wrapper.find('h2').exists()).toBe(false);
+        expect(wrapper.find('h1').exists()).toBe(false);
         expect(wrapper.find('.v-alert').text()).toContain("Couldn't load your profile: the service failed (500)");
     });
 });

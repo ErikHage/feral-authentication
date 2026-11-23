@@ -1,33 +1,23 @@
 <template>
-  <fr-container v-if="userApplications">
-    <h2 class="text-center">Available Applications</h2>
+  <fr-page v-if="userApplications" title="Available Applications">
     <LoadErrors :messages="[userApplicationsLoadError]"/>
-    <fr-row class="mt-3">
-      <fr-col cols="2"></fr-col>
-
-      <fr-col cols="8">
-        <fr-row>
-          <fr-col v-for="application in userApplications"
-                  v-bind:key="application.applicationId"
-                  cols="4"
-          >
-            <fr-card class="text-center" :title="application.applicationName">
-              <fr-image
-                  :src="getAssetPathToDisplay(application)"
-                  alt="Logo"
-                  max-width="125"
-                  class="mx-auto pointer"
-                  @click="goToApplication(application.applicationId)"
-              ></fr-image>
-            </fr-card>
-          </fr-col>
-        </fr-row>
+    <fr-row>
+      <fr-col v-for="application in userApplications"
+              v-bind:key="application.applicationId"
+              cols="12" sm="6" md="4" lg="3"
+      >
+        <fr-card class="text-center" :title="application.applicationName">
+          <fr-image
+              :src="getAssetPathToDisplay(application)"
+              alt="Logo"
+              max-width="125"
+              class="mx-auto pointer"
+              @click="goToApplication(application.applicationId)"
+          ></fr-image>
+        </fr-card>
       </fr-col>
-
-      <fr-col cols="2"></fr-col>
-
     </fr-row>
-  </fr-container>
+  </fr-page>
 </template>
 
 <script>
@@ -35,13 +25,13 @@ import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useAuthenticationStore, } from "@/store";
 import { getAssetPath } from "@/utils/assets";
-import { FrCard, FrCol, FrContainer, FrImage, FrRow } from "@feral-auth/vue-components";
+import { FrCard, FrCol, FrImage, FrPage, FrRow } from "@feral-auth/vue-components";
 import LoadErrors from "@/components/LoadErrors.vue";
 
 export default {
   name: 'ApplicationPicker',
 
-  components: { LoadErrors, FrCard, FrCol, FrContainer, FrImage, FrRow },
+  components: { LoadErrors, FrCard, FrCol, FrImage, FrPage, FrRow },
 
   data() {
     return {

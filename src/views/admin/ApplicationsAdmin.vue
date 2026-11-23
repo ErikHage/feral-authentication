@@ -1,33 +1,38 @@
 <template>
-  <fr-container>
-    <fr-row class="justify-center">
-      <fr-col cols="12" sm="8">
-        <LoadErrors :messages="[applicationsLoadError, keysLoadError]"/>
-        <fr-card flush>
-          <fr-data-table
-              title="Manage Applications"
-              :headers="headers"
-              :items="applications"
-              item-value="applicationId"
-              :loading="loading"
-          >
-            <template #actions>
-              <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
-              <fr-btn color="primary" @click="refreshData()">Refresh</fr-btn>
-            </template>
-            <template #item.actions="{ item }">
-              <fr-icon :aria-label="`Edit ${item.applicationName}`" @click="goToApplicationDetails(item)">mdi-pencil</fr-icon>
-            </template>
-          </fr-data-table>
-        </fr-card>
-      </fr-col>
-    </fr-row>
+  <fr-page>
+    <LoadErrors :messages="[applicationsLoadError, keysLoadError]"/>
+    <fr-card flush>
+      <fr-data-table
+          title="Manage Applications"
+          :headers="headers"
+          :items="applications"
+          item-value="applicationId"
+          :loading="loading"
+      >
+        <template #actions>
+          <fr-btn @click="openDialog()">Add</fr-btn>
+          <fr-btn @click="refreshData()">Refresh</fr-btn>
+        </template>
+        <template #item.actions="{ item }">
+          <fr-icon-btn icon="mdi-pencil" :label="`Edit ${item.applicationName}`" @click="goToApplicationDetails(item)"/>
+        </template>
+      </fr-data-table>
+    </fr-card>
 
-    <fr-dialog v-model="dialog" title="Add Application" persistent>
+    <fr-dialog
+        v-model="dialog"
+        title="Add Application"
+        persistent
+        cancel-text="Cancel"
+        confirm-text="Create"
+        :confirm-disabled="!formValid"
+        @cancel="closeDialog"
+        @confirm="saveApplication"
+    >
       <fr-form ref="applicationForm" v-model="formValid">
-        <v-text-field v-model="form.applicationName" label="Name" :rules="rules.applicationName"></v-text-field>
-        <v-text-field v-model="form.applicationUrl" label="Url" :rules="rules.applicationUrl"></v-text-field>
-        <v-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></v-text-field>
+        <fr-text-field v-model="form.applicationName" label="Name" :rules="rules.applicationName"></fr-text-field>
+        <fr-text-field v-model="form.applicationUrl" label="Url" :rules="rules.applicationUrl"></fr-text-field>
+        <fr-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></fr-text-field>
         <fr-autocomplete
             v-model="form.keyPairId"
             :items="availableKeys"
@@ -37,13 +42,9 @@
             :rules="rules.keyPairId"
         ></fr-autocomplete>
       </fr-form>
-      <template #actions>
-        <fr-btn @click="closeDialog">Cancel</fr-btn>
-        <fr-btn :disabled="!formValid" @click="saveApplication">Create</fr-btn>
-      </template>
     </fr-dialog>
 
-  </fr-container>
+  </fr-page>
 </template>
 
 <script>
@@ -51,7 +52,7 @@ import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useKeysStore } from "@/store";
 import {
-  FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow,
+  FrAutocomplete, FrBtn, FrCard, FrDataTable, FrDialog, FrForm, FrIconBtn, FrPage, FrTextField,
 } from "@feral-auth/vue-components";
 import LoadErrors from "@/components/LoadErrors.vue";
 import { required } from "@/utils/rules";
@@ -60,7 +61,8 @@ export default {
   name: "ApplicationsAdmin",
 
   components: {
-    LoadErrors, FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow,
+    LoadErrors, FrAutocomplete, FrBtn, FrCard, FrDataTable, FrDialog, FrForm, FrIconBtn, FrPage,
+    FrTextField,
   },
 
   data() {

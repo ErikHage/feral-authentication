@@ -47,7 +47,7 @@ describe('ApplicationPicker', () => {
     it('shows a card per application', async () => {
         const { wrapper } = await mountPicker([feral, harvest]);
 
-        expect(wrapper.find('h2').text()).toBe('Available Applications');
+        expect(wrapper.find('h1').text()).toBe('Available Applications');
         expect(wrapper.findAll('.v-card-title').map(title => title.text())).toEqual(['Feral', 'Harvest']);
     });
 
@@ -70,7 +70,7 @@ describe('ApplicationPicker', () => {
     it('shows no cards, and no error, when there are no applications', async () => {
         const { wrapper } = await mountPicker([]);
 
-        expect(wrapper.find('h2').text()).toBe('Available Applications');
+        expect(wrapper.find('h1').text()).toBe('Available Applications');
         expect(wrapper.findAll('.v-card')).toHaveLength(0);
         expect(wrapper.find('.v-alert').exists()).toBe(false);
     });

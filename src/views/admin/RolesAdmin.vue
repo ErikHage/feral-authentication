@@ -1,40 +1,48 @@
 <template>
-  <fr-container>
-    <fr-row class="justify-center">
-      <fr-col cols="12" sm="8">
-        <LoadErrors :messages="[rolesLoadError]"/>
-        <fr-card flush>
-          <fr-data-table
-              title="Manage Roles"
-              :headers="headers"
-              :items="roles"
-              item-value="roleId"
-          >
-            <template #actions>
-              <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
-              <fr-btn color="primary" @click="fetchRoles()">Refresh</fr-btn>
-            </template>
-            <template #item.actions="{ item }">
-              <fr-icon :aria-label="`Delete ${item.scope}/${item.title}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
-            </template>
-          </fr-data-table>
-        </fr-card>
-      </fr-col>
-    </fr-row>
+  <fr-page>
+    <LoadErrors :messages="[rolesLoadError]"/>
+    <fr-card flush>
+      <fr-data-table
+          title="Manage Roles"
+          :headers="headers"
+          :items="roles"
+          item-value="roleId"
+      >
+        <template #actions>
+          <fr-btn @click="openDialog()">Add</fr-btn>
+          <fr-btn @click="fetchRoles()">Refresh</fr-btn>
+        </template>
+        <template #item.actions="{ item }">
+          <fr-icon-btn icon="mdi-delete" :label="`Delete ${item.scope}/${item.title}`" @click="openDeleteDialog(item)"/>
+        </template>
+      </fr-data-table>
+    </fr-card>
 
-    <fr-dialog v-model="dialog" title="Add Role">
+    <fr-dialog
+        v-model="dialog"
+        title="Add Role"
+        cancel-text="Cancel"
+        confirm-text="Save"
+        :confirm-disabled="!formValid"
+        @cancel="closeDialog"
+        @confirm="saveRole"
+    >
       <fr-form ref="roleForm" v-model="formValid">
-        <v-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></v-text-field>
-        <v-text-field v-model="form.title" label="Title" :rules="rules.title"></v-text-field>
-        <v-textarea v-model="form.description" label="Description" :rules="rules.description"></v-textarea>
+        <fr-text-field v-model="form.scope" label="Scope" :rules="rules.scope"></fr-text-field>
+        <fr-text-field v-model="form.title" label="Title" :rules="rules.title"></fr-text-field>
+        <fr-textarea v-model="form.description" label="Description" :rules="rules.description"></fr-textarea>
       </fr-form>
-      <template #actions>
-        <fr-btn @click="closeDialog">Cancel</fr-btn>
-        <fr-btn :disabled="!formValid" @click="saveRole">Save</fr-btn>
-      </template>
     </fr-dialog>
 
-    <fr-dialog v-model="deleteDialog" title="Delete Role">
+    <fr-dialog
+        v-model="deleteDialog"
+        title="Delete Role"
+        cancel-text="Cancel"
+        confirm-text="Delete"
+        confirm-color="error"
+        @cancel="closeDeleteDialog"
+        @confirm="deleteRoleById(roleToDelete?.roleId)"
+    >
       <div class="text-center">
         <fr-table>
           <tbody>
@@ -49,21 +57,18 @@
           </tbody>
         </fr-table>
         <br/>
-        <span class="red-text">Are you sure? This cannot be undone!</span>
+        <span class="text-error font-weight-bold">Are you sure? This cannot be undone!</span>
       </div>
-      <template #actions>
-        <fr-btn @click="closeDeleteDialog">Cancel</fr-btn>
-        <fr-btn color="error" @click="deleteRoleById(this.roleToDelete?.roleId)">Delete</fr-btn>
-      </template>
     </fr-dialog>
-  </fr-container>
+  </fr-page>
 </template>
 
 <script>
 import { useRolesStore } from "@/store";
 import { mapActions, mapState } from "pinia";
 import {
-  FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+  FrBtn, FrCard, FrDataTable, FrDialog, FrForm, FrIconBtn, FrPage, FrTable, FrTextField,
+  FrTextarea,
 } from "@feral-auth/vue-components";
 import LoadErrors from "@/components/LoadErrors.vue";
 import { required } from "@/utils/rules";
@@ -71,7 +76,8 @@ import { required } from "@/utils/rules";
 export default {
   name: "RolesAdmin",
   components: {
-    LoadErrors, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+    LoadErrors, FrBtn, FrCard, FrDataTable, FrDialog, FrForm, FrIconBtn, FrPage, FrTable,
+    FrTextField, FrTextarea,
   },
 
   data() {
@@ -159,8 +165,4 @@ export default {
 </script>
 
 <style scoped>
-  .red-text {
-    color: darkred;
-    font-weight: bold;
-  }
 </style>

@@ -1,26 +1,24 @@
 <template>
-  <fr-container>
+  <div>
     <!-- No Fr* app bar yet -->
     <v-app-bar app>
-      <fr-btn to="/admin/roles">Roles</fr-btn>
-      <fr-btn to="/admin/users">Users</fr-btn>
-      <fr-btn to="/admin/authorization">Authorization</fr-btn>
-      <fr-btn to="/admin/keys">Keys</fr-btn>
-      <fr-btn to="/admin/applications">Applications</fr-btn>
+      <fr-btn color="default" to="/admin/roles">Roles</fr-btn>
+      <fr-btn color="default" to="/admin/users">Users</fr-btn>
+      <fr-btn color="default" to="/admin/authorization">Authorization</fr-btn>
+      <fr-btn color="default" to="/admin/keys">Keys</fr-btn>
+      <fr-btn color="default" to="/admin/applications">Applications</fr-btn>
     </v-app-bar>
-    <fr-row>
-      <router-view/>
-    </fr-row>
-  </fr-container>
+    <router-view/>
+  </div>
 </template>
 
 <script>
-import { FrBtn, FrContainer, FrRow } from "@feral-auth/vue-components";
+import { FrBtn } from "@feral-auth/vue-components";
 
 export default {
   name: 'AdminPage',
 
-  components: { FrBtn, FrContainer, FrRow },
+  components: { FrBtn },
 
   methods: {
 

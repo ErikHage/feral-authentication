@@ -1,37 +1,41 @@
 <template>
-  <fr-container>
-    <fr-row class="justify-center">
-      <fr-col cols="12" sm="8">
-        <LoadErrors :messages="[usersLoadError]"/>
-        <fr-card flush>
-          <fr-data-table
-              title="Manage Users"
-              :headers="headers"
-              :items="users"
-              item-value="userId"
-              :loading="loading"
-          >
-            <template #actions>
-              <fr-btn color="primary" @click="openDialog()">Add</fr-btn>
-              <fr-btn color="primary" @click="refreshData()">Refresh</fr-btn>
-            </template>
-            <template #item.actions="{ item }">
-              <fr-icon :aria-label="`Edit ${item.username}`" @click="openDialog(item)">mdi-pencil</fr-icon>
-              <fr-icon :aria-label="`Delete ${item.username}`" @click="openDeleteDialog(item)">mdi-delete</fr-icon>
-            </template>
-          </fr-data-table>
-        </fr-card>
-      </fr-col>
-    </fr-row>
+  <fr-page>
+    <LoadErrors :messages="[usersLoadError]"/>
+    <fr-card flush>
+      <fr-data-table
+          title="Manage Users"
+          :headers="headers"
+          :items="users"
+          item-value="userId"
+          :loading="loading"
+      >
+        <template #actions>
+          <fr-btn @click="openDialog()">Add</fr-btn>
+          <fr-btn @click="refreshData()">Refresh</fr-btn>
+        </template>
+        <template #item.actions="{ item }">
+          <fr-icon-btn icon="mdi-pencil" :label="`Edit ${item.username}`" @click="openDialog(item)"/>
+          <fr-icon-btn icon="mdi-delete" :label="`Delete ${item.username}`" @click="openDeleteDialog(item)"/>
+        </template>
+      </fr-data-table>
+    </fr-card>
 
-    <fr-dialog v-model="dialog" :title="isEditMode ? 'Edit User' : 'Add User'">
+    <fr-dialog
+        v-model="dialog"
+        :title="isEditMode ? 'Edit User' : 'Add User'"
+        cancel-text="Cancel"
+        confirm-text="Save"
+        :confirm-disabled="!formValid"
+        @cancel="closeDialog"
+        @confirm="saveUser"
+    >
       <fr-form ref="userForm" v-model="formValid">
-        <v-text-field v-model="form.firstName" label="First Name" :rules="rules.firstName"></v-text-field>
-        <v-text-field v-model="form.lastName" label="Last Name" :rules="rules.lastName"></v-text-field>
+        <fr-text-field v-model="form.firstName" label="First Name" :rules="rules.firstName"></fr-text-field>
+        <fr-text-field v-model="form.lastName" label="Last Name" :rules="rules.lastName"></fr-text-field>
         <!-- Editing changes only the name: the service updates nothing else -->
-        <v-text-field v-model="form.email" label="Email" :rules="rules.email" :disabled="isEditMode"></v-text-field>
-        <v-text-field v-model="form.username" label="Username" :rules="rules.username" :disabled="isEditMode"></v-text-field>
-        <v-text-field
+        <fr-text-field v-model="form.email" label="Email" :rules="rules.email" :disabled="isEditMode"></fr-text-field>
+        <fr-text-field v-model="form.username" label="Username" :rules="rules.username" :disabled="isEditMode"></fr-text-field>
+        <fr-text-field
             v-if="!isEditMode"
             v-model="form.password"
             :rules="rules.password"
@@ -40,15 +44,19 @@
             label="Password"
             counter
             @click:append="showPassword = !showPassword"
-        ></v-text-field>
+        ></fr-text-field>
       </fr-form>
-      <template #actions>
-        <fr-btn @click="closeDialog">Cancel</fr-btn>
-        <fr-btn :disabled="!formValid" @click="saveUser">Save</fr-btn>
-      </template>
     </fr-dialog>
 
-    <fr-dialog v-model="deleteDialog" title="Delete User">
+    <fr-dialog
+        v-model="deleteDialog"
+        title="Delete User"
+        cancel-text="Cancel"
+        confirm-text="Delete"
+        confirm-color="error"
+        @cancel="closeDeleteDialog"
+        @confirm="deleteUserById(userToDelete?.userId)"
+    >
       <div class="text-center">
         <fr-table>
           <tbody>
@@ -59,21 +67,17 @@
           </tbody>
         </fr-table>
         <br/>
-        <span class="red-text">Are you sure? This cannot be undone!</span>
+        <span class="text-error font-weight-bold">Are you sure? This cannot be undone!</span>
       </div>
-      <template #actions>
-        <fr-btn @click="closeDeleteDialog">Cancel</fr-btn>
-        <fr-btn color="error" @click="deleteUserById(this.userToDelete?.userId)">Delete</fr-btn>
-      </template>
     </fr-dialog>
-  </fr-container>
+  </fr-page>
 </template>
 
 <script>
 import { mapActions, mapState } from "pinia";
 import { useUsersStore } from "@/store";
 import {
-  FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+  FrBtn, FrCard, FrDataTable, FrDialog, FrForm, FrIconBtn, FrPage, FrTable, FrTextField,
 } from "@feral-auth/vue-components";
 import LoadErrors from "@/components/LoadErrors.vue";
 import { required } from "@/utils/rules";
@@ -82,7 +86,8 @@ export default {
   name: "UsersAdmin",
 
   components: {
-    LoadErrors, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrIcon, FrRow, FrTable,
+    LoadErrors, FrBtn, FrCard, FrDataTable, FrDialog, FrForm, FrIconBtn, FrPage, FrTable,
+    FrTextField,
   },
 
   data() {
@@ -205,8 +210,4 @@ export default {
 </script>
 
 <style scoped>
-.red-text {
-  color: darkred;
-  font-weight: bold;
-}
 </style>

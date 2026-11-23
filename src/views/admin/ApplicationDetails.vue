@@ -1,76 +1,78 @@
 <template>
-  <fr-container v-if="applicationDetails">
-    <h2 class="text-center">Application Details</h2>
+  <fr-page v-if="applicationDetails" title="Application Details">
+    <LoadErrors :messages="[applicationsLoadError, keysLoadError]"/>
+    <fr-card>
+      <fr-form v-model="formValid">
+        <fr-text-field
+            disabled
+            v-model="applicationDetails.applicationId"
+            label="Application Id"
+        ></fr-text-field>
+        <fr-text-field
+            :rules="[rules.applicationName]"
+            v-model="applicationDetails.applicationName"
+            label="Application Name"
+        ></fr-text-field>
+        <fr-text-field
+            :rules="[rules.applicationUrl]"
+            v-model="applicationDetails.applicationUrl"
+            label="Application Landing Page"
+        ></fr-text-field>
+        <fr-text-field
+            :rules="[rules.scope]"
+            v-model="applicationDetails.scope"
+            label="Roles Scope"
+        ></fr-text-field>
+        <fr-text-field
+            disabled
+            v-model="applicationDetails.keyPairId"
+            label="Key Pair Id"
+        ></fr-text-field>
+        <fr-text-field
+            v-if="currentKeyDetails"
+            disabled
+            v-model="currentKeyDetails.keyName"
+            label="Key Pair Name"
+        ></fr-text-field>
+        <fr-text-field
+            v-if="applicationDetails.previousKeyPairId"
+            disabled
+            v-model="applicationDetails.previousKeyPairId"
+            label="Previous Key Pair Id"
+        ></fr-text-field>
+        <fr-text-field
+            v-if="previousKeyDetails"
+            disabled
+            v-model="previousKeyDetails.keyName"
+            label="Previous Key Pair Name"
+        ></fr-text-field>
+      </fr-form>
+      <template #actions>
+        <fr-btn
+            @click="openDialog">
+          Rotate Key
+        </fr-btn>
+        <fr-btn
+            @click="refreshData">
+          Reset
+        </fr-btn>
+        <fr-btn
+            :disabled="!formValid || !isChanged"
+            @click="updateApplicationDetails">
+          Save
+        </fr-btn>
+      </template>
+    </fr-card>
 
-    <fr-row class="justify-center">
-      <fr-col cols="12" sm="8">
-        <LoadErrors :messages="[applicationsLoadError, keysLoadError]"/>
-        <fr-card class="mt-3">
-          <fr-form v-model="formValid">
-            <v-text-field
-                disabled
-                v-model="applicationDetails.applicationId"
-                label="Application Id"
-            ></v-text-field>
-            <v-text-field
-                :rules="[rules.applicationName]"
-                v-model="applicationDetails.applicationName"
-                label="Application Name"
-            ></v-text-field>
-            <v-text-field
-                :rules="[rules.applicationUrl]"
-                v-model="applicationDetails.applicationUrl"
-                label="Application Landing Page"
-            ></v-text-field>
-            <v-text-field
-                :rules="[rules.scope]"
-                v-model="applicationDetails.scope"
-                label="Roles Scope"
-            ></v-text-field>
-            <v-text-field
-                disabled
-                v-model="applicationDetails.keyPairId"
-                label="Key Pair Id"
-            ></v-text-field>
-            <v-text-field
-                v-if="currentKeyDetails"
-                disabled
-                v-model="currentKeyDetails.keyName"
-                label="Key Pair Name"
-            ></v-text-field>
-            <v-text-field
-                v-if="applicationDetails.previousKeyPairId"
-                disabled
-                v-model="applicationDetails.previousKeyPairId"
-                label="Previous Key Pair Id"
-            ></v-text-field>
-            <v-text-field
-                v-if="previousKeyDetails"
-                disabled
-                v-model="previousKeyDetails.keyName"
-                label="Previous Key Pair Name"
-            ></v-text-field>
-          </fr-form>
-          <template #actions>
-            <fr-btn
-                @click="openDialog">
-              Rotate Key
-            </fr-btn>
-            <fr-btn
-                @click="refreshData">
-              Reset
-            </fr-btn>
-            <fr-btn
-                :disabled="!formValid || !isChanged"
-                @click="updateApplicationDetails">
-              Save
-            </fr-btn>
-          </template>
-        </fr-card>
-      </fr-col>
-    </fr-row>
-
-    <fr-dialog v-model="dialog" title="Choose New Key">
+    <fr-dialog
+        v-model="dialog"
+        title="Choose New Key"
+        cancel-text="Cancel"
+        confirm-text="Save"
+        :confirm-disabled="!form.newKeyId"
+        @cancel="closeDialog"
+        @confirm="performKeyRotation"
+    >
       <fr-autocomplete
           v-model="form.newKeyId"
           :items="rotateKeysSelect"
@@ -78,13 +80,9 @@
           item-value="keyId"
           label="Key"
       ></fr-autocomplete>
-      <template #actions>
-        <fr-btn @click="closeDialog">Cancel</fr-btn>
-        <fr-btn :disabled="!form.newKeyId" @click="performKeyRotation">Save</fr-btn>
-      </template>
     </fr-dialog>
 
-  </fr-container>
+  </fr-page>
 </template>
 
 <script>
@@ -92,7 +90,7 @@ import { mapActions, mapState } from "pinia";
 
 import { useApplicationsStore, useKeysStore } from "@/store";
 import {
-  FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDialog, FrForm, FrRow,
+  FrAutocomplete, FrBtn, FrCard, FrDialog, FrForm, FrPage, FrTextField,
 } from "@feral-auth/vue-components";
 import LoadErrors from "@/components/LoadErrors.vue";
 
@@ -100,7 +98,7 @@ export default {
   name: "ApplicationDetails",
 
   components: {
-    LoadErrors, FrAutocomplete, FrBtn, FrCard, FrCol, FrContainer, FrDialog, FrForm, FrRow,
+    LoadErrors, FrAutocomplete, FrBtn, FrCard, FrDialog, FrForm, FrPage, FrTextField,
   },
 
   data() {

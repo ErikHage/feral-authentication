@@ -43,7 +43,7 @@ describe('ActiveSessions', () => {
     it('shows a card per session', async () => {
         const { wrapper } = await mountSessions();
 
-        expect(wrapper.find('h2').text()).toBe('Active Sessions');
+        expect(wrapper.find('h1').text()).toBe('Active Sessions');
         expect(wrapper.findAll('.v-card-title').map(title => title.text())).toEqual(['session-1', 'session-2']);
     });
 

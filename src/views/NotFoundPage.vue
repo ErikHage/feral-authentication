@@ -1,19 +1,18 @@
 <template>
-  <fr-container class="text-center">
-    <h2>Page not found</h2>
-    <p class="my-3">There's no page at {{ $route.fullPath }}.</p>
-    <fr-btn color="primary" :to="publicPath">Go to the home page</fr-btn>
-  </fr-container>
+  <fr-page title="Page not found">
+    <p class="mb-3">There's no page at {{ $route.fullPath }}.</p>
+    <fr-btn :to="publicPath">Go to the home page</fr-btn>
+  </fr-page>
 </template>
 
 <script>
-import { FrBtn, FrContainer } from "@feral-auth/vue-components";
+import { FrBtn, FrPage } from "@feral-auth/vue-components";
 import { views } from "@/utils/constants";
 
 export default {
   name: 'NotFoundPage',
 
-  components: { FrBtn, FrContainer },
+  components: { FrBtn, FrPage },
 
   data: () => ({
     publicPath: views.public.path,

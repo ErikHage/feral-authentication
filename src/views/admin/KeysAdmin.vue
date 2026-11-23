@@ -1,55 +1,56 @@
 <template>
-  <fr-container>
-    <fr-row class="justify-center">
-      <fr-col cols="12" sm="8">
-        <LoadErrors :messages="[keysLoadError]"/>
+  <fr-page>
+    <LoadErrors :messages="[keysLoadError]"/>
 
-        <fr-card flush>
-          <fr-data-table
-              title="Manage Keys"
-              :headers="headers"
-              :items="availableKeys"
-              item-value="keyId"
-          >
-            <template #actions>
-              <fr-btn color="primary" @click="openGenerateDialog">Generate</fr-btn>
-              <fr-btn color="primary" @click="refresh">Refresh</fr-btn>
-            </template>
-          </fr-data-table>
-        </fr-card>
-      </fr-col>
-    </fr-row>
+    <fr-card flush>
+      <fr-data-table
+          title="Manage Keys"
+          :headers="headers"
+          :items="availableKeys"
+          item-value="keyId"
+      >
+        <template #actions>
+          <fr-btn @click="openGenerateDialog">Generate</fr-btn>
+          <fr-btn @click="refresh">Refresh</fr-btn>
+        </template>
+      </fr-data-table>
+    </fr-card>
 
-    <fr-dialog v-model="generateDialog" title="Generate Key" persistent>
+    <fr-dialog
+        v-model="generateDialog"
+        title="Generate Key"
+        persistent
+        cancel-text="Cancel"
+        confirm-text="Generate"
+        :confirm-disabled="!formValid"
+        @cancel="closeGenerateDialog"
+        @confirm="generate"
+    >
       <fr-form ref="generateForm" v-model="formValid">
-        <v-text-field
+        <fr-text-field
             v-model="keyName"
             label="Key Name"
             :rules="nameRules"
             required
-        ></v-text-field>
+        ></fr-text-field>
 
-        <v-text-field
+        <fr-text-field
             v-model="expiration"
             label="Expiration Date"
             :rules="dateRules"
             required
             type="datetime-local"
-        ></v-text-field>
+        ></fr-text-field>
       </fr-form>
-      <template #actions>
-        <fr-btn @click="closeGenerateDialog">Cancel</fr-btn>
-        <fr-btn @click="generate" :disabled="!formValid">Generate</fr-btn>
-      </template>
     </fr-dialog>
-  </fr-container>
+  </fr-page>
 </template>
 
 <script>
 import { useKeysStore } from "@/store";
 import { mapActions, mapState } from "pinia";
 import {
-  FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrRow,
+  FrBtn, FrCard, FrDataTable, FrDialog, FrForm, FrPage, FrTextField,
 } from "@feral-auth/vue-components";
 import LoadErrors from "@/components/LoadErrors.vue";
 import { required } from "@/utils/rules";
@@ -57,7 +58,7 @@ import { required } from "@/utils/rules";
 export default {
   name: "KeysAdmin",
   components: {
-    LoadErrors, FrBtn, FrCard, FrCol, FrContainer, FrDataTable, FrDialog, FrForm, FrRow,
+    LoadErrors, FrBtn, FrCard, FrDataTable, FrDialog, FrForm, FrPage, FrTextField,
   },
 
   data() {

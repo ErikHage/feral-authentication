@@ -9,7 +9,7 @@ export function createProfilePageDriver(page) {
     const main = page.getByRole('main');
     const personalDetails = main.getByText('Personal Details', { exact: true });
     // The user's full name
-    const heading = main.getByRole('heading', { level: 2 });
+    const heading = main.getByRole('heading', { level: 1 });
     const field = label => main.getByLabel(label, { exact: true });
     const saveButton = main.getByRole('button', { name: 'Save' });
     // A field's validation message

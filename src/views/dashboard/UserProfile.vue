@@ -1,92 +1,79 @@
 <template>
-  <fr-container v-if="userDetails">
-    <h2 class="text-center">{{ savedDetails.firstName }} {{ savedDetails.lastName }}</h2>
-    <fr-row class="mt-3">
-      <fr-col cols="2">
+  <fr-page v-if="userDetails" :title="`${savedDetails.firstName} ${savedDetails.lastName}`">
+    <fr-row>
+      <fr-col cols="12" md="6">
+        <fr-card title="Personal Details">
+          <fr-form v-model="formValid">
+            <fr-text-field
+                :rules="[rules.firstName]"
+                v-model="userDetails.firstName"
+                label="First Name"
+            ></fr-text-field>
+            <fr-text-field
+                :rules="[rules.lastName]"
+                v-model="userDetails.lastName"
+                label="Last Name"
+            ></fr-text-field>
+            <fr-text-field
+                disabled
+                v-model="userDetails.username"
+                label="Username"
+            ></fr-text-field>
+            <fr-text-field
+                disabled
+                v-model="userDetails.email"
+                label="Email"
+            ></fr-text-field>
+            <fr-text-field
+                disabled
+                v-model="userDetails.lastLogin"
+                label="Last Login"
+            ></fr-text-field>
+            <fr-text-field
+                disabled
+                v-model="userDetails.isSuspended"
+                label="Suspended"
+            ></fr-text-field>
+          </fr-form>
+          <template #actions>
+            <fr-btn
+                :disabled="!formValid || !isChanged"
+                @click="updateUserDetails">
+              Save
+            </fr-btn>
+          </template>
+        </fr-card>
       </fr-col>
 
-      <fr-col cols="8">
-        <fr-row>
-          <fr-col>
-            <fr-card title="Personal Details">
-              <fr-form v-model="formValid">
-                <v-text-field
-                    :rules="[rules.firstName]"
-                    v-model="userDetails.firstName"
-                    label="First Name"
-                ></v-text-field>
-                <v-text-field
-                    :rules="[rules.lastName]"
-                    v-model="userDetails.lastName"
-                    label="Last Name"
-                ></v-text-field>
-                <v-text-field
-                    disabled
-                    v-model="userDetails.username"
-                    label="Username"
-                ></v-text-field>
-                <v-text-field
-                    disabled
-                    v-model="userDetails.email"
-                    label="Email"
-                ></v-text-field>
-                <v-text-field
-                    disabled
-                    v-model="userDetails.lastLogin"
-                    label="Last Login"
-                ></v-text-field>
-                <v-text-field
-                    disabled
-                    v-model="userDetails.isSuspended"
-                    label="Suspended"
-                ></v-text-field>
-              </fr-form>
-              <template #actions>
-                <fr-btn
-                    :disabled="!formValid || !isChanged"
-                    @click="updateUserDetails">
-                  Save
-                </fr-btn>
-              </template>
+      <fr-col cols="12" md="6">
+        <fr-card title="Authorization">
+          <fr-row>
+            <fr-card
+                class="ma-2"
+                v-for="scope in Object.keys(userRolesMap)"
+                :key="scope"
+                variant="tonal"
+                :subtitle="scope"
+            >
+              <fr-chip-group>
+                <fr-chip
+                    v-for="role in userRolesMap[scope]"
+                    :key="role.roleId"
+                    text="Elevator"
+                    variant="outlined"
+                >{{ role.title }}
+                </fr-chip>
+              </fr-chip-group>
             </fr-card>
-          </fr-col>
-        </fr-row>
-
-        <fr-row>
-          <fr-col>
-            <fr-card title="Authorization">
-              <fr-row>
-                <fr-card
-                    class="ma-2"
-                    v-for="scope in Object.keys(userRolesMap)"
-                    :key="scope"
-                    variant="tonal"
-                    :subtitle="scope"
-                >
-                  <fr-chip-group>
-                    <fr-chip
-                        v-for="role in userRolesMap[scope]"
-                        :key="role.roleId"
-                        text="Elevator"
-                        variant="outlined"
-                    >{{ role.title }}
-                    </fr-chip>
-                  </fr-chip-group>
-                </fr-card>
-              </fr-row>
-            </fr-card>
-          </fr-col>
-        </fr-row>
+          </fr-row>
+        </fr-card>
       </fr-col>
-
-      <fr-col cols="2"></fr-col>
-
     </fr-row>
-  </fr-container>
+  </fr-page>
   <!-- A failed load leaves no form, so its alert shows on its own -->
-  <fr-container v-else>
+  <fr-page v-else>
     <LoadErrors :messages="[currentUserLoadError]"/>
-  </fr-container>
+  </fr-page>
 </template>
 
 <script>
@@ -94,7 +81,7 @@
 import { mapActions, mapState } from "pinia";
 import { useUsersStore } from "@/store";
 import {
-  FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrForm, FrRow,
+  FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrForm, FrPage, FrRow, FrTextField,
 } from "@feral-auth/vue-components";
 import LoadErrors from "@/components/LoadErrors.vue";
 
@@ -102,7 +89,7 @@ export default {
   name: 'UserProfile',
 
   components: {
-    LoadErrors, FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrContainer, FrForm, FrRow,
+    LoadErrors, FrBtn, FrCard, FrChip, FrChipGroup, FrCol, FrForm, FrPage, FrRow, FrTextField,
   },
 
   data() {

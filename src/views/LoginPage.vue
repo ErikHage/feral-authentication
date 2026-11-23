@@ -15,22 +15,22 @@
         <fr-card title="Login">
           <!-- FrForm stops the page submitting, and emits submit itself -->
           <fr-form @submit="login">
-            <v-text-field
+            <fr-text-field
                 v-model="username"
                 label="Username"
                 type="text"
                 required
-            ></v-text-field>
+            ></fr-text-field>
 
-            <v-text-field
+            <fr-text-field
                 v-model="password"
                 label="Password"
                 type="password"
                 required
-            ></v-text-field>
+            ></fr-text-field>
 
             <div class="text-center">
-              <fr-btn v-if="showLoginButton" type="submit" color="primary" class="mt-3">Submit</fr-btn>
+              <fr-btn v-if="showLoginButton" type="submit" class="mt-3">Submit</fr-btn>
               <fr-spinner v-else color="primary"></fr-spinner>
             </div>
 
@@ -45,7 +45,7 @@
 import { useAuthenticationStore } from '@/store';
 import { mapActions, mapState } from "pinia";
 import {
-  FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner,
+  FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner, FrTextField,
 } from "@feral-auth/vue-components";
 import { getAssetPath } from "@/utils/assets";
 
@@ -53,7 +53,7 @@ export default {
   name: 'LoginPage',
 
   components: {
-    FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner,
+    FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner, FrTextField,
   },
 
   data: () => ({

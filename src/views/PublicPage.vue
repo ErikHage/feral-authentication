@@ -2,7 +2,7 @@
   <fr-container>
     <!-- No Fr* app bar yet -->
     <v-app-bar app>
-      <fr-btn :to="loginPath">Login</fr-btn>
+      <fr-btn color="default" :to="loginPath">Login</fr-btn>
     </v-app-bar>
     <div class="text-center mb-4">
       <fr-image

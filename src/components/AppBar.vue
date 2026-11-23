@@ -4,9 +4,9 @@
     <v-toolbar-title>Feral Authentication</v-toolbar-title>
     <fr-spacer></fr-spacer>
     <div v-if="showAppBar() === true">
-      <fr-btn to="/dashboard">Dashboard</fr-btn>
-      <fr-btn to="/admin">Admin</fr-btn>
-      <fr-btn @click="logoutUser">Logout</fr-btn>
+      <fr-btn color="default" to="/dashboard">Dashboard</fr-btn>
+      <fr-btn color="default" to="/admin">Admin</fr-btn>
+      <fr-btn color="default" @click="logoutUser">Logout</fr-btn>
     </div>
   </v-app-bar>
 </template>

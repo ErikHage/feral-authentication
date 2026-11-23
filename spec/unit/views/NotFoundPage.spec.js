@@ -21,7 +21,7 @@ describe('NotFoundPage', () => {
     it('says there is no page at the path', async () => {
         const wrapper = await mountAt('/no-such-page?tab=2');
 
-        expect(wrapper.find('h2').text()).toBe('Page not found');
+        expect(wrapper.find('h1').text()).toBe('Page not found');
         expect(wrapper.text()).toContain("There's no page at /no-such-page?tab=2.");
     });
 
