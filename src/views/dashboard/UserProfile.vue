@@ -59,7 +59,6 @@
                 <fr-chip
                     v-for="role in userRolesMap[scope]"
                     :key="role.roleId"
-                    text="Elevator"
                     variant="outlined"
                 >{{ role.title }}
                 </fr-chip>
