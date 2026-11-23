@@ -28,7 +28,6 @@
         <fr-col cols="1">
           <fr-btn
               block
-              color="error"
               @click="addSelectedApplication"
               :disabled="!selectedApplication || isApplicationAlreadySelected(selectedApplication)"
               aria-label="Add the application"
@@ -67,7 +66,6 @@
         <fr-col cols="1">
           <fr-btn
               block
-              color="error"
               @click="addSelectedRole"
               :disabled="!selectedRole || isRoleAlreadySelected(selectedRole)"
               aria-label="Add the role"
