@@ -1,3 +1,4 @@
+import { nextTick } from 'vue';
 import { defineStore } from 'pinia';
 
 import authenticationApi from '@/api/authentication-api';
@@ -11,7 +12,7 @@ import storageUtils from "@/utils/storage-utils";
 import jwtUtils from "@/utils/jwt-utils";
 
 import { failureMessage } from "./alerts";
-import { notify, useNotificationsStore } from "./notifications";
+import { clearNotifications, notify } from "./notifications";
 
 export const useAuthenticationStore = defineStore('authentication', {
     actions: {
@@ -24,6 +25,8 @@ export const useAuthenticationStore = defineStore('authentication', {
                 this.isAuthenticated = true;
                 this.showAppBar = true;
                 this.loading = false;
+                // Once FrAppShell has replaced the logged-out frame, whose toasts go with it
+                await nextTick();
                 notify('success', 'Login Succeeded!');
             } catch (err) {
                 this.isAuthenticated = false;
@@ -53,14 +56,15 @@ export const useAuthenticationStore = defineStore('authentication', {
         },
         async logout() {
             // The last user's messages go; any said about this logout stay
-            useNotificationsStore().clear();
+            clearNotifications();
+            let warning = null;
             try {
                 await authenticationApi.logout(this.token);
             } catch (err) {
                 // A 401: the token had expired, so the session was over anyway
                 if (err.status !== 401) {
                     console.log(err);
-                    notify('warning', failureMessage(err, "Logged out here, but the service couldn't end the session"));
+                    warning = failureMessage(err, "Logged out here, but the service couldn't end the session");
                 }
             }
             this.clearToken();
@@ -69,6 +73,11 @@ export const useAuthenticationStore = defineStore('authentication', {
             this.isAuthenticated = false;
             // So the next user to log in, without a reload, sees none of this one's data
             resetDataStores();
+            if (warning) {
+                // Once the logged-out frame has replaced FrAppShell, whose toasts go with it
+                await nextTick();
+                notify('warning', warning);
+            }
         },
         tokenPresent() {
             return this.token !== null;

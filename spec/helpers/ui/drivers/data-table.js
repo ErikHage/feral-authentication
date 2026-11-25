@@ -31,7 +31,10 @@ export function createDataTable(page) {
             // The input holds the shown option's title
             if (await rowsPerPageValue.inputValue() !== 'All') {
                 await rowsPerPage.click();
-                await page.getByRole('option', { name: 'All' }).click();
+                // Picked without moving the pointer: the option can sit where a toast
+                // shows, at the foot of the page, and a pointer over a toast pauses
+                // it and restarts its time, holding up the messages behind it
+                await page.getByRole('option', { name: 'All' }).dispatchEvent('click');
             }
         },
     };

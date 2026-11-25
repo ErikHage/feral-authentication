@@ -1,34 +1,29 @@
-import { createPinia, setActivePinia } from 'pinia';
-import { notify, useNotificationsStore } from '@/store/notifications';
+import { appToast, clearNotifications, notify } from '@/store/notifications';
+import { messages } from '../../helpers/notifications';
 
-describe('useNotificationsStore', () => {
-    let store;
-
-    beforeEach(() => {
-        setActivePinia(createPinia());
-        store = useNotificationsStore();
-    });
-
+describe('notifications', () => {
     it('starts with nothing to say', () => {
-        expect(store.messages).toEqual([]);
+        expect(messages()).toEqual([]);
     });
 
-    it('keeps each message, in order, coloured by its type', () => {
+    it('shows each message as a toast, in order, coloured by its type, for 3 seconds', () => {
         notify('success', 'Role feral/admin Added');
         notify('error', "Couldn't delete the role: it wasn't found");
 
-        expect(store.messages).toEqual([
+        expect(appToast.show).toHaveBeenNthCalledWith(1, 'Role feral/admin Added', { color: 'success', timeout: 3000 });
+        expect(messages()).toEqual([
             { color: 'success', text: 'Role feral/admin Added' },
             { color: 'error', text: "Couldn't delete the role: it wasn't found" },
         ]);
     });
 
-    it('drops every message on clear, and counts the clear for the one showing', () => {
+    it('clears the toasts, keeping those given after', () => {
         notify('success', 'Role Deleted.');
 
-        store.clear();
+        clearNotifications();
+        notify('warning', 'Logged out here');
 
-        expect(store.messages).toEqual([]);
-        expect(store.clears).toBe(1);
+        expect(appToast.clear).toHaveBeenCalledOnce();
+        expect(messages()).toEqual([{ color: 'warning', text: 'Logged out here' }]);
     });
 });

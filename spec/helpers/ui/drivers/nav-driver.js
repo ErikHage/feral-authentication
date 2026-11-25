@@ -3,21 +3,20 @@ import { expectEventually, expectThat, expectVisible } from './assertions';
 /**
  * The side drawer, with a link to every page, as Playwright sees it.
  *
- * It's a Vuetify navigation drawer, so a `navigation`, named "Main menu":
- * a data table's pagination is a `navigation` too. It's there only once
- * someone is logged in. On a desktop it's always there,
- * either expanded or a rail of icons; the banner's Menu button switches
- * between them. A rail's links keep their names, so they're found the same
- * way in both. Its links are grouped under the headings User and Admin.
- * Vuetify marks the rail only by a class, so a rail is recognised by what it
- * shows: a separator in place of the headings, and a drawer narrow enough
- * for icons alone.
+ * It's FrAppShell's navigation drawer, a `navigation` named "Main": a data
+ * table's pagination is a `navigation` too. It's there only once someone is
+ * logged in. On a desktop it's always there, either expanded or a rail of
+ * icons; its own Collapse navigation button (by the app's name) makes it a
+ * rail, and the rail's Expand navigation button (the logo) expands it again.
+ * A rail's links keep their names, so they're found the same way in both.
+ * Its links are grouped under the headings User and Admin. A rail is
+ * recognised by what it shows: a separator in place of the headings, and a
+ * drawer narrow enough for icons alone.
  *
- * On a phone (below Vuetify's md breakpoint, 960px) it's hidden, and Menu
- * slides it in over the page. Hidden, it's off screen and `inert`, but
- * Playwright's role locators don't honour `inert`: they still find its links,
- * and call them visible. So `goTo` opens it first, and the unit suite checks
- * the `inert`.
+ * On a phone (below Vuetify's md breakpoint, 960px) it's hidden, and the
+ * banner's Menu button slides it in over the page. Hidden, it's off screen,
+ * but Playwright's role locators still find its links, and call them
+ * visible. So `goTo` opens it first.
  */
 
 // Each page's link. Both groups have an Applications page; the user's is
@@ -35,11 +34,13 @@ const destinations = {
 
 const phoneWidth = 960;
 
-// Vuetify's rail is 56px wide, and the expanded drawer 256px
+// FrAppShell's rail is 64px wide, and the expanded drawer 240px
 const railWidth = 100;
 
 export function createNavDriver(page) {
-    const drawer = page.getByRole('navigation', { name: 'Main menu', exact: true });
+    const drawer = page.getByRole('navigation', { name: 'Main', exact: true });
+    const collapseButton = drawer.getByRole('button', { name: 'Collapse navigation' });
+    const expandButton = drawer.getByRole('button', { name: 'Expand navigation' });
     const menuButton = page.getByRole('banner').getByRole('button', { name: 'Menu' });
     const adminHeading = drawer.getByText('Admin', { exact: true });
     const separators = drawer.getByRole('separator');
@@ -57,13 +58,13 @@ export function createNavDriver(page) {
 
         async collapseToRail() {
             await this.isExpanded();
-            await menuButton.click();
+            await collapseButton.click();
             await this.isRail();
         },
 
         async expand() {
             await this.isRail();
-            await menuButton.click();
+            await expandButton.click();
             await this.isExpanded();
         },
 

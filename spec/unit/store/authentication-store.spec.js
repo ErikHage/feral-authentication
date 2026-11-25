@@ -3,8 +3,8 @@ import { tokenFor } from '../../helpers/tokens';
 import { useAuthenticationStore, useUsersStore, useApplicationsStore } from '@/store';
 import authenticationApi from '@/api/authentication-api';
 import { httpError } from '../../helpers/http-errors';
-import { lastMessage } from '../../helpers/notifications';
-import { useNotificationsStore } from '@/store/notifications';
+import { lastMessage, messages } from '../../helpers/notifications';
+import { notify } from '@/store/notifications';
 
 vi.mock('@/api/authentication-api', () => ({
     default: {
@@ -191,28 +191,28 @@ describe('useAuthenticationStore', () => {
 
             expect(localStorage.getItem(tokenKey)).toBeNull();
             expect(store.isAuthenticated).toBe(false);
-            expect(useNotificationsStore().messages).toEqual([]);
+            expect(messages()).toEqual([]);
         });
 
         it("drops the last user's messages", async () => {
             authenticationApi.logout.mockResolvedValue();
-            useNotificationsStore().notify('success', 'User updated successfully!');
+            notify('success', 'User updated successfully!');
 
             await store.logout();
 
-            expect(useNotificationsStore().messages).toEqual([]);
+            expect(messages()).toEqual([]);
         });
 
         it('logs out locally, and warns that the session may live on, when the service fails', async () => {
             authenticationApi.logout.mockRejectedValue(httpError(500));
-            useNotificationsStore().notify('success', 'User updated successfully!');
+            notify('success', 'User updated successfully!');
 
             await store.logout();
 
             expect(localStorage.getItem(tokenKey)).toBeNull();
             expect(store.isAuthenticated).toBe(false);
             // Given after the last user's messages were dropped, so it stays
-            expect(useNotificationsStore().messages).toEqual([
+            expect(messages()).toEqual([
                 { color: 'warning', text: "Logged out here, but the service couldn't end the session: the service failed (500)" },
             ]);
         });

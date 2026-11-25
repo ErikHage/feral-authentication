@@ -1,17 +1,21 @@
 import { expectThat } from './assertions';
 
 /**
- * The app bar at the top of every page, as Playwright sees it. Its click
- * asserts nothing; where it leads is the destination page driver's to check.
+ * The app bar at the top of every page, as Playwright sees it: FrAppShell's
+ * toolbar once someone is logged in, the app's name alone otherwise. Logout
+ * is in the user's menu, behind their initials. Its click asserts nothing;
+ * where it leads is the destination page driver's to check.
  */
 export function createAppBarDriver(page) {
     const appBar = page.getByRole('banner');
-    const logoutButton = appBar.getByRole('button', { name: 'Logout' });
+    const userMenuButton = appBar.getByRole('button', { name: /^Account: / });
+    const logoutItem = page.locator('.fr-app-user-menu').getByText('Logout', { exact: true });
     const anyControl = appBar.getByRole('link').or(appBar.getByRole('button'));
 
     return {
         async logOut() {
-            await logoutButton.click();
+            await userMenuButton.click();
+            await logoutItem.click();
         },
 
         /**

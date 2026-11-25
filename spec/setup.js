@@ -1,4 +1,5 @@
 import { enableAutoUnmount } from '@vue/test-utils';
+import { appToast } from '@/store/notifications';
 
 // Vuetify components observe their size, which jsdom doesn't implement
 class ResizeObserverStub {
@@ -26,3 +27,18 @@ globalThis.visualViewport = globalThis.visualViewport || new VisualViewportStub(
 // Dialogs render into document.body, so a wrapper left mounted would leave
 // its dialogs behind for the next test
 enableAutoUnmount(afterEach);
+
+// The app's messages are toasts on the library's one queue, which keeps them
+// between tests. Spied on afresh for each test, so spec/helpers/notifications
+// reads only what that test said. Some specs restore every mock themselves,
+// so these keep their own handles
+let spies = [];
+
+beforeEach(() => {
+    spies = [vi.spyOn(appToast, 'show'), vi.spyOn(appToast, 'clear')];
+});
+
+afterEach(() => {
+    spies.forEach(spy => spy.mockRestore());
+    appToast.clear();
+});

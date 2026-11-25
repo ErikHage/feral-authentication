@@ -37,14 +37,14 @@ export function createNav(world, driver) {
         /** Follows the Admin group's Applications link. No parameters. */
         goToApplications: goTo('applications'),
 
-        /** On a desktop, from expanded: Menu turns the drawer into a rail of icons. No parameters. */
+        /** On a desktop, from expanded: Collapse navigation turns the drawer into a rail of icons. No parameters. */
         async collapseToRail(...args) {
             parseDslArgs(args, {});
 
             await driver.collapseToRail();
         },
 
-        /** On a desktop, from a rail: Menu expands the drawer again. No parameters. */
+        /** On a desktop, from a rail: Expand navigation expands the drawer again. No parameters. */
         async expand(...args) {
             parseDslArgs(args, {});
 

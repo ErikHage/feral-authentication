@@ -2,12 +2,12 @@ import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 /**
  * The app bar at the top of every page, in words. Every page object exposes
- * it as `appBar`. Its only control is Logout, and the Menu button that
- * `nav` presses.
+ * it as `appBar`. Logged in, Logout is in the user's menu; the Menu button
+ * that `nav` presses on a phone is here too.
  */
 export function createAppBar(world, driver) {
     return {
-        /** Presses Logout. No parameters. */
+        /** Opens the user's menu and presses Logout. No parameters. */
         async logOut(...args) {
             parseDslArgs(args, {});
 
