@@ -49,7 +49,7 @@ describe('App', () => {
             const { wrapper } = await mountApp({ showAppBar: true, token });
             const shell = wrapper.findComponent({ name: 'FrAppShell' });
 
-            expect(shell.props()).toMatchObject({ title: 'Feral Authentication', storagePrefix: 'feral-authentication' });
+            expect(shell.props()).toMatchObject({ title: 'Feral', subtitle: 'Authentication', storagePrefix: 'feral-authentication' });
             const links = wrapper.findAll('nav#app-nav .v-list-item').map(link => link.attributes('aria-label'));
             expect(links).toEqual([
                 'My Applications', 'Profile', 'Sessions',

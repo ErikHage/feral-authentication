@@ -4,7 +4,8 @@
        app's toasts -->
   <fr-app-shell
       v-if="showAppBar === true"
-      title="Feral Authentication"
+      title="Feral"
+      subtitle="Authentication"
       storage-prefix="feral-authentication"
       :sections="sections"
       :active-view="activeView"
