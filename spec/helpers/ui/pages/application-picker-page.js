@@ -19,6 +19,16 @@ export function createApplicationPickerPage(world, driver) {
             await driver.openArea();
         },
 
+        /**
+         * Goes to the app's root, `/`, which has no page of its own: it opens
+         * this, by way of the login page for a visitor. No parameters.
+         */
+        async openAppRoot(...args) {
+            parseDslArgs(args, {});
+
+            await driver.openAppRoot();
+        },
+
         /** The logged-in user is offered the `application`, granted to them. */
         async checkOffersApplication(...args) {
             const params = parseDslArgs(args, { application: application() });

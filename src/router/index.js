@@ -16,17 +16,14 @@ import AuthorizationAdmin from "@/views/admin/AuthorizationAdmin.vue";
 import KeysAdmin from "@/views/admin/KeysAdmin.vue";
 import ApplicationsAdmin from "@/views/admin/ApplicationsAdmin.vue";
 import ApplicationDetails from "@/views/admin/ApplicationDetails.vue";
-import PublicPage from "@/views/PublicPage.vue";
 import NotFoundPage from "@/views/NotFoundPage.vue";
 
 const routes = [
     {
-        path: views.public.path,
-        name: views.public.name,
-        component: PublicPage,
-        meta: {
-            requiresAuthenticated: false,
-        },
+        path: views.home.path,
+        name: views.home.name,
+        // The dashboard's first page; the guard sends a visitor to log in first
+        redirect: { name: views.dashboard.name },
     },
     {
         path: views.login.path,

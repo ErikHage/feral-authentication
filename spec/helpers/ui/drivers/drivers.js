@@ -8,7 +8,6 @@ import { createLoginPageDriver } from './login-page-driver';
 import { createNavDriver } from './nav-driver';
 import { createNotFoundPageDriver } from './not-found-page-driver';
 import { createProfilePageDriver } from './profile-page-driver';
-import { createPublicPageDriver } from './public-page-driver';
 import { createRolesAdminPageDriver } from './roles-admin-page-driver';
 import { recordServiceCalls } from './service-calls';
 import { createSessionsPageDriver } from './sessions-page-driver';
@@ -25,7 +24,6 @@ export function createDrivers(page) {
         appBar: createAppBarDriver(page),
         nav: createNavDriver(page),
 
-        publicPage: createPublicPageDriver(page),
         loginPage: createLoginPageDriver(page),
         notFoundPage: createNotFoundPageDriver(page),
 

@@ -1,7 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import router from '@/router';
 import { useAuthenticationStore } from '@/store';
-import PublicPage from '@/views/PublicPage.vue';
 import LoginPage from '@/views/LoginPage.vue';
 import DashboardPage from '@/views/DashboardPage.vue';
 import ApplicationPicker from '@/views/dashboard/ApplicationPicker.vue';
@@ -49,7 +48,6 @@ describe('router', () => {
 
     describe('routes', () => {
         it.each([
-            ['/', 'Public', [PublicPage]],
             ['/login', 'Login', [LoginPage]],
             ['/dashboard/applications', 'ApplicationPicker', [DashboardPage, ApplicationPicker]],
             ['/dashboard/profile', 'UserProfile', [DashboardPage, UserProfile]],
@@ -69,6 +67,10 @@ describe('router', () => {
             expect(route.matched.map(record => record.components.default)).toEqual(components);
         });
 
+        it('has no page at the root of its own', () => {
+            expect(router.resolve('/').matched.map(record => record.components?.default)).toEqual([undefined]);
+        });
+
         it('passes the application id as a route param', () => {
             expect(router.resolve('/admin/applications/app-1').params).toEqual({ id: 'app-1' });
         });
@@ -82,7 +84,7 @@ describe('router', () => {
             store = useAuthenticationStore();
             vi.spyOn(console, 'log').mockImplementation(() => {});
             // Start each test from a page the guard always allows
-            await router.push('/');
+            await router.push('/login');
         });
 
         afterEach(() => {
@@ -97,7 +99,7 @@ describe('router', () => {
             setActivePinia(createPinia());
         }
 
-        it.each(['/', '/login', '/no-such-page'])('lets anyone open %s', async path => {
+        it.each(['/login', '/no-such-page'])('lets anyone open %s', async path => {
             await router.push(path);
 
             expect(router.currentRoute.value.path).toBe(path);
@@ -122,6 +124,21 @@ describe('router', () => {
             await router.push(path);
 
             expect(router.currentRoute.value.path).toBe(path);
+        });
+
+        it('sends someone not logged in from the root to the login page, on to My Applications', async () => {
+            await router.push('/');
+
+            expect(router.currentRoute.value.name).toBe('Login');
+            expect(router.currentRoute.value.query).toEqual({ redirect: '/dashboard/applications' });
+        });
+
+        it('opens My Applications at the root for someone logged in', async () => {
+            store.$patch({ isAuthenticated: true });
+
+            await router.push('/');
+
+            expect(router.currentRoute.value.path).toBe('/dashboard/applications');
         });
 
         it.each(shells)('opens %s at its first page, %s', async (shell, firstPage) => {

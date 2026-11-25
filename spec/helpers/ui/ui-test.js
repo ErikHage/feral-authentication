@@ -10,7 +10,6 @@ import { createKeysAdminPage } from './pages/keys-admin-page';
 import { createLoginPage } from './pages/login-page';
 import { createNotFoundPage } from './pages/not-found-page';
 import { createProfilePage } from './pages/profile-page';
-import { createPublicPage } from './pages/public-page';
 import { createRolesAdminPage } from './pages/roles-admin-page';
 import { createSessionsPage } from './pages/sessions-page';
 import { createUsersAdminPage } from './pages/users-admin-page';
@@ -47,7 +46,6 @@ export const test = base.extend({
         await world.cleanup();
     },
 
-    publicPage: pageFixture('publicPage', createPublicPage),
     loginPage: pageFixture('loginPage', createLoginPage),
     notFoundPage: pageFixture('notFoundPage', createNotFoundPage),
 

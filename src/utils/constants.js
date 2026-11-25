@@ -7,8 +7,9 @@ export const feralAuthenticationServiceUrl = {
 export const assetBasePath = import.meta.env.VITE_ASSET_BASE_PATH;
 
 export const views = {
-    public: {
-        name: 'Public',
+    // The app's root: My Applications, by way of the login page for a visitor
+    home: {
+        name: 'Home',
         path: '/',
     },
     login:  {

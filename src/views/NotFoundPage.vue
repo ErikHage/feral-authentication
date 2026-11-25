@@ -1,7 +1,7 @@
 <template>
   <fr-page title="Page not found">
     <p class="mb-3">There's no page at {{ $route.fullPath }}.</p>
-    <fr-btn :to="publicPath">Go to the home page</fr-btn>
+    <fr-btn :to="homePath">Go to the home page</fr-btn>
   </fr-page>
 </template>
 
@@ -15,7 +15,7 @@ export default {
   components: { FrBtn, FrPage },
 
   data: () => ({
-    publicPath: views.public.path,
+    homePath: views.home.path,
   }),
 }
 </script>

@@ -28,6 +28,11 @@ export function createApplicationPickerPageDriver(page, serviceCalls) {
             await openPath(page, 'dashboard');
         },
 
+        /** Goes to the app's root, `/`, which has no page of its own. */
+        async openAppRoot() {
+            await openPath(page, '');
+        },
+
         async offersApplication(name) {
             const what = `offering ${name}`;
 

@@ -1,10 +1,8 @@
 import { test } from '../../helpers/ui/ui-test';
 
 test.describe('Route guard and logout', () => {
-    test('lets a visitor go from the public page to the login page', async ({ publicPage, loginPage }) => {
-        await publicPage.open();
-
-        await publicPage.goToLogin();
+    test("sends a visitor at the app's root to the login page", async ({ applicationPickerPage, loginPage }) => {
+        await applicationPickerPage.openAppRoot();
 
         await loginPage.checkIsShown();
         await loginPage.appBar.checkOffersNothing();

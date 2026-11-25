@@ -17,13 +17,22 @@ test.describe('Navigation', () => {
         await applicationPickerPage.checkIsShown();
     });
 
-    test('shows that an unknown URL has no page, with a way home', async ({ notFoundPage, publicPage }) => {
+    test("opens My Applications at the app's root", async ({ applicationPickerPage, rolesAdminPage }) => {
+        await applicationPickerPage.nav.goToRoles();
+        await rolesAdminPage.checkIsShown();
+
+        await applicationPickerPage.openAppRoot();
+
+        await applicationPickerPage.checkIsShown();
+    });
+
+    test('shows that an unknown URL has no page, with a way home', async ({ notFoundPage, applicationPickerPage }) => {
         await notFoundPage.open();
         await notFoundPage.checkIsShown();
 
         await notFoundPage.goHome();
 
-        await publicPage.checkIsShown();
+        await applicationPickerPage.checkIsShown();
     });
 
     test('the User group reaches each of its pages', async ({
