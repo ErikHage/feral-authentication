@@ -3,6 +3,7 @@ import { createApplicationDetailsPageDriver } from './application-details-page-d
 import { createApplicationPickerPageDriver } from './application-picker-page-driver';
 import { createApplicationsAdminPageDriver } from './applications-admin-page-driver';
 import { createAuthorizationAdminPageDriver } from './authorization-admin-page-driver';
+import { createBreadcrumbsDriver } from './breadcrumbs-driver';
 import { createKeysAdminPageDriver } from './keys-admin-page-driver';
 import { createLoginPageDriver } from './login-page-driver';
 import { createNavDriver } from './nav-driver';
@@ -22,6 +23,7 @@ export function createDrivers(page) {
 
     return {
         appBar: createAppBarDriver(page),
+        breadcrumbs: createBreadcrumbsDriver(page),
         nav: createNavDriver(page),
 
         loginPage: createLoginPageDriver(page),

@@ -41,3 +41,32 @@ export function activeViewFor(path) {
         .sort((a, b) => b.to.length - a.to.length)[0];
     return link?.value ?? '';
 }
+
+/**
+ * The breadcrumbs for the path, as FrBreadcrumbs takes them, as the
+ * component playground draws them: the page's section, a link to its first
+ * page, then the page itself. On an application's details, Applications is
+ * a link back to the list, and the application follows it. `application` is
+ * the one the store last selected; it names the crumb only once it's this
+ * page's, so until the page has loaded it, or for an unknown id, the trail
+ * stops at Applications. On a `small` screen, the last crumb alone. Empty
+ * for a path under no link
+ */
+export function crumbsFor(path, application, small) {
+    const value = activeViewFor(path);
+    const section = sections.find(each => each.items.some(item => item.value === value));
+    if (!section) {
+        return [];
+    }
+
+    const link = section.items.find(item => item.value === value);
+    const crumbs = [
+        { title: section.label, to: section.items[0].to },
+        path === link.to ? { title: link.title } : { title: link.title, to: link.to },
+    ];
+    if (application && path === `${link.to}/${application.applicationId}`) {
+        crumbs.push({ title: application.applicationName });
+    }
+
+    return small ? crumbs.slice(-1) : crumbs;
+}

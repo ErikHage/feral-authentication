@@ -10,6 +10,17 @@
       :sections="sections"
       :active-view="activeView"
   >
+    <!-- The page's place, as the component playground shows it: its
+         section, then the page, then an application on its details; the
+         last crumb alone on a small screen -->
+    <template #toolbar-start>
+      <fr-breadcrumbs
+          :items="crumbs"
+          density="compact"
+          class="pa-0 text-no-wrap overflow-hidden"
+          style="min-width: 0"
+      />
+    </template>
     <template #toolbar>
       <fr-app-user-menu :name="username">
         <fr-list-item title="Logout" prepend-icon="mdi-logout" @click="logoutUser"/>
@@ -32,14 +43,14 @@
 
 <script>
 import { mapActions, mapState } from "pinia";
-import { FrAppShell, FrAppUserMenu, FrListItem, FrSnackbarQueue } from "@feral-auth/vue-components";
-import { useAuthenticationStore } from "@/store";
-import { activeViewFor, sections } from "@/utils/navigation";
+import { FrAppShell, FrAppUserMenu, FrBreadcrumbs, FrListItem, FrSnackbarQueue } from "@feral-auth/vue-components";
+import { useApplicationsStore, useAuthenticationStore } from "@/store";
+import { activeViewFor, crumbsFor, sections } from "@/utils/navigation";
 
 export default {
   name: 'App',
 
-  components: { FrAppShell, FrAppUserMenu, FrListItem, FrSnackbarQueue },
+  components: { FrAppShell, FrAppUserMenu, FrBreadcrumbs, FrListItem, FrSnackbarQueue },
 
   data: () => ({
     sections,
@@ -51,8 +62,18 @@ export default {
       'actor',
     ]),
 
+    ...mapState(useApplicationsStore, [
+      'selectedApplication',
+    ]),
+
     activeView() {
       return activeViewFor(this.$route.path);
+    },
+
+    // Below the shell's small-screen breakpoint, the toolbar has room for
+    // the last crumb alone
+    crumbs() {
+      return crumbsFor(this.$route.path, this.selectedApplication?.applicationDetails, this.$vuetify.display.smAndDown);
     },
 
     username() {

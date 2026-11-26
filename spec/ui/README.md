@@ -55,8 +55,9 @@ helpers/ui/drivers/assertions.js the only importer of expect
 - `helpers/ui/support/network-guard.js` keeps each browser context to the local app and service (see Safety, above).
 - Steps are parsed with [`@feral-auth/ts-simple-dsl`](https://github.com/ErikHage/ts-simple-dsl).
 
-**Every page has `open`, `reload` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the two components every page has:
+**Every page has `open`, `reload` and `checkIsShown`.** `pages/routed-page.js` supplies them, along with the three components every page has:
 - `appBar`: Logout, and `checkOffersNothing` for a visitor;
+- `breadcrumbs`: the trail in the toolbar, section then page (`goToSection`, `checkLeadsToPage`), Applications then an application on its details (`goToApplications`, `checkLeadsToApplication`), and the last crumb alone on a phone (`checkShowsOnlyPage`). Vuetify disables the last crumb, so only the crumbs before it can be followed;
 - `nav`: the side drawer, with a `goTo…` step for each page, the rail steps (`collapseToRail`, `expand`, `checkIsRail`, `checkIsExpanded`), and `checkIsAbsent` for a visitor. The User group's Applications link is "My Applications" (`goToMyApplications`), so that the admin's Applications (`goToApplications`) has a name of its own.
 
 `/admin` and `/dashboard` have no page of their own: each opens its first page, so `rolesAdminPage.openArea()` and `applicationPickerPage.openArea()` go to them.

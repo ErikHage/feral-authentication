@@ -10,10 +10,12 @@ import App from '@/App.vue';
 import { useAuthenticationStore } from '@/store';
 
 // The app as main.js makes it: the feral themes, which FrAppShell switches between
-async function mountApp({ showAppBar, token = null, path = '/dashboard/applications' }) {
+async function mountApp({ showAppBar, token = null, path = '/dashboard/applications', selectedApplication = null }) {
     const router = linkRouter();
     await router.push(path);
-    const pinia = createTestingPinia({ initialState: { authentication: { showAppBar, token } } });
+    const pinia = createTestingPinia({
+        initialState: { authentication: { showAppBar, token }, application: { selectedApplication } },
+    });
     const vuetify = createVuetify(createFeralVuetifyOptions({ components, directives }));
     const wrapper = mount(App, { global: { plugins: [router, pinia, vuetify] }, attachTo: document.body });
     await flushPromises();
@@ -32,6 +34,7 @@ describe('App', () => {
             expect(wrapper.find('.v-toolbar-title').text()).toBe('Feral Authentication');
             expect(wrapper.find('.fr-app-shell').exists()).toBe(false);
             expect(wrapper.find('nav').exists()).toBe(false);
+            expect(wrapper.find('.fr-breadcrumbs').exists()).toBe(false);
             expect(wrapper.find('.v-app-bar').findAll('button')).toHaveLength(0);
         });
 
@@ -66,6 +69,16 @@ describe('App', () => {
             await flushPromises();
             expect(wrapper.find('#nav-UserProfile').attributes('aria-current')).toBe('page');
             expect(wrapper.find('#nav-ApplicationsAdmin').attributes('aria-current')).toBeUndefined();
+        });
+
+        it("shows the page's breadcrumbs in the toolbar: Admin and Applications, linked, then the application", async () => {
+            const selectedApplication = { applicationDetails: { applicationId: 'app-1', applicationName: 'Game' } };
+            const { wrapper } = await mountApp({ showAppBar: true, token, path: '/admin/applications/app-1', selectedApplication });
+            const crumbs = wrapper.find('.v-app-bar .fr-breadcrumbs');
+
+            expect(crumbs.findAll('.v-breadcrumbs-item').map(item => item.text())).toEqual(['Admin', 'Applications', 'Game']);
+            expect(crumbs.findAll('a.v-breadcrumbs-item--link').map(link => link.attributes('href')))
+                .toEqual(['/admin/roles', '/admin/applications']);
         });
 
         it("shows the user's menu, under their username from the token", async () => {

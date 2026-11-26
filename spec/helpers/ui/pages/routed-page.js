@@ -1,6 +1,7 @@
 import { parseDslArgs } from '@feral-auth/ts-simple-dsl';
 
 import { createAppBar } from '../components/app-bar';
+import { createBreadcrumbs } from '../components/breadcrumbs';
 import { createNav } from '../components/nav';
 
 /** The steps every page the app routes to has, to spread into its page object. */
@@ -42,8 +43,9 @@ export function routedPageSteps(driver) {
     };
 }
 
-/** The app bar and the side drawer, which every page has. */
+/** The app bar, its breadcrumbs and the side drawer, which every page has. */
 export const shellComponents = world => ({
     appBar: createAppBar(world, world.drivers.appBar),
+    breadcrumbs: createBreadcrumbs(world, world.drivers.breadcrumbs),
     nav: createNav(world, world.drivers.nav),
 });
