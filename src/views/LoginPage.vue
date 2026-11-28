@@ -42,7 +42,9 @@
 </template>
 
 <script>
+import { nextTick } from "vue";
 import { useAuthenticationStore } from '@/store';
+import { notify } from "@/store/notifications";
 import { mapActions, mapState } from "pinia";
 import {
   FrBtn, FrCard, FrCol, FrContainer, FrForm, FrImage, FrRow, FrSpinner, FrTextField,
@@ -80,16 +82,20 @@ export default {
         'loginToApplication',
     ]),
 
-    // To the page the guard sent them from, if it's one of ours
+    // To the page the guard sent them from, if it's one of ours. Resolves once
+    // the router is there
     delayedRedirect() {
       const redirect = this.$route.query.redirect;
       const destination = typeof redirect === 'string' && redirect.startsWith('/') && !redirect.startsWith('//')
           ? redirect
           : '/dashboard/applications';
 
-      setTimeout(() => {
-        this.$router.push(destination);
-      }, 500);
+      return new Promise((resolve) => {
+        setTimeout(async () => {
+          await this.$router.push(destination);
+          resolve();
+        }, 500);
+      });
     },
 
     getLogoPath() {
@@ -106,7 +112,10 @@ export default {
         if (this.ssoAppId) {
           await this.loginToApplication(this.ssoAppId, false);
         } else {
-          this.delayedRedirect();
+          await this.delayedRedirect();
+          // Once FrAppShell has replaced the logged-out frame, whose toasts go with it
+          await nextTick();
+          notify('success', 'Login Succeeded!');
         }
       }
     },

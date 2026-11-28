@@ -1,9 +1,9 @@
 <template>
-  <!-- Logged in, the app runs in FrAppShell: the side drawer, the toolbar
-       with the command palette, the theme menu and the user's menu, and the
-       app's toasts -->
+  <!-- On the pages that need someone logged in, the app runs in FrAppShell:
+       the side drawer, the toolbar with the command palette, the theme menu
+       and the user's menu, and the app's toasts -->
   <fr-app-shell
-      v-if="showAppBar === true"
+      v-if="isLoggedInPage"
       title="Feral"
       subtitle="Authentication"
       storage-prefix="feral-authentication"
@@ -29,7 +29,8 @@
     <router-view/>
   </fr-app-shell>
 
-  <!-- Logged out, only the app's name, and the toasts -->
+  <!-- Elsewhere (the login page, a page not found), only the app's name, and
+       the toasts -->
   <v-app v-else>
     <v-app-bar>
       <v-toolbar-title>Feral Authentication</v-toolbar-title>
@@ -42,9 +43,11 @@
 </template>
 
 <script>
+import { nextTick } from "vue";
 import { mapActions, mapState } from "pinia";
 import { FrAppShell, FrAppUserMenu, FrBreadcrumbs, FrListItem, FrSnackbarQueue } from "@feral-auth/vue-components";
 import { useApplicationsStore, useAuthenticationStore } from "@/store";
+import { notify } from "@/store/notifications";
 import { activeViewFor, crumbsFor, sections } from "@/utils/navigation";
 
 export default {
@@ -57,8 +60,15 @@ export default {
   }),
 
   computed: {
+    // The frame follows the route, not the store: the guard lets only
+    // someone logged in reach these pages. Switching frames remounts the
+    // page, so following the store would remount a dashboard page as it logs
+    // out (loading it again with no token), and the login page as it logs in
+    isLoggedInPage() {
+      return this.$route.matched.some(record => record.meta.requiresAuthenticated);
+    },
+
     ...mapState(useAuthenticationStore, [
-      'showAppBar',
       'actor',
     ]),
 
@@ -87,8 +97,13 @@ export default {
     ]),
 
     async logoutUser() {
-      await this.logout();
-      this.$router.push('/login');
+      const warning = await this.logout();
+      await this.$router.push('/login');
+      if (warning) {
+        // Once the logged-out frame has replaced FrAppShell, whose toasts go with it
+        await nextTick();
+        notify('warning', warning);
+      }
     },
   },
 }

@@ -4,14 +4,42 @@ import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 import { createFeralVuetifyOptions } from '@feral-auth/vue-components';
-import { linkRouter } from '../helpers/routers';
+import { RouterView, createMemoryHistory, createRouter } from 'vue-router';
+import { lastMessage } from '../helpers/notifications';
 import { tokenFor } from '../helpers/tokens';
 import App from '@/App.vue';
 import { useAuthenticationStore } from '@/store';
 
+// Every path shows a page that says where it is, and counts its mounts, so a
+// spec can see which one the app shows, and whether switching frames
+// remounted it. As in the app, the dashboard's and the admin's pages are the
+// children of a parent route that needs someone logged in
+let mounts;
+function pagesRouter() {
+    const page = {
+        render() { return `the page at ${this.$route.path}`; },
+        mounted() { mounts += 1; },
+    };
+    const loggedInSection = path => ({
+        path,
+        component: RouterView,
+        meta: { requiresAuthenticated: true },
+        children: [{ path: ':path(.*)*', component: page }],
+    });
+    return createRouter({
+        history: createMemoryHistory(),
+        routes: [
+            loggedInSection('/dashboard'),
+            loggedInSection('/admin'),
+            { path: '/:path(.*)*', component: page, meta: { requiresAuthenticated: false } },
+        ],
+    });
+}
+
 // The app as main.js makes it: the feral themes, which FrAppShell switches between
 async function mountApp({ showAppBar, token = null, path = '/dashboard/applications', selectedApplication = null }) {
-    const router = linkRouter();
+    mounts = 0;
+    const router = pagesRouter();
     await router.push(path);
     const pinia = createTestingPinia({
         initialState: { authentication: { showAppBar, token }, application: { selectedApplication } },
@@ -101,12 +129,33 @@ describe('App', () => {
             await vi.waitFor(() => expect(router.currentRoute.value.path).toBe('/login'));
         });
 
-        it('switches to the logged-out frame when the store says so', async () => {
-            const { wrapper, store } = await mountApp({ showAppBar: true, token });
-
-            store.showAppBar = false;
+        it('warns, once on the login page, when the service could not end the session', async () => {
+            const { wrapper, router, store } = await mountApp({ showAppBar: true, token });
+            store.logout.mockResolvedValue("Logged out here, but the service couldn't end the session: the service failed (500)");
+            await wrapper.find('button[aria-label="Account: ada lovelace"]').trigger('click');
             await flushPromises();
 
+            [...document.querySelectorAll('.fr-app-user-menu .v-list-item')]
+                .find(item => item.textContent.includes('Logout'))
+                .click();
+            await vi.waitFor(() => expect(lastMessage()).toBeDefined());
+
+            expect(router.currentRoute.value.path).toBe('/login');
+            expect(lastMessage()).toEqual({
+                color: 'warning', text: "Logged out here, but the service couldn't end the session: the service failed (500)",
+            });
+        });
+
+        it('switches frames as the route moves on and off the pages that need a login', async () => {
+            const { wrapper, router } = await mountApp({ showAppBar: true, token, path: '/login' });
+            expect(wrapper.find('.fr-app-shell').exists()).toBe(false);
+
+            await router.push('/admin/users');
+            await flushPromises();
+            expect(wrapper.find('.fr-app-shell').exists()).toBe(true);
+
+            await router.push('/login');
+            await flushPromises();
             expect(wrapper.find('.fr-app-shell').exists()).toBe(false);
             expect(wrapper.find('.v-toolbar-title').text()).toBe('Feral Authentication');
         });
@@ -115,6 +164,30 @@ describe('App', () => {
             const { wrapper } = await mountApp({ showAppBar: true });
 
             expect(wrapper.find('button[aria-label="Account: "]').exists()).toBe(true);
+        });
+    });
+
+    // Switching frames remounts the page
+    describe('as the store logs in and out', () => {
+        it('leaves the login page in its frame, unmounted, as it logs in', async () => {
+            const { wrapper, store } = await mountApp({ showAppBar: false, path: '/login' });
+
+            store.showAppBar = true;
+            await flushPromises();
+
+            expect(wrapper.find('.fr-app-shell').exists()).toBe(false);
+            expect(mounts).toBe(1);
+        });
+
+        it('leaves a dashboard page in the shell, unmounted, as it logs out', async () => {
+            const { wrapper, store } = await mountApp({ showAppBar: true, token: tokenFor({ username: 'ada', roles: [] }) });
+
+            store.showAppBar = false;
+            store.token = null;
+            await flushPromises();
+
+            expect(wrapper.find('.fr-app-shell').exists()).toBe(true);
+            expect(mounts).toBe(1);
         });
     });
 });

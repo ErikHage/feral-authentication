@@ -2,6 +2,7 @@ import { flushPromises } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import { mountWithPlugins } from '../../helpers/mount';
 import { inputLabelled } from '../../helpers/fields';
+import { messages } from '../../helpers/notifications';
 import LoginPage from '@/views/LoginPage.vue';
 import { useAuthenticationStore } from '@/store';
 
@@ -77,6 +78,22 @@ describe('LoginPage', () => {
             expect(router.push).not.toHaveBeenCalled();
             vi.advanceTimersByTime(1);
             expect(router.push).toHaveBeenCalledWith('/dashboard/applications');
+        });
+
+        // FrAppShell replaces the login page's frame then, and a toast showing goes with it
+        it('says the login succeeded once it has gone to the next page', async () => {
+            const { wrapper, router } = await mountPage({
+                arrange: store => store.authenticate.mockImplementation(logsIn(store)),
+            });
+
+            await submit(wrapper, 'alice', 'secret');
+            expect(messages()).toEqual([]);
+
+            vi.advanceTimersByTime(500);
+            await flushPromises();
+
+            expect(router.push).toHaveBeenCalled();
+            expect(messages()).toEqual([{ color: 'success', text: 'Login Succeeded!' }]);
         });
 
         it('goes back to the page the guard sent them from', async () => {
@@ -165,13 +182,15 @@ describe('LoginPage', () => {
             expect(store.loginToApplication).not.toHaveBeenCalled();
         });
 
-        it('goes to the applications page when the session is restored', async () => {
+        it('goes to the applications page when the session is restored, saying nothing', async () => {
             const { router } = await mountPage({
                 arrange: store => store.restoreSession.mockImplementation(logsIn(store)),
             });
 
             vi.advanceTimersByTime(500);
+            await flushPromises();
             expect(router.push).toHaveBeenCalledWith('/dashboard/applications');
+            expect(messages()).toEqual([]);
         });
 
         it('goes back to the page the guard sent them from when the session is restored', async () => {

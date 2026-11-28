@@ -1,4 +1,3 @@
-import { nextTick } from 'vue';
 import { defineStore } from 'pinia';
 
 import authenticationApi from '@/api/authentication-api';
@@ -25,9 +24,7 @@ export const useAuthenticationStore = defineStore('authentication', {
                 this.isAuthenticated = true;
                 this.showAppBar = true;
                 this.loading = false;
-                // Once FrAppShell has replaced the logged-out frame, whose toasts go with it
-                await nextTick();
-                notify('success', 'Login Succeeded!');
+                // The login page says so, once it has left for a page in FrAppShell
             } catch (err) {
                 this.isAuthenticated = false;
                 this.loading = false;
@@ -54,8 +51,13 @@ export const useAuthenticationStore = defineStore('authentication', {
                 notify('error', failureMessage(err, "Couldn't open the application"));
             }
         },
+        /**
+         * Returns a warning when the service couldn't end the session, for the
+         * caller to give once it has left the page, since the frame changes then
+         * and its toasts go with it.
+         */
         async logout() {
-            // The last user's messages go; any said about this logout stay
+            // The last user's messages go
             clearNotifications();
             let warning = null;
             try {
@@ -73,11 +75,7 @@ export const useAuthenticationStore = defineStore('authentication', {
             this.isAuthenticated = false;
             // So the next user to log in, without a reload, sees none of this one's data
             resetDataStores();
-            if (warning) {
-                // Once the logged-out frame has replaced FrAppShell, whose toasts go with it
-                await nextTick();
-                notify('warning', warning);
-            }
+            return warning;
         },
         tokenPresent() {
             return this.token !== null;

@@ -79,7 +79,8 @@ describe('useAuthenticationStore', () => {
             expect(store.isAuthenticated).toBe(true);
             expect(store.showAppBar).toBe(true);
             expect(store.loading).toBe(false);
-            expect(lastMessage()).toEqual({ color: 'success', text: 'Login Succeeded!' });
+            // The login page gives it, once it has left for a page in FrAppShell
+            expect(messages()).toEqual([]);
         });
 
         it('is loading while the login is in flight', async () => {
@@ -203,18 +204,23 @@ describe('useAuthenticationStore', () => {
             expect(messages()).toEqual([]);
         });
 
-        it('logs out locally, and warns that the session may live on, when the service fails', async () => {
+        it('logs out locally, and returns a warning that the session may live on, when the service fails', async () => {
             authenticationApi.logout.mockRejectedValue(httpError(500));
             notify('success', 'User updated successfully!');
 
-            await store.logout();
+            const warning = await store.logout();
 
             expect(localStorage.getItem(tokenKey)).toBeNull();
             expect(store.isAuthenticated).toBe(false);
-            // Given after the last user's messages were dropped, so it stays
-            expect(messages()).toEqual([
-                { color: 'warning', text: "Logged out here, but the service couldn't end the session: the service failed (500)" },
-            ]);
+            // For App to give once it has left the page, since the frame changes then
+            expect(warning).toBe("Logged out here, but the service couldn't end the session: the service failed (500)");
+            expect(messages()).toEqual([]);
+        });
+
+        it('returns no warning when the service ends the session', async () => {
+            authenticationApi.logout.mockResolvedValue();
+
+            expect(await store.logout()).toBeNull();
         });
     });
 
