@@ -1,5 +1,5 @@
 import {
-    expectCount, expectDisabled, expectEnabled, expectUrl, expectValue, expectVisible,
+    expectCount, expectDisabled, expectEnabled, expectMessageShown, expectUrl, expectValue, expectVisible,
 } from './assertions';
 import { messageSaying } from './messages';
 import { chooseOption, selectField } from './select';
@@ -86,7 +86,7 @@ export function createApplicationDetailsPageDriver(page) {
         async savesTheName({ applicationName }, newName) {
             const what = `renaming ${applicationName} to ${newName}`;
 
-            await expectVisible(messageSaying(page, `Application ${newName} saved`), what);
+            await expectMessageShown(messageSaying(page, `Application ${newName} saved`), what);
             await expectDisabled(saveButton, what);
             await expectValue(field('Application Name'), newName, what);
         },

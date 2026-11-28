@@ -1,4 +1,4 @@
-import { expectUrl, expectValue, expectVisible } from './assertions';
+import { expectMessageShown, expectUrl, expectValue, expectVisible } from './assertions';
 import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
 import { openPath, urlOf } from './urls';
@@ -38,7 +38,7 @@ export function createLoginPageDriver(page) {
         async saysTheUsernameOrPasswordIsWrong() {
             const what = 'logging in with the wrong password';
 
-            await expectVisible(credentialsWrong, what);
+            await expectMessageShown(credentialsWrong, what);
             await expectUrl(page, urlOf('login'), what);
         },
 

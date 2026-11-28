@@ -1,4 +1,6 @@
-import { expectCount, expectDisabled, expectText, expectValue, expectVisible } from './assertions';
+import {
+    expectCount, expectDisabled, expectMessageShown, expectText, expectValue,
+} from './assertions';
 import { createDataTable } from './data-table';
 import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
@@ -64,7 +66,7 @@ export function createUsersAdminPageDriver(page) {
         async listsTheUserRenamed(username, newFirstName) {
             const what = `renaming ${username} to ${newFirstName}`;
 
-            await expectVisible(messageSaying(page, 'User updated successfully!'), what);
+            await expectMessageShown(messageSaying(page, 'User updated successfully!'), what);
             await expectText(table.detailsIn(username).first(), newFirstName, what);
         },
 

@@ -17,6 +17,17 @@ export async function expectVisible(locator, what) {
     await expect(locator, failureMessage(what, `${locator} to be visible`)).toBeVisible();
 }
 
+// The app shows its messages one at a time, each for 3s, so one can wait
+// behind those given just before it: logging in says so, then an add, then a
+// save. Room for four of them, and to spare
+const messageQueueTimeoutMs = 15000;
+
+/** A message the app shows as a toast, which may first wait its turn behind others. */
+export async function expectMessageShown(locator, what) {
+    await expect(locator, failureMessage(what, `${locator} to be shown`))
+        .toBeVisible({ timeout: messageQueueTimeoutMs });
+}
+
 // JSON, except that a RegExp reads as itself rather than as {}
 const shown = value => JSON.stringify(value, (key, each) => (each instanceof RegExp ? String(each) : each));
 

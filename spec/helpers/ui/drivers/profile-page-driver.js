@@ -1,5 +1,5 @@
 import {
-    expectDisabled, expectEnabled, expectText, expectValue, expectVisible,
+    expectDisabled, expectEnabled, expectMessageShown, expectText, expectValue, expectVisible,
 } from './assertions';
 import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
@@ -42,7 +42,7 @@ export function createProfilePageDriver(page) {
         },
 
         async savedDetails() {
-            await expectVisible(messageSaying(page, 'User updated successfully!'), 'saving the profile');
+            await expectMessageShown(messageSaying(page, 'User updated successfully!'), 'saving the profile');
         },
 
         async cannotSaveAnEmptyFirstName() {

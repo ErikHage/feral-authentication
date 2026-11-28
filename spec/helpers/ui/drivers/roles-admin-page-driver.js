@@ -1,4 +1,6 @@
-import { expectCount, expectDisabled, expectText, expectValue, expectVisible } from './assertions';
+import {
+    expectCount, expectDisabled, expectMessageShown, expectText, expectValue,
+} from './assertions';
 import { createDataTable } from './data-table';
 import { messageSaying } from './messages';
 import { createRoutedPageDriver } from './routed-page-driver';
@@ -57,7 +59,7 @@ export function createRolesAdminPageDriver(page) {
         async saysItAlreadyExists({ scope, title }) {
             const what = `adding the role ${scope}/${title} a second time`;
 
-            await expectVisible(messageSaying(page, `Couldn't add the role ${scope}/${title}: it already exists`), what);
+            await expectMessageShown(messageSaying(page, `Couldn't add the role ${scope}/${title}: it already exists`), what);
             await expectCount(table.row(scope), 1, what);
         },
 
